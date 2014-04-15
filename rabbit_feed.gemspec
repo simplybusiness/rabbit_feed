@@ -18,4 +18,14 @@ Gem::Specification.new do |spec|
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
 
+  # Gem for interfacing with RabbitMq
+  spec.add_dependency 'bunny'
+  # We use some helpers from ActiveSupport
+  spec.add_dependency 'activesupport'
+  # We use validations from ActiveModel
+  spec.add_dependency 'activemodel'
+  # Provides connection pooling for the producer connections
+  spec.add_dependency 'connection_pool'
+  # Error reporting mechanism (used by producer and consumer)
+  spec.add_dependency 'airbrake'
 end

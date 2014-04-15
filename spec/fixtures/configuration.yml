@@ -1,0 +1,8 @@
+test:
+  host: host_name
+  port: 12345
+  user: user_name
+  password: password
+  application: rabbit_feed
+  version: 1.0.0
+  exchange: exchange_name

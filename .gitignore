@@ -2,3 +2,7 @@
 .bundle
 # Gem package directory
 pkg
+# OSX dotfile
+.DS_Store
+# Log files
+*.log
