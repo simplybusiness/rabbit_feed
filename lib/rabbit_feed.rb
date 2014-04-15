@@ -1,4 +1,4 @@
-require "rabbit_feed/version"
+require 'rabbit_feed/version'
 
 module RabbitFeed
   # Your code goes here...
