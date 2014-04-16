@@ -2,13 +2,14 @@ require 'spec_helper'
 
 module RabbitFeed
   describe Connection do
-    let(:bunny_connection) { double(:bunny_connection, start: nil, open?: true) }
+    let(:bunny_connection) { double(:bunny_connection, start: nil, open?: true, close: nil) }
     before do
       allow(Bunny).to receive(:new).and_return(bunny_connection)
     end
     after do
-      Connection.reconnect!
+      described_class.reconnect!
     end
+    subject { described_class.new (Configuration.load RabbitFeed.configuration_file_path, RabbitFeed.environment) }
 
     describe '.open' do
 
@@ -35,8 +36,14 @@ module RabbitFeed
 
     describe '.reconnect!' do
 
+      it 'closes the existing connections' do
+        described_class.open {}
+        expect(bunny_connection).to receive(:close).at_least(:once)
+        Connection.reconnect!
+      end
+
       it 'removes the reference to the connection pool' do
-        Connection.instance_variable_set(:@connection_pool, double(:connection_pool))
+        Connection.instance_variable_set(:@connection_pool, double(:connection_pool, shutdown: nil))
         Connection.instance_variable_get(:@connection_pool).should_not be_nil
         Connection.reconnect!
         Connection.instance_variable_get(:@connection_pool).should be_nil
@@ -44,49 +51,56 @@ module RabbitFeed
     end
 
     describe '.new' do
-      subject { described_class.new (Configuration.load RabbitFeed.configuration_file_path, RabbitFeed.environment) }
-
       its(:connection)    { should_not be_nil }
       its(:configuration) { should_not be_nil }
-    end
-
-    describe '#reset' do
-      subject { described_class.new (Configuration.load RabbitFeed.configuration_file_path, RabbitFeed.environment) }
-
-      it 'closes the old connection and opens a new connection' do
-        subject.instance_variable_set(:@connection, double(:old_bunny_connection, close: nil))
-        subject.reset
-        subject.connection.should eq bunny_connection
-      end
-
-      context 'when closing raises an exception' do
-
-        it 'traps the exception' do
-          allow(bunny_connection).to receive(:close).and_raise('Closing time')
-          expect{ subject.reset }.to_not raise_error
-        end
-      end
 
       context 'when opening raises an exception' do
 
         context 'less than three times' do
 
           it 'traps the exception' do
-            pending
+            tries = 0
+            bunny_connection.stub(:start) { (tries += 1) < 3 ? (raise RuntimeError.new 'Opening time') : nil }
+            expect{ subject.reset }.to_not raise_error
           end
         end
 
-        context 'more than three times' do
+        context 'three or more times' do
 
           it 'raises the exception' do
-            pending
+            allow(bunny_connection).to receive(:start).exactly(3).times.and_raise('Opening time')
+            expect{ subject }.to raise_error RuntimeError, 'Opening time'
           end
         end
       end
     end
 
+    describe '#close' do
+
+      it 'closes the connection' do
+        expect(bunny_connection).to receive(:close)
+        subject.close
+      end
+
+      context 'when closing raises an exception' do
+
+        it 'traps the exception' do
+          expect(bunny_connection).to receive(:close).and_raise('Closing time')
+          expect{ subject.close }.to_not raise_error
+        end
+      end
+    end
+
+    describe '#reset' do
+
+      it 'closes the old connection and opens a new connection' do
+        subject.instance_variable_set(:@connection, double(:old_bunny_connection, close: nil))
+        subject.reset
+        subject.connection.should eq bunny_connection
+      end
+    end
+
     describe '#open?' do
-      subject { described_class.new (Configuration.load RabbitFeed.configuration_file_path, RabbitFeed.environment) }
 
       it 'returns true if the connection is open' do
         subject.open?.should be_true

@@ -18,18 +18,18 @@ module RabbitFeed
 
       context 'with configuration' do
 
-        its(:host)            { should eq 'host_name' }
-        its(:port)            { should eq 12345 }
-        its(:user)            { should eq 'user_name' }
-        its(:password)        { should eq 'password' }
+        its(:host)            { should eq 'localhost' }
+        its(:port)            { should eq 5672 }
+        its(:user)            { should eq 'guest' }
+        its(:password)        { should eq 'guest' }
         its(:application)     { should eq 'rabbit_feed' }
         its(:environment)     { should eq 'test' }
         its(:version)         { should eq '1.0.0' }
-        its(:exchange)        { should eq 'exchange_name' }
-        its(:pool_size)       { should eq 9 }
-        its(:pool_timeout)    { should eq 10 }
-        its(:heartbeat)       { should eq 9 }
-        its(:connect_timeout) { should eq 10 }
+        its(:exchange)        { should eq 'amq.topic' }
+        its(:pool_size)       { should eq 1 }
+        its(:pool_timeout)    { should eq 1 }
+        its(:heartbeat)       { should eq 1 }
+        its(:connect_timeout) { should eq 1 }
       end
 
     end

@@ -6,7 +6,7 @@ task :default => [:specs]
 
 desc 'Run specs'
 RSpec::Core::RakeTask.new(:specs) do |t|
-    t.pattern = './spec/**/*_spec.rb' # default
+  t.pattern = './spec/{**/*_spec.rb,features/**/*.feature}'
 end
 
 def gemspec

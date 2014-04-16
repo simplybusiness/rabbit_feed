@@ -11,6 +11,8 @@ module RabbitFeed
     end
 
     def self.reconnect!
+      RabbitFeed.log.debug 'Reconnecting...'
+      @connection_pool.shutdown{|connection| connection.close } unless @connection_pool.nil?
       @connection_pool = nil
     end
 
@@ -28,6 +30,14 @@ module RabbitFeed
       connection.open? unless connection.nil?
     end
 
+    def close
+      RabbitFeed.log.debug 'Closing connection...'
+
+      connection.close unless connection.nil?
+    rescue => e
+      RabbitFeed.log.warn "Exception encountered whilst closing: #{e.message} #{e.backtrace}"
+    end
+
     private
 
     def self.connection_pool
@@ -40,22 +50,26 @@ module RabbitFeed
       end
     end
 
-    def close
-      connection.close unless connection.nil?
-    rescue
-    end
-
     def open
-      connection = Bunny.new({
-              heartbeat:       configuration.heartbeat,
-              connect_timeout: configuration.connect_timeout,
-              host:            configuration.host,
-              user:            configuration.user,
-              password:        configuration.password,
-              port:            configuration.port,
-            })
-      connection.start
-      connection
+      RabbitFeed.log.debug 'Opening connection...'
+
+      tries = 3
+      begin
+        connection = Bunny.new({
+                heartbeat:       configuration.heartbeat,
+                connect_timeout: configuration.connect_timeout,
+                host:            configuration.host,
+                user:            configuration.user,
+                password:        configuration.password,
+                port:            configuration.port,
+              })
+        connection.start
+        connection
+      rescue => e
+        RabbitFeed.log.warn "Exception encountered whilst opening on try ##{4-tries}: #{e.message} #{e.backtrace}"
+        retry unless (tries -= 1).zero?
+        raise
+      end
     end
   end
 end

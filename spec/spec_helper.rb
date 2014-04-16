@@ -8,3 +8,5 @@ I18n.enforce_available_locales = true
 RabbitFeed.log = Logger.new('test.log')
 RabbitFeed.environment = 'test'
 RabbitFeed.configuration_file_path = 'spec/fixtures/configuration.yml'
+
+Dir.glob('spec/features/step_definitions/**/*_steps.rb') { |f| load f, true }
