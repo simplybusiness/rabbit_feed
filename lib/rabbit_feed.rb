@@ -1,6 +1,7 @@
 require 'active_support/all'
 require 'active_model'
 require 'airbrake'
+require 'bunny'
 require 'connection_pool'
 require 'rabbit_feed/version'
 require 'rabbit_feed/configuration'
@@ -16,5 +17,21 @@ module RabbitFeed
 
   def self.log= log
     @log = log
+  end
+
+  def self.environment
+    @environment
+  end
+
+  def self.environment= environment
+    @environment = environment
+  end
+
+  def self.configuration_file_path
+    @configuration_file_path
+  end
+
+  def self.configuration_file_path= configuration_file_path
+    @configuration_file_path = configuration_file_path
   end
 end

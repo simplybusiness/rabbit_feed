@@ -2,20 +2,24 @@ module RabbitFeed
   class Configuration
     include ActiveModel::Validations
 
-    attr_reader :host, :port, :user, :password, :application, :environment, :version, :exchange
-    validates_presence_of :host, :port, :user, :password, :application, :environment, :version, :exchange
+    attr_reader :host, :port, :user, :password, :application, :environment, :version, :exchange, :pool_size, :pool_timeout, :heartbeat, :connect_timeout
+    validates_presence_of :host, :port, :user, :password, :application, :environment, :version, :exchange, :pool_size, :pool_timeout, :heartbeat, :connect_timeout
 
     def initialize options
       RabbitFeed.log.debug "RabbitFeed initialising with options: #{options}..."
 
-      @host        = options[:host]     || 'localhost'
-      @port        = options[:port]     || 5672
-      @user        = options[:user]     || 'guest'
-      @password    = options[:password] || 'guest'
-      @application = options[:application]
-      @environment = options[:environment]
-      @version     = options[:version]
-      @exchange    = options[:exchange] || 'amq.topic'
+      @host            = options[:host]            || 'localhost'
+      @port            = options[:port]            || 5672
+      @user            = options[:user]            || 'guest'
+      @password        = options[:password]        || 'guest'
+      @exchange        = options[:exchange]        || 'amq.topic'
+      @pool_size       = options[:pool_size]       || 1
+      @pool_timeout    = options[:pool_timeout]    || 5
+      @heartbeat       = options[:heartbeat]       || 5
+      @connect_timeout = options[:connect_timeout] || 10
+      @application     = options[:application]
+      @environment     = options[:environment]
+      @version         = options[:version]
       validate!
     end
 
