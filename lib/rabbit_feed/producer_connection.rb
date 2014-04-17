@@ -6,6 +6,12 @@ module RabbitFeed
       mandatory:  true, # Return the message if it can't be routed to a queue
     }.freeze
 
+    def self.publish message, routing_key=nil
+      open do |connection|
+        connection.publish message, routing_key
+      end
+    end
+
     def publish message, routing_key=nil
       RabbitFeed.log.debug "Publishing message on #{self.to_s} with key: #{routing_key}..."
 

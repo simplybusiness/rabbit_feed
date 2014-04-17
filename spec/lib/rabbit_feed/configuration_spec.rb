@@ -3,6 +3,19 @@ require 'spec_helper'
 module RabbitFeed
   describe Configuration do
 
+    describe '#queue' do
+      let(:options) do
+        {
+          application: 'rabbit_feed',
+          environment: 'test',
+          version:     '1.0.0',
+        }
+      end
+      subject { (described_class.new options).queue }
+
+      it { should eq 'test.rabbit_feed.1.0.0' }
+    end
+
     describe '.load' do
       let(:file_path)   { 'spec/fixtures/configuration.yml' }
       let(:environment) { 'test' }

@@ -9,12 +9,17 @@ Scenario: I can connect to the message bus
   When I close the connection
   Then the connection is closed
 
-Scenario: I can publish a message
-  When I create a producer connection
-  Then I can publish a message
-
 Scenario: I can create an exchange
    When I declare a new exchange
-    And I create a producer connection
    Then the exchange is created
-    And I can publish a message
+    And I can publish a message to the exchange
+
+Scenario: I can create a queue
+   When I declare a new queue
+   Then the queue is created
+    And the queue is bound to the exchange
+    And I can consume a message from the queue
+
+Scenario: When a message cannot be consumed it remains on the queue
+   When I am unable to successfully process a message
+   Then the message remains on the queue

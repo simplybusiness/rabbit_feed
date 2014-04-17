@@ -30,9 +30,9 @@ module RabbitFeed
       new options.merge(environment: environment)
     end
 
-    # def queue_name
-    #   "#{environment}.#{application}.#{version}"
-    # end
+    def queue
+      "#{environment}.#{application}.#{version}"
+    end
 
     # def routing_key event
     #   "#{environment}.#{application}.#{version}.#{event}"
