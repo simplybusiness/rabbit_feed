@@ -23,3 +23,17 @@ end
 step 'I can publish a message' do
   @connection.publish 'message'
 end
+
+step 'I declare a new exchange' do
+  @exchange = 'rabbit_feed_'+SecureRandom.uuid
+  allow_any_instance_of(RabbitFeed::Configuration).to receive(:exchange).and_return(@exchange)
+end
+
+step 'the exchange is created' do
+  (@connection.connection.exchange_exists? @exchange).should be_true
+end
+
+step 'I can publish a message to the exchange' do
+  @connection.send(:exchange).try(:name).should eq @exchange
+  send 'I can publish a message'
+end

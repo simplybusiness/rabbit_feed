@@ -31,11 +31,11 @@ module RabbitFeed
     end
 
     def close
-      RabbitFeed.log.debug 'Closing connection...'
+      RabbitFeed.log.debug "Closing connection: #{self.to_s}..."
 
       connection.close unless connection.nil?
     rescue => e
-      RabbitFeed.log.warn "Exception encountered whilst closing: #{e.message} #{e.backtrace}"
+      RabbitFeed.log.warn "Exception encountered whilst closing #{self.to_s}: #{e.message} #{e.backtrace}"
     end
 
     private
@@ -51,7 +51,7 @@ module RabbitFeed
     end
 
     def open
-      RabbitFeed.log.debug 'Opening connection...'
+      RabbitFeed.log.debug "Opening connection: #{self.to_s}..."
 
       tries = 3
       begin
@@ -62,11 +62,12 @@ module RabbitFeed
                 user:            configuration.user,
                 password:        configuration.password,
                 port:            configuration.port,
+                logger:          RabbitFeed.log,
               })
         connection.start
         connection
       rescue => e
-        RabbitFeed.log.warn "Exception encountered whilst opening on try ##{4-tries}: #{e.message} #{e.backtrace}"
+        RabbitFeed.log.warn "Exception encountered whilst opening on try ##{4-tries} #{self.to_s}: #{e.message} #{e.backtrace}"
         retry unless (tries -= 1).zero?
         raise
       end

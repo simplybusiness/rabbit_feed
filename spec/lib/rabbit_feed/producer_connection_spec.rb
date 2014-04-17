@@ -7,9 +7,6 @@ module RabbitFeed
     before do
       allow(Bunny).to receive(:new).and_return(bunny_connection)
     end
-    after do
-      described_class.reconnect!
-    end
     subject { described_class.new (Configuration.load RabbitFeed.configuration_file_path, RabbitFeed.environment) }
 
     describe '.new' do
