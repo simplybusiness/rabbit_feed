@@ -26,13 +26,15 @@ end
 
 def delete_exchange
   RabbitFeed::ProducerConnection.open do |connection|
-    return connection.send(:exchange).delete
+    connection.send(:exchange).delete
   end if @exchange.present?
 end
 
 def delete_queue
   RabbitFeed::ConsumerConnection.open do |connection|
-    return connection.send(:queue).delete
+    while (connection.connection.queue_exists? @queue) do
+      connection.send(:queue).delete
+    end
   end if @queue.present?
 end
 
