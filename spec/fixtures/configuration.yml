@@ -8,5 +8,5 @@ test:
   exchange: amq.topic
   pool_size: 1
   pool_timeout: 1
-  heartbeat: 1
+  heartbeat: 60
   connect_timeout: 1

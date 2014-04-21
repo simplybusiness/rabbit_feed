@@ -41,7 +41,7 @@ module RabbitFeed
         its(:exchange)        { should eq 'amq.topic' }
         its(:pool_size)       { should eq 1 }
         its(:pool_timeout)    { should eq 1 }
-        its(:heartbeat)       { should eq 1 }
+        its(:heartbeat)       { should eq 60 }
         its(:connect_timeout) { should eq 1 }
       end
 

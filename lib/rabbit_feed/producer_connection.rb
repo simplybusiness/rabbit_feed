@@ -13,7 +13,7 @@ module RabbitFeed
     end
 
     def publish message, routing_key=nil
-      RabbitFeed.log.debug "Publishing message on #{self.to_s} with key: #{routing_key}..."
+      RabbitFeed.log.debug "Publishing message on #{self.to_s} with key: #{routing_key} to exchange: #{configuration.exchange}..."
 
       exchange.publish message, PUBLISH_OPTIONS.merge(routing_key: routing_key)
     end
@@ -31,16 +31,16 @@ module RabbitFeed
     end
 
     def self.handle_returned_message return_info, content
-      RabbitFeed.log.error "Handling returned message on #{self.to_s}..."
+      RabbitFeed.log.error "Handling returned message on #{self.to_s} details: #{return_info}..."
       Airbrake.notify (Error.new return_info)
     end
 
     private
 
     EXCHANGE_OPTIONS = {
-      type:       :topic,
-      durable:    true,
-      no_declare: false,
+      type:       :topic, # Allow wildcard routing keys
+      durable:    true,   # Persist across server restart
+      no_declare: false,  # Create the exchange if it does not exist
     }.freeze
 
     def exchange

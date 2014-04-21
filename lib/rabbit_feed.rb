@@ -4,6 +4,7 @@ require 'airbrake'
 require 'bunny'
 require 'connection_pool'
 require 'rabbit_feed/version'
+require 'rabbit_feed/client'
 require 'rabbit_feed/configuration'
 require 'rabbit_feed/connection'
 
