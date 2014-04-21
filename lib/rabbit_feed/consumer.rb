@@ -2,8 +2,8 @@ module RabbitFeed
   class Consumer
 
     def start
-      ConsumerConnection.consume do |message|
-        RabbitFeed.message_handler_klass.constantize.new.handle_message message
+      ConsumerConnection.consume do |event|
+        RabbitFeed.event_handler_klass.constantize.new.handle_event event
       end
     end
   end

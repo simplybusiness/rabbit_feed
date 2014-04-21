@@ -7,6 +7,7 @@ require 'rabbit_feed/version'
 require 'rabbit_feed/client'
 require 'rabbit_feed/configuration'
 require 'rabbit_feed/connection'
+require 'rabbit_feed/event'
 
 module RabbitFeed
   class Error < StandardError; end

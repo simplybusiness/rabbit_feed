@@ -6,7 +6,7 @@ require_relative '../lib/rabbit_feed_producer'
 RabbitFeed.log = Logger.new('development.log')
 RabbitFeed.environment = 'test'
 RabbitFeed.configuration_file_path = 'spec/fixtures/configuration.yml'
-RabbitFeed.message_handler_klass = 'RabbitFeed::MessageHandler'
+RabbitFeed.event_handler_klass = 'RabbitFeed::EventHandler'
 
 command = ARGV[0]
 options = ARGV[1..-1]
