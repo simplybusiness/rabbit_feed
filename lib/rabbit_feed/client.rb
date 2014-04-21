@@ -21,7 +21,7 @@ module RabbitFeed
 
     def produce
       producer = RabbitFeed::Producer.new
-      producer.publish options.first
+      producer.publish_event 'Manual publish', options.first
     end
   end
 end
