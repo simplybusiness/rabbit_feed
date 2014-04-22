@@ -7,7 +7,6 @@ module RabbitFeed
     before do
       allow(Bunny).to receive(:new).and_return(bunny_connection)
     end
-    subject { described_class.new (Configuration.load RabbitFeed.configuration_file_path, RabbitFeed.environment) }
 
     describe '.new' do
 
@@ -21,9 +20,8 @@ module RabbitFeed
     describe '.handle_returned_message' do
 
       it 'notifies Airbrake of the return' do
-        expect(Airbrake).to receive(:notify)
+        expect(Airbrake).to receive(:notify).with(an_instance_of ReturnedMessageError)
         described_class.handle_returned_message 1, 2
-        pending 'Need to log message and send message to Airbrake'
       end
     end
 
@@ -38,11 +36,32 @@ module RabbitFeed
     end
 
     describe '#publish' do
+      let(:message)     { 'the message' }
+      let(:routing_key) { 'routing_key' }
 
       it 'publishes the message' do
-        expect(bunny_exchange).to receive(:publish)
-        subject.publish nil, nil
-        pending 'Need to determine format of message'
+        expect(bunny_exchange).to receive(:publish).with(message, { persistent: true, mandatory: true, routing_key: 'routing_key' })
+        described_class.publish message, routing_key
+      end
+
+      context 'when publishing raises an exception' do
+
+        context 'less than three times' do
+
+          it 'traps the exception' do
+            tries = 0
+            bunny_exchange.stub(:publish) { (tries += 1) < 3 ? (raise RuntimeError.new 'Publishing time') : nil }
+            expect{ described_class.publish message, routing_key }.to_not raise_error
+          end
+        end
+
+        context 'three or more times' do
+
+          it 'raises the exception' do
+            allow(bunny_exchange).to receive(:publish).exactly(3).times.and_raise('Publishing time')
+            expect{ described_class.publish message, routing_key }.to raise_error RuntimeError, 'Publishing time'
+          end
+        end
       end
     end
   end

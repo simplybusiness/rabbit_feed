@@ -2,7 +2,7 @@ module RabbitFeed
   class ConsumerConnection < Connection
 
     SUBSCRIPTION_OPTIONS = {
-      consumer_tag: ::Socket.gethostname, # Use the host name of the server
+      consumer_tag: Socket.gethostname, # Use the host name of the server
       ack:          true, # Manually acknowledge messages once they've been processed
       block:        true, # Block the thread whilst consuming from the queue
     }.freeze
@@ -14,28 +14,32 @@ module RabbitFeed
     end
 
     def consume &block
-      RabbitFeed.log.debug "Consuming messages on #{self.to_s} from queue: #{configuration.queue}..."
+      RabbitFeed.log.debug "Consuming messages on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
+
       queue.channel.prefetch(1) # Fetch one message at a time to preserve order
       queue.subscribe(SUBSCRIPTION_OPTIONS) do |delivery_info, properties, payload|
-        RabbitFeed.log.debug "Message received on #{self.to_s} from queue: #{configuration.queue}..."
+        RabbitFeed.log.debug "Message received on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
 
         begin
           yield payload
-        rescue
+        rescue => e
           # Tell rabbit that we were unable to process the message
           # This will re-queue the message
           queue.channel.nack(delivery_info.delivery_tag, false, true) if connection.open?
+
+          RabbitFeed.log.error "Exception encountered while consuming message on #{self.to_s}: #{e.message} #{e.backtrace}"
+          Airbrake.notify e
           raise
         end
         queue.channel.ack(delivery_info.delivery_tag)
 
-        RabbitFeed.log.debug "Message acknowledged on #{self.to_s} from queue: #{configuration.queue}..."
+        RabbitFeed.log.debug "Message acknowledged on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
       end
     end
 
-    def initialize configuration
+    def initialize
       super
-      queue.bind(configuration.exchange)
+      queue.bind(RabbitFeed.configuration.exchange)
     end
 
     private
@@ -47,7 +51,7 @@ module RabbitFeed
     }.freeze
 
     def queue
-      @connection.queue configuration.queue, QUEUE_OPTIONS
+      @connection.queue RabbitFeed.configuration.queue, QUEUE_OPTIONS
     end
   end
 end

@@ -6,7 +6,6 @@ module RabbitFeed
     before do
       allow(Bunny).to receive(:new).and_return(bunny_connection)
     end
-    subject { described_class.new (Configuration.load RabbitFeed.configuration_file_path, RabbitFeed.environment) }
 
     describe '.open' do
 
@@ -16,13 +15,22 @@ module RabbitFeed
         connection.should be_a Connection
       end
 
+      context 'when the operation raises' do
+
+        it 'resets the connection' do
+          expect(bunny_connection).to receive(:close).twice
+
+          expect{ described_class.open{ raise 'Opening connection' } }.to raise_error RuntimeError
+        end
+      end
+
       context 'when the connection is not open' do
         before do
           allow(bunny_connection).to receive(:open?).and_return(false, true)
         end
 
         it 'resets the connection' do
-          expect(bunny_connection).to receive(:close)
+          expect(bunny_connection).to receive(:close).twice
 
           connection = nil
           described_class.open{|c| connection = c }
@@ -49,7 +57,6 @@ module RabbitFeed
 
     describe '.new' do
       its(:connection)    { should_not be_nil }
-      its(:configuration) { should_not be_nil }
 
       context 'when opening raises an exception' do
 

@@ -15,13 +15,11 @@ module RabbitFeed
     private
 
     def consume
-      consumer = RabbitFeed::Consumer.new
-      consumer.start
+      RabbitFeed::Consumer.start
     end
 
     def produce
-      producer = RabbitFeed::Producer.new
-      producer.publish_event 'Manual publish', options.first
+      RabbitFeed::Producer.publish_event 'Manual publish', options.first
     end
   end
 end

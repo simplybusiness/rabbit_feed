@@ -1,12 +1,18 @@
 module RabbitFeed
   class Connection
 
-    attr_reader :connection, :configuration
+    attr_reader :connection
 
     def self.open &block
       connection_pool.with do |connection|
-        connection.reset unless connection.open?
-        yield connection
+        begin
+          connection.reset unless connection.open?
+          yield connection
+        rescue
+          # If the operation failed, it was likely due to connectivity problems, so reset the connection
+          connection.reset
+          raise
+        end
       end
     end
 
@@ -16,8 +22,7 @@ module RabbitFeed
       @connection_pool = nil
     end
 
-    def initialize configuration
-      @configuration = configuration
+    def initialize
       reset
     end
 
@@ -38,38 +43,42 @@ module RabbitFeed
       RabbitFeed.log.warn "Exception encountered whilst closing #{self.to_s}: #{e.message} #{e.backtrace}"
     end
 
+    protected
+
+    def self.retry_on_exception tries=3, &block
+      yield
+    rescue => e
+      RabbitFeed.log.warn "Exception encountered; #{tries - 1} tries remaining. #{self.to_s}: #{e.message} #{e.backtrace}"
+      retry unless (tries -= 1).zero?
+      raise
+    end
+
     private
 
     def self.connection_pool
-      @configuration   ||= Configuration.load RabbitFeed.configuration_file_path, RabbitFeed.environment
       @connection_pool ||= ConnectionPool.new(
-        size:    @configuration.pool_size,
-        timeout: @configuration.pool_timeout
+        size:    RabbitFeed.configuration.pool_size,
+        timeout: RabbitFeed.configuration.pool_timeout
       ) do
-        new @configuration
+        new
       end
     end
 
     def open
       RabbitFeed.log.debug "Opening connection: #{self.to_s}..."
 
-      tries = 3
-      begin
+      Connection.retry_on_exception do
         connection = Bunny.new({
-                heartbeat:       configuration.heartbeat,
-                connect_timeout: configuration.connect_timeout,
-                host:            configuration.host,
-                user:            configuration.user,
-                password:        configuration.password,
-                port:            configuration.port,
+                heartbeat:       RabbitFeed.configuration.heartbeat,
+                connect_timeout: RabbitFeed.configuration.connect_timeout,
+                host:            RabbitFeed.configuration.host,
+                user:            RabbitFeed.configuration.user,
+                password:        RabbitFeed.configuration.password,
+                port:            RabbitFeed.configuration.port,
                 logger:          RabbitFeed.log,
               })
         connection.start
         connection
-      rescue => e
-        RabbitFeed.log.warn "Exception encountered whilst opening on try ##{4-tries} #{self.to_s}: #{e.message} #{e.backtrace}"
-        retry unless (tries -= 1).zero?
-        raise
       end
     end
   end

@@ -7,18 +7,20 @@ module RabbitFeed
     }.freeze
 
     def self.publish message, routing_key=nil
-      open do |connection|
-        connection.publish message, routing_key
+      ProducerConnection.retry_on_exception do
+        open do |connection|
+          connection.publish message, routing_key
+        end
       end
     end
 
     def publish message, routing_key=nil
-      RabbitFeed.log.debug "Publishing message on #{self.to_s} with key: #{routing_key} to exchange: #{configuration.exchange}..."
+      RabbitFeed.log.debug "Publishing message on #{self.to_s} with key: #{routing_key} to exchange: #{RabbitFeed.configuration.exchange}..."
 
       exchange.publish message, PUBLISH_OPTIONS.merge(routing_key: routing_key)
     end
 
-    def initialize configuration
+    def initialize
       super
       exchange.on_return do |return_info, properties, content|
         RabbitFeed::ProducerConnection.handle_returned_message return_info, content
@@ -32,7 +34,7 @@ module RabbitFeed
 
     def self.handle_returned_message return_info, content
       RabbitFeed.log.error "Handling returned message on #{self.to_s} details: #{return_info}..."
-      Airbrake.notify (Error.new return_info)
+      Airbrake.notify (ReturnedMessageError.new return_info)
     end
 
     private
@@ -44,7 +46,7 @@ module RabbitFeed
     }.freeze
 
     def exchange
-      @exchange ||= connection.exchange configuration.exchange, EXCHANGE_OPTIONS
+      @exchange ||= connection.exchange RabbitFeed.configuration.exchange, EXCHANGE_OPTIONS
     end
   end
 end

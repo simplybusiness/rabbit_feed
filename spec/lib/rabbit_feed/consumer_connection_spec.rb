@@ -2,13 +2,12 @@ require 'spec_helper'
 
 module RabbitFeed
   describe ConsumerConnection do
-    let(:bunny_channel)    { double(:bunny_channel, prefetch: nil, acknowledge: nil)}
+    let(:bunny_channel)    { double(:bunny_channel, prefetch: nil, nack: nil, ack: nil)}
     let(:bunny_queue)      { double(:bunny_queue, channel: bunny_channel, bind: nil, subscribe: nil)}
     let(:bunny_connection) { double(:bunny_connection, start: nil, open?: true, close: nil, queue: bunny_queue) }
     before do
       allow(Bunny).to receive(:new).and_return(bunny_connection)
     end
-    subject { described_class.new (Configuration.load RabbitFeed.configuration_file_path, RabbitFeed.environment) }
 
     describe '.new' do
 
@@ -20,7 +19,7 @@ module RabbitFeed
 
     describe '#consume' do
       before do
-        allow(bunny_queue).to receive(:subecribe).and_yield(double(:delivery_info, delivery_tag: :tag), 'properties', 'payload')
+        allow(bunny_queue).to receive(:subscribe).and_yield(double(:delivery_info, delivery_tag: :tag), 'properties', 'payload')
       end
 
       it 'yields the payload' do
@@ -30,6 +29,15 @@ module RabbitFeed
       it 'preserves message order' do
         expect(bunny_channel).to receive(:prefetch).with(1)
         subject.consume {}
+      end
+
+      context 'when an exception is raised' do
+
+        it 'notifies airbrake' do
+          expect(Airbrake).to receive(:notify).with(an_instance_of RuntimeError)
+
+          expect{ subject.consume { raise 'Consuming time' } }.to raise_error RuntimeError
+        end
       end
     end
   end

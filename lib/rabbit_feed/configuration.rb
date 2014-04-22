@@ -34,10 +34,6 @@ module RabbitFeed
       "#{environment}.#{application}.#{version}"
     end
 
-    # def routing_key event
-    #   "#{environment}.#{application}.#{version}.#{event}"
-    # end
-
     private
 
     def self.read_configuration_file file_path, environment

@@ -28,7 +28,7 @@ end
 
 step 'I can publish a message to the exchange' do
   @message_text = 'test_message_'+Time.now.to_f.to_s
-  RabbitFeed::ProducerConnection.publish @message_text
+  RabbitFeed::Producer.publish_event 'test', @message_text
 end
 
 step 'I declare a new queue' do
@@ -62,25 +62,36 @@ end
 
 step 'the message remains on the queue' do
   RabbitFeed::ConsumerConnection.reconnect! # Don't let the existing connection keep a monopoly on the message
-  sleep 1 # Allow the queue time to requeue the message
   message_count.should eq 1
-  last_message.should eq @message_text
+  consume_message.should eq @message_text
 end
 
 module Turnip::Steps
 
+  class TestEventHandler
+
+    attr_reader :action, :payload
+
+    def initialize &block
+      @action = block
+    end
+
+    def handle_event name, payload
+      @payload = payload
+      yield action
+    end
+  end
+
   def consume_message &block
-    result = nil
+    event_handler = TestEventHandler.new &block
+    allow(RabbitFeed::Consumer).to receive(:event_handler).and_return(event_handler)
     begin
       Timeout::timeout(0.5) do
-        RabbitFeed::ConsumerConnection.consume do |message|
-          result = message
-          yield message
-        end
+        RabbitFeed::Consumer.start
       end
-    rescue
+    rescue Timeout::Error
     end
-    result
+    event_handler.payload
   end
 
   def message_count

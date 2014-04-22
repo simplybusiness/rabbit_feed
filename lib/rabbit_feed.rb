@@ -36,4 +36,8 @@ module RabbitFeed
   def self.configuration_file_path= configuration_file_path
     @configuration_file_path = configuration_file_path
   end
+
+  def self.configuration
+    @configuration ||= (Configuration.load RabbitFeed.configuration_file_path, RabbitFeed.environment)
+  end
 end

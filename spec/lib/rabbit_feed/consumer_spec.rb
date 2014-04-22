@@ -3,7 +3,7 @@ require 'spec_helper'
 module RabbitFeed
 
   describe Consumer do
-    let(:bunny_channel)    { double(:bunny_channel, prefetch: nil, ack: nil)}
+    let(:bunny_channel)    { double(:bunny_channel, prefetch: nil, ack: nil, nack: nil)}
     let(:bunny_queue)      { double(:bunny_queue, channel: bunny_channel, bind: nil, subscribe: nil)}
     let(:bunny_connection) { double(:bunny_connection, start: nil, open?: true, close: nil, queue: bunny_queue) }
     let(:event)            { Event.new :rabbit_feed, '1.0.0', :test_event, { key: :value } }
@@ -15,9 +15,9 @@ module RabbitFeed
 
     describe '#start' do
 
-      it 'delegates the event to the handler' do
+      it 'delegates the deserialized event to the handler' do
         expect_any_instance_of(EventHandler).to receive(:handle_event).with(:test_event, { key: :value })
-        subject.start
+        described_class.start
       end
     end
   end
