@@ -8,12 +8,12 @@ module RabbitFeed
       allow(Bunny).to receive(:new).and_return(bunny_connection)
     end
 
-    describe '.new' do
+    describe '#reset' do
 
       it 'sets up returned message handling' do
         expect(described_class).to receive(:handle_returned_message).with('return_info', 'content')
         expect(bunny_exchange).to receive(:on_return).and_yield('return_info', 'properties', 'content')
-        subject
+        subject.reset
       end
     end
 

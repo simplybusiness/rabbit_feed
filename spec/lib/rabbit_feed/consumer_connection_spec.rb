@@ -9,11 +9,11 @@ module RabbitFeed
       allow(Bunny).to receive(:new).and_return(bunny_connection)
     end
 
-    describe '.new' do
+    describe '#reset' do
 
       it 'binds the queue to the exchange' do
         expect(bunny_queue).to receive(:bind).with('amq.topic')
-        subject
+        subject.reset
       end
     end
 

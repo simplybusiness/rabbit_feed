@@ -37,7 +37,7 @@ module RabbitFeed
       end
     end
 
-    def initialize
+    def reset
       super
       queue.bind(RabbitFeed.configuration.exchange)
     end

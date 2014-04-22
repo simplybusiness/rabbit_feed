@@ -20,7 +20,7 @@ module RabbitFeed
       exchange.publish message, PUBLISH_OPTIONS.merge(routing_key: routing_key)
     end
 
-    def initialize
+    def reset
       super
       exchange.on_return do |return_info, properties, content|
         RabbitFeed::ProducerConnection.handle_returned_message return_info, content
