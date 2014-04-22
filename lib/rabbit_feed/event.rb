@@ -17,7 +17,7 @@ module RabbitFeed
     end
 
     def routing_key
-      # "#{environment}.#{application}.#{version}.#{name}"
+      "#{environment}.#{application}.#{version}.#{name}"
     end
 
     def serialize

@@ -4,4 +4,8 @@ require 'rabbit_feed/producer'
 
 module RabbitFeed
   class ReturnedMessageError < Error; end
+
+  def stub!
+    ProducerConnection.stub(:publish)
+  end
 end

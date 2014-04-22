@@ -10,6 +10,13 @@ RabbitFeed.log = Logger.new('test.log')
 RabbitFeed.environment = 'test'
 RabbitFeed.configuration_file_path = 'spec/fixtures/configuration.yml'
 
+# Set up event routing
+EventRouting do
+  accept_from(application: 'rabbit_feed', version: '1.0.0') do
+    event('test')
+  end
+end
+
 # Loads the step definitions
 Dir.glob('spec/features/step_definitions/**/*_steps.rb') { |f| load f, true }
 

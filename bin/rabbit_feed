@@ -7,6 +7,11 @@ RabbitFeed.log = Logger.new('development.log')
 RabbitFeed.environment = 'test'
 RabbitFeed.configuration_file_path = 'spec/fixtures/configuration.yml'
 RabbitFeed.event_handler_klass = 'RabbitFeed::EventHandler'
+EventRouting do
+  accept_from(application: 'rabbit_feed', version: '1.0.0') do
+    event('Manual publish')
+  end
+end
 
 command = ARGV[0]
 options = ARGV[1..-1]

@@ -12,7 +12,7 @@ module RabbitFeed
     describe '#reset' do
 
       it 'binds the queue to the exchange' do
-        expect(bunny_queue).to receive(:bind).with('amq.topic')
+        expect(bunny_queue).to receive(:bind).with('amq.topic', { routing_key: 'test.rabbit_feed.1.0.0.test'})
         subject.reset
       end
     end
