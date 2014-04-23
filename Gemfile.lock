@@ -7,6 +7,7 @@ PATH
       airbrake
       bunny
       connection_pool
+      pidfile
 
 GEM
   remote: https://rubygems.org/
@@ -34,6 +35,7 @@ GEM
     i18n (0.6.9)
     minitest (4.7.5)
     multi_json (1.9.2)
+    pidfile (0.3.0)
     rake (10.2.2)
     rspec (2.14.1)
       rspec-core (~> 2.14.0)
