@@ -5,11 +5,11 @@ require 'rabbit_feed/producer'
 module RabbitFeed
   class ReturnedMessageError < Error; end
 
-  def stub!
+  def self.stub!
     ProducerConnection.stub(:publish)
   end
 
-  def reconnect!
+  def self.reconnect!
     ProducerConnection.reconnect!
   end
 end
