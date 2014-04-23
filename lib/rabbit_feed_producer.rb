@@ -8,4 +8,8 @@ module RabbitFeed
   def stub!
     ProducerConnection.stub(:publish)
   end
+
+  def reconnect!
+    ProducerConnection.reconnect!
+  end
 end
