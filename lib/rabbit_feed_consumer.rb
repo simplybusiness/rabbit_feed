@@ -1,9 +1,9 @@
 require 'rabbit_feed'
 require 'rabbit_feed/consumer_connection'
 require 'rabbit_feed/consumer'
-require 'rabbit_feed/dsl'
 require 'rabbit_feed/event_handler'
 require 'rabbit_feed/event_routing'
+require 'dsl'
 
 module RabbitFeed
 
