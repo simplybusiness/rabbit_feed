@@ -142,6 +142,23 @@ RabbitFeed::Producer.publish_event 'Event name', 'Event payload'
 
 The event will be published to the `amq.topic` exchange on RabbitMQ with a routing key of:  `environment.application.version.name`.
 
+If running with Unicorn, you must reconnect to RabbitMQ after the workers are forked due to how Unicorn forks its child processes. Add the following to your `config/unicorn.rb`:
+
+```ruby
+after_fork do |server, worker|
+  require 'rabbit_feed_producer'
+  RabbitFeed.reconnect!
+end
+```
+
+To prevent RabbitFeed from firing events during tests, add the following to `spec_helper.rb`:
+
+```ruby
+config.before :each do
+  RabbitFeed.stub!
+end
+```
+
 ### Consuming events
 
 Create an `EventHandler` class, which will be called when you consume an event. Example:
@@ -201,6 +218,7 @@ When the consumer is started, it will create a queue named using this pattern: `
 
 ## TODO
 
+* Harden consumer so that it does not go down due to connectivity problems
 * Ability to run multiple consumer instances on the same server (pid file conflict)
 * Capistrano hooks
 * Add routing key wilcard capabilities to DSL
