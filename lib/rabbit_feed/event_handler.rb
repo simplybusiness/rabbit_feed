@@ -1,8 +1,8 @@
 module RabbitFeed
   class EventHandler
 
-    def handle_event name, payload
-      puts "#{name}: #{payload}"
+    def handle_event event
+      puts "#{event.name}: #{event.payload}"
     end
   end
 end

@@ -1,6 +1,6 @@
 class EventHandler < RabbitFeed::EventHandler
 
-  def handle_event name, payload
-    puts "RailsApp::EventHandler - Consumed event: #{name} with payload: #{payload}"
+  def handle_event event
+    puts "RailsApp::EventHandler - Consumed event: #{event.name} with payload: #{event.payload}"
   end
 end

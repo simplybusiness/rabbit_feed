@@ -4,7 +4,7 @@ module RabbitFeed
     def self.start
       ConsumerConnection.consume do |raw_event|
         event = Event.deserialize raw_event
-        event_handler.handle_event event.name, event.payload
+        event_handler.handle_event event
       end
     end
 

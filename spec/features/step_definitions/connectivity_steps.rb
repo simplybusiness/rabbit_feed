@@ -70,14 +70,14 @@ module Turnip::Steps
 
   class TestEventHandler
 
-    attr_reader :action, :payload
+    attr_reader :action, :event
 
     def initialize &block
       @action = block
     end
 
-    def handle_event name, payload
-      @payload = payload
+    def handle_event event
+      @event = event
       yield action
     end
   end
@@ -91,7 +91,7 @@ module Turnip::Steps
       end
     rescue Timeout::Error
     end
-    event_handler.payload
+    event_handler.event.payload
   end
 
   def message_count

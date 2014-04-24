@@ -1,9 +1,9 @@
 module NonRailsApp
   class EventHandler < RabbitFeed::EventHandler
 
-    def handle_event name, payload
-      puts "NonRailsApp::EventHandler - Consumed event: #{name} with payload: #{payload}"
-      RabbitFeed::Producer.publish_event 'event.processed', { event_name: name, original_payload: payload }
+    def handle_event event
+      puts "NonRailsApp::EventHandler - Consumed event: #{event.name} with payload: #{event.payload}"
+      RabbitFeed::Producer.publish_event 'event.processed', { event_name: event.name, original_payload: event.payload }
     end
   end
 end

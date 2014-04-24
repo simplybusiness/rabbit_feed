@@ -16,7 +16,7 @@ module RabbitFeed
     describe '#start' do
 
       it 'delegates the deserialized event to the handler' do
-        expect_any_instance_of(EventHandler).to receive(:handle_event).with(:test_event, { key: :value })
+        expect_any_instance_of(EventHandler).to receive(:handle_event).with(an_instance_of Event)
         described_class.start
       end
     end
