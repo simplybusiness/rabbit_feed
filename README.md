@@ -41,7 +41,9 @@ You should see the following output:
     Rails application consumer started
     Starting rails application...
     Rails application started
+    Triggering event...
     NonRailsApp::EventHandler - Consumed event: beaver.created with payload: {"id":10,"name":"04/24/14 13:40:43","created_at":"2014-04-24T12:40:44.618Z","updated_at":"2014-04-24T12:40:44.618Z"}
+    Event triggered
     RailsApp::EventHandler - Consumed event: event.processed with payload: {:event_name=>"beaver.created", :original_payload=>"{\"id\":10,\"name\":\"04/24/14 13:40:43\",\"created_at\":\"2014-04-24T12:40:44.618Z\",\"updated_at\":\"2014-04-24T12:40:44.618Z\"}"}
     Stopping non rails application consumer...
     Non rails application consumer stopped

@@ -31,7 +31,9 @@ popd >/dev/null
 echo 'Rails application started'
 
 # Trigger an event
+echo 'Triggering event...'
 curl -silent -H -X POST http://localhost:8080/beavers -d "beaver[name]=`date '+%m/%d/%y %H:%M:%S'`" >/dev/null
+echo 'Event triggered'
 
 sleep 5
 
