@@ -11,4 +11,3 @@ EventRouting do
     event('event.processed')
   end
 end
-
