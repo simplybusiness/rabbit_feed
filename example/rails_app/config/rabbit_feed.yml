@@ -1,0 +1,7 @@
+development:
+  host: localhost
+  port: 5672
+  user: guest
+  password: guest
+  application: rails_app
+  version: 1.0.0

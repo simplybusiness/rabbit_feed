@@ -5,12 +5,11 @@ module RabbitFeed
   class Client
 
     DEFAULTS = {
-      concurrency:  1,
       payload:      'test',
       require_path: '.',
       config_file:  'config/rabbit_feed.yml',
       logfile:      'log/rabbit_feed.log',
-      pidfile:      'tmp/pids/rabbit_feed',
+      pidfile:      'tmp/pids/rabbit_feed.pid',
       handler:      'RabbitFeed::EventHandler',
     }
     DEFAULTS.freeze
@@ -21,27 +20,9 @@ module RabbitFeed
       @command = ARGV[0]
       @options = parse_options arguments
 
-      RabbitFeed.log = Logger.new(options[:logfile])
-      RabbitFeed.log.level = options[:verbose] ? Logger::DEBUG : Logger::INFO
-      RabbitFeed.environment = options[:environment]
-      RabbitFeed.configuration_file_path = options[:config_file]
-      RabbitFeed.event_handler_klass = options[:handler]
-
-      ENV['RACK_ENV'] = ENV['RAILS_ENV'] = RabbitFeed.environment
-
-      if File.directory?(options[:require_path])
-        require 'rails'
-        require File.expand_path("#{options[:require_path]}/config/environment.rb")
-        ::Rails.application.eager_load!
-      else
-        require options[:require_path]
-      end
-
-      Process.daemon(true, true) if options[:daemon]
-
-      pid_path = File.split options[:pidfile]
-      PidFile.new(piddir: pid_path[0], pidfile: pid_path[1])
-
+      set_logging
+      set_configuration
+      load_dependancies
     end
 
     def run
@@ -50,12 +31,46 @@ module RabbitFeed
 
     private
 
+    def method_missing(name, *args, &block)
+      puts "The action '#{name}' does not exist. Valid actions are: consume, produce"
+      exit 1
+    end
+
     def consume
+      daemonize if options[:daemon]
       RabbitFeed::Consumer.start
     end
 
     def produce
-      RabbitFeed::Producer.publish_event 'Manual publish', options[:payload]
+      RabbitFeed::Producer.publish_event options[:name], options[:payload]
+    end
+
+    def set_logging
+      RabbitFeed.log       = Logger.new(options[:logfile])
+      RabbitFeed.log.level = options[:verbose] ? Logger::DEBUG : Logger::INFO
+    end
+
+    def set_configuration
+      RabbitFeed.environment             = options[:environment]
+      RabbitFeed.configuration_file_path = options[:config_file]
+      RabbitFeed.event_handler_klass     = options[:handler]
+      ENV['RACK_ENV'] = ENV['RAILS_ENV'] = RabbitFeed.environment
+    end
+
+    def load_dependancies
+      if File.directory?(options[:require_path])
+        require 'rails'
+        require File.expand_path("#{options[:require_path]}/config/environment.rb")
+        ::Rails.application.eager_load!
+      else
+        require options[:require_path]
+      end
+    end
+
+    def daemonize
+      Process.daemon(true, true)
+      pid_path = File.split options[:pidfile]
+      PidFile.new(piddir: pid_path[0], pidfile: pid_path[1])
     end
 
     def parse_options argv
@@ -67,12 +82,12 @@ module RabbitFeed
           opts[:handler] = arg
         end
 
-        o.on '-m', '--payload VAL', "Payload of message to produce" do |arg|
+        o.on '-m', '--payload VAL', "Payload of event to produce" do |arg|
           opts[:payload] = arg
         end
 
-        o.on '-c', '--concurrency INT', "Processor threads to use" do |arg|
-          opts[:concurrency] = Integer(arg)
+        o.on '-n', '--name VAL', "Name of event to produce" do |arg|
+          opts[:name] = arg
         end
 
         o.on '-d', '--daemon', "Daemonize process" do |arg|

@@ -3,12 +3,6 @@
 require_relative '../lib/rabbit_feed_consumer'
 require_relative '../lib/rabbit_feed_producer'
 
-EventRouting do
-  accept_from(application: 'rabbit_feed', version: '1.0.0') do
-    event('Manual publish')
-  end
-end
-
 client = RabbitFeed::Client.new
 client.run
 
