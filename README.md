@@ -67,6 +67,7 @@ Publishes an event. Options are as follows:
     --logfile The location of the log file
     --require The project file containing the dependancies
     --verbose Turns on DEBUG logging
+    --help Print the available options
 
 #### Consumer
 
@@ -77,10 +78,12 @@ Starts a consumer. Note: until you've specified the event routing, this will not
     --environment The environment to run in
     --config The location of the rabbit_feed configuration file
     --logfile The location of the log file
-    --require The project file containing the dependancies
+    --require The project file containing the dependancies (only necessary if running with non-rails application)
+    --handler The fully qualified name of the event handler class
     --pidfile The location at which to write a pid file
     --verbose Turns on DEBUG logging
     --daemon Run the consumer as a daemon
+    --help Print the available options
 
 ## Installation
 
@@ -144,7 +147,7 @@ RabbitFeed::Producer.publish_event 'Event name', 'Event payload'
 
 **Event payload:** This is the data about the event. This could be anything: text, ruby class, JSON, etc.
 
-The event will be published to the `amq.topic` exchange on RabbitMQ with a routing key of:  `environment.application.version.name`.
+The event will be published to the `amq.topic` exchange on RabbitMQ with a routing key having the pattern of:  `[environment].[producer application name].[producer application version].[event name]`.
 
 If running with Unicorn, you must reconnect to RabbitMQ after the workers are forked due to how Unicorn forks its child processes. Add the following to your `config/unicorn.rb`:
 
@@ -178,13 +181,13 @@ end
 
 An `Event` contains the following information:
 
-    environment The environment in which the event was created (e.g. development, test, production)
-    application The name of the application that generated the event (as specified in rabbit_feed.yml)
-    version The version of the application that generated the event (as specified in rabbit_feed.yml)
-    name The name of the event
-    host The hostname of the server on which the event was generated
-    created_at_utc The time (in UTC) that the event was created
-    payload The payload of the event
+    `environment` The environment in which the event was created (e.g. development, test, production)
+    `application` The name of the application that generated the event (as specified in rabbit_feed.yml)
+    `version` The version of the application that generated the event (as specified in rabbit_feed.yml)
+    `name` The name of the event
+    `host` The hostname of the server on which the event was generated
+    `created_at_utc` The time (in UTC) that the event was created
+    `payload` The payload of the event
 
 Define event routing using the Event Routing DSL (see below for example). In a rails app, this can be defined in the initialiser.
 
@@ -192,13 +195,7 @@ Define event routing using the Event Routing DSL (see below for example). In a r
 
     bundle exec rabbit_feed consume --environment development --require `pwd`/lib/app.rb --handler App::EventHandler --daemon --verbose
 
-Options are as follows:
-
-    --environment The environment to run in
-    --require The project file containing the dependancies (only necessary if running with non-rails application)
-    --handler The fully qualified name of the event handler class
-    --verbose Turns on DEBUG logging
-    --daemon Run the consumer as a daemon
+See the `Consumer` section for a description of the arguments
 
 ## Event Routing DSL
 
@@ -215,14 +212,13 @@ Here is an example DSL:
 
 This will subscribe to specified events originating from the `beavers` application at version `1.0.0`. We have specified that we would like to subcribe to `beaver.created` and `beaver.updated` events.
 
-When the consumer is started, it will create a queue named using this pattern: `environment.application.version`. It will bind the queue to the `amq.topic` exchange on the routing keys as defined in the event routing. In this example, it will bind on:
+When the consumer is started, it will create its queue named using this pattern: `[environment].[consumer application name].[consumer application version]`. This allows for multiple versions of a consumer application to be running simultaneuosly. It will bind the queue to the `amq.topic` exchange on the routing keys as defined in the event routing. In this example, it will bind on:
 
     environment.beavers.1.0.0.beaver.created
     environment.beavers.1.0.0.beaver.updated
 
 ## TODO
 
-* Harden consumer so that it does not go down due to connectivity problems
 * Ability to run multiple consumer instances on the same server (pid file conflict)
 * Capistrano hooks
 * Add routing key wilcard capabilities to DSL

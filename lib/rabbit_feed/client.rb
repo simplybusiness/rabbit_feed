@@ -87,7 +87,7 @@ module RabbitFeed
 
       parser = OptionParser.new do |o|
 
-        o.on '-h', '--handler VAL', "Event handling class name" do |arg|
+        o.on '-H', '--handler VAL', "Event handling class name" do |arg|
           opts[:handler] = arg
         end
 
