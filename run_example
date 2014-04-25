@@ -7,7 +7,7 @@ echo 'Starting non rails application consumer...'
 pushd example/non_rails_app >/dev/null
 bundle >/dev/null
 bundle exec rabbit_feed consume --environment development --require `pwd`/lib/non_rails_app.rb --handler NonRailsApp::EventHandler --daemon --verbose
-sleep 2
+sleep 1
 popd >/dev/null
 echo 'Non rails application consumer started'
 
@@ -15,8 +15,8 @@ echo 'Non rails application consumer started'
 echo 'Starting rails application consumer...'
 pushd example/rails_app >/dev/null
 bundle >/dev/null
-bundle exec rabbit_feed consume --environment development --handler ::EventHandler --daemon --verbose
-sleep 2
+bundle exec rabbit_feed consume --environment development --daemon --verbose
+sleep 1
 popd >/dev/null
 echo 'Rails application consumer started'
 
@@ -26,7 +26,7 @@ pushd example/rails_app >/dev/null
 nodenv local v0.10 >/dev/null
 bundle exec rake db:migrate
 bundle exec unicorn -c config/unicorn.rb -D
-sleep 2
+sleep 1
 popd >/dev/null
 echo 'Rails application started'
 
@@ -35,7 +35,7 @@ echo 'Triggering event...'
 curl -silent -H -X POST http://localhost:8080/beavers -d "beaver[name]=`date '+%m/%d/%y %H:%M:%S'`" >/dev/null
 echo 'Event triggered'
 
-sleep 5
+sleep 3
 
 # Stop consumer on the non-rails application
 echo 'Stopping non rails application consumer...'

@@ -23,6 +23,7 @@ module RabbitFeed
       set_logging
       set_configuration
       load_dependancies
+      set_event_handler
     end
 
     def run
@@ -41,7 +42,7 @@ module RabbitFeed
       while true do
         begin
           RabbitFeed::Consumer.start
-        rescue ConfigurationError => e
+        rescue ConfigurationError
           raise
         rescue => e
           warn "#{e.message} #{e.backtrace}"
@@ -62,8 +63,11 @@ module RabbitFeed
     def set_configuration
       RabbitFeed.environment             = options[:environment]
       RabbitFeed.configuration_file_path = options[:config_file]
-      RabbitFeed.event_handler_klass     = options[:handler]
       ENV['RACK_ENV'] = ENV['RAILS_ENV'] = RabbitFeed.environment
+    end
+
+    def set_event_handler
+      RabbitFeed.event_handler_klass = options[:handler] unless RabbitFeed.event_handler.present?
     end
 
     def load_dependancies

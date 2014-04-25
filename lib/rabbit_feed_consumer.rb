@@ -8,6 +8,10 @@ require 'dsl'
 module RabbitFeed
 
   class << self
-    attr_accessor :event_handler_klass, :event_routing
+    attr_accessor :event_routing, :event_handler
+  end
+
+  def self.event_handler_klass= event_handler_klass
+    @event_handler = event_handler_klass.constantize
   end
 end

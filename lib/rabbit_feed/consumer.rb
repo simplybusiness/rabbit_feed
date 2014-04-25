@@ -11,7 +11,7 @@ module RabbitFeed
     private
 
     def self.event_handler
-      RabbitFeed.event_handler_klass.constantize.new
+      RabbitFeed.event_handler.new
     end
   end
 end

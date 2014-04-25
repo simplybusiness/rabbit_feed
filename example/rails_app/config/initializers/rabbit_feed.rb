@@ -6,6 +6,8 @@ RabbitFeed.configuration_file_path = File.join(Rails.root, 'config/rabbit_feed.y
 
 require 'rabbit_feed_consumer'
 
+RabbitFeed.event_handler = ::EventHandler
+
 EventRouting do
   accept_from(application: 'non_rails_app', version: '1.0.0') do
     event('event.processed')

@@ -118,9 +118,9 @@ Note that this gem uses Airbrake for exception notifications, so your project wi
 If installing in a rails application, the following should be defined in `config/initializers/rabbit_feed.rb`:
 
 ```ruby
-# Require the producer if producing
+# Require the producer (if producing)
 require 'rabbit_feed_producer'
-# Require the consumer if consuming
+# Require the consumer (if consuming)
 require 'rabbit_feed_consumer'
 # Set the logger
 RabbitFeed.log                     = Logger.new(Rails.root.join('log/rabbit_feed.log'))
@@ -128,7 +128,9 @@ RabbitFeed.log                     = Logger.new(Rails.root.join('log/rabbit_feed
 RabbitFeed.environment             = Rails.env
 # Set the config file location
 RabbitFeed.configuration_file_path = File.join(Rails.root, 'config/rabbit_feed.yml')
-# Define the event routing if consuming
+# Set the class that will handle incoming events (if consuming)
+RabbitFeed.event_handler           = RabbitFeed::EventHandler
+# Define the event routing (if consuming)
 EventRouting do
   accept_from(application: 'beaver', version: '1.0.0') do
     event('foo')
@@ -193,7 +195,7 @@ Define event routing using the Event Routing DSL (see below for example). In a r
 
 #### Running the consumer
 
-    bundle exec rabbit_feed consume --environment development --require `pwd`/lib/app.rb --handler App::EventHandler --daemon --verbose
+    bundle exec rabbit_feed consume --environment development
 
 See the `Consumer` section for a description of the arguments
 
