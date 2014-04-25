@@ -14,28 +14,8 @@ module RabbitFeed
   class Error < StandardError; end
   class ConfigurationError < Error; end
 
-  def self.log
-    @log
-  end
-
-  def self.log= log
-    @log = log
-  end
-
-  def self.environment
-    @environment
-  end
-
-  def self.environment= environment
-    @environment = environment
-  end
-
-  def self.configuration_file_path
-    @configuration_file_path
-  end
-
-  def self.configuration_file_path= configuration_file_path
-    @configuration_file_path = configuration_file_path
+  class << self
+    attr_accessor :log, :environment, :configuration_file_path
   end
 
   def self.configuration

@@ -7,19 +7,7 @@ require 'dsl'
 
 module RabbitFeed
 
-  def self.event_handler_klass
-    @event_handler_klass
-  end
-
-  def self.event_handler_klass= event_handler_klass
-    @event_handler_klass = event_handler_klass
-  end
-
-  def self.event_routing
-    @event_routing
-  end
-
-  def self.event_routing= event_routing
-    @event_routing = event_routing
+  class << self
+    attr_accessor :event_handler_klass, :event_routing
   end
 end
