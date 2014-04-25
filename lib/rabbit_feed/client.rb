@@ -41,8 +41,11 @@ module RabbitFeed
       while true do
         begin
           RabbitFeed::Consumer.start
+        rescue ConfigurationError => e
+          raise
         rescue => e
-          warn e
+          warn "#{e.message} #{e.backtrace}"
+          Airbrake.notify e
         end
       end
     end

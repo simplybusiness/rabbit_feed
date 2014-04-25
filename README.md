@@ -108,6 +108,8 @@ Sample:
       application: beavers
       version: 1.0.0
 
+Note that this gem uses Airbrake for exception notifications, so your project will need to have Airbrake configured.
+
 ### Initialisation
 
 If installing in a rails application, the following should be defined in `config/initializers/rabbit_feed.rb`:
