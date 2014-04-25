@@ -9,4 +9,5 @@ end
 
 group :test do
   gem 'rutabaga'
+  gem 'codeclimate-test-reporter'
 end

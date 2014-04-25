@@ -1,6 +1,14 @@
 require 'rabbit_feed_producer'
 require 'rabbit_feed_consumer'
 require 'timeout'
+require 'codeclimate-test-reporter'
+
+# Send data to code climate from semaphore
+# Disable the warning messages
+CodeClimate::TestReporter.configure do |config|
+  config.logger.level = Logger::WARN
+end
+CodeClimate::TestReporter.start
 
 # Get rid of deprecation warnings
 I18n.enforce_available_locales = true
