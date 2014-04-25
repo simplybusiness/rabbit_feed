@@ -205,12 +205,14 @@ We need a way for consumers to specify to which types of events they wish to sub
 
 Here is an example DSL:
 
-    EventRouting do
-      accept_from(application: 'beavers', version: '1.0.0') do
-        event('beaver.created')
-        event('beaver.updated')
-      end
-    end
+```ruby
+EventRouting do
+  accept_from(application: 'beavers', version: '1.0.0') do
+    event('beaver.created')
+    event('beaver.updated')
+  end
+end
+```
 
 This will subscribe to specified events originating from the `beavers` application at version `1.0.0`. We have specified that we would like to subcribe to `beaver.created` and `beaver.updated` events.
 
