@@ -38,7 +38,13 @@ module RabbitFeed
 
     def consume
       daemonize if options[:daemon]
-      RabbitFeed::Consumer.start
+      while true do
+        begin
+          RabbitFeed::Consumer.start
+        rescue => e
+          warn e
+        end
+      end
     end
 
     def produce
