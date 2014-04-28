@@ -4,6 +4,9 @@ require 'bundler/setup'
 require_relative '../lib/rabbit_feed_consumer'
 require_relative '../lib/rabbit_feed_producer'
 
+# Prevent deprecation warnings
+I18n.enforce_available_locales = true
+
 client = RabbitFeed::Client.new
 client.run
 

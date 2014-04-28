@@ -3,6 +3,7 @@ require 'pidfile'
 
 module RabbitFeed
   class Client
+    include ActiveModel::Validations
 
     DEFAULTS = {
       payload:      'test',
@@ -15,10 +16,13 @@ module RabbitFeed
     DEFAULTS.freeze
 
     attr_reader :command, :options
+    validates_presence_of :command, :options
+    validates :command, inclusion: { in: %w(consume produce) }
 
     def initialize arguments=ARGV
       @command = ARGV[0]
       @options = parse_options arguments
+      validate!
 
       set_logging
       set_configuration
@@ -32,9 +36,8 @@ module RabbitFeed
 
     private
 
-    def method_missing(name, *args, &block)
-      puts "The action '#{name}' does not exist. Valid actions are: consume, produce"
-      exit 1
+    def validate!
+      raise Error.new errors.messages if invalid?
     end
 
     def consume
