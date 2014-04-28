@@ -11,14 +11,13 @@ require 'rabbit_feed/connection'
 require 'rabbit_feed/event'
 
 module RabbitFeed
+  extend self
   class Error < StandardError; end
   class ConfigurationError < Error; end
 
-  class << self
-    attr_accessor :log, :environment, :configuration_file_path
-  end
+  attr_accessor :log, :environment, :configuration_file_path
 
-  def self.configuration
+  def configuration
     @configuration ||= (Configuration.load RabbitFeed.configuration_file_path, RabbitFeed.environment)
   end
 end

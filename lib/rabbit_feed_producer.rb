@@ -3,13 +3,14 @@ require 'rabbit_feed/producer_connection'
 require 'rabbit_feed/producer'
 
 module RabbitFeed
+  extend self
   class ReturnedMessageError < Error; end
 
-  def self.stub!
+  def stub!
     ProducerConnection.stub(:publish)
   end
 
-  def self.reconnect!
+  def reconnect!
     ProducerConnection.reconnect!
   end
 end
