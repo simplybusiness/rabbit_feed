@@ -43,7 +43,7 @@ module RabbitFeed
       RabbitFeed.log.warn "Exception encountered whilst closing #{self.to_s}: #{e.message} #{e.backtrace}"
     end
 
-    protected
+    private
 
     def self.retry_on_exception tries=3, &block
       yield
@@ -52,8 +52,6 @@ module RabbitFeed
       retry unless (tries -= 1).zero?
       raise
     end
-
-    private
 
     def self.connection_pool
       @connection_pool ||= ConnectionPool.new(

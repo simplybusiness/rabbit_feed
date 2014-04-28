@@ -21,7 +21,7 @@ RabbitFeed.configuration_file_path = 'spec/fixtures/configuration.yml'
 # Set up event routing
 EventRouting do
   accept_from(application: 'rabbit_feed', version: '1.0.0') do
-    event('test')
+    event('test') {|event| }
   end
 end
 

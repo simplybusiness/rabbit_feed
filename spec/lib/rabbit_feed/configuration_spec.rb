@@ -69,6 +69,14 @@ module RabbitFeed
         its(:pool_timeout)    { should eq 5 }
         its(:heartbeat)       { should eq 5 }
         its(:connect_timeout) { should eq 10 }
+
+        context 'with invalid version' do
+
+          it 'should raise an error' do
+            options.merge!(version: '1.0')
+            expect{ subject }.to raise_error ConfigurationError
+          end
+        end
       end
 
       context 'with provided options' do
@@ -89,17 +97,17 @@ module RabbitFeed
           }
         end
 
-        its(:host)           { should eq 'host_name' }
-        its(:port)           { should eq 12345 }
-        its(:user)           { should eq 'user_name' }
-        its(:password)       { should eq 'password' }
-        its(:application)    { should eq 'rabbit_feed' }
-        its(:environment)    { should eq 'test' }
-        its(:version)        { should eq '1.0.0' }
-        its(:exchange)       { should eq 'exchange_name' }
-        its(:pool_size)      { should eq 2 }
-        its(:pool_timeout)   { should eq 6 }
-        its(:heartbeat)      { should eq 3 }
+        its(:host)            { should eq 'host_name' }
+        its(:port)            { should eq 12345 }
+        its(:user)            { should eq 'user_name' }
+        its(:password)        { should eq 'password' }
+        its(:application)     { should eq 'rabbit_feed' }
+        its(:environment)     { should eq 'test' }
+        its(:version)         { should eq '1.0.0' }
+        its(:exchange)        { should eq 'exchange_name' }
+        its(:pool_size)       { should eq 2 }
+        its(:pool_timeout)    { should eq 6 }
+        its(:heartbeat)       { should eq 3 }
         its(:connect_timeout) { should eq 4 }
       end
 

@@ -4,6 +4,7 @@ module RabbitFeed
 
     attr_reader :host, :port, :user, :password, :application, :environment, :version, :exchange, :pool_size, :pool_timeout, :heartbeat, :connect_timeout
     validates_presence_of :host, :port, :user, :password, :application, :environment, :version, :exchange, :pool_size, :pool_timeout, :heartbeat, :connect_timeout
+    validates :version, format: { with: /\A\d+\.\d+\.\d+\z/, message: 'must be in *.*.* format' }
 
     def initialize options
       RabbitFeed.log.debug "RabbitFeed initialising with options: #{options}..."

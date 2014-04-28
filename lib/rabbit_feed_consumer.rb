@@ -7,6 +7,7 @@ require 'dsl'
 
 module RabbitFeed
   extend self
+  class RoutingError < Error; end
   attr_accessor :event_routing, :event_handler
 
   def event_handler_klass= event_handler_klass

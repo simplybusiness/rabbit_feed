@@ -11,13 +11,12 @@ module RabbitFeed
       config_file:  'config/rabbit_feed.yml',
       logfile:      'log/rabbit_feed.log',
       pidfile:      'tmp/pids/rabbit_feed.pid',
-      handler:      'RabbitFeed::EventHandler',
     }
     DEFAULTS.freeze
 
     attr_reader :command, :options
     validates_presence_of :command, :options
-    validates :command, inclusion: { in: %w(consume produce) }
+    validates :command, inclusion: { in: %w(consume produce), message: "%{value} is not a valid command" }
 
     def initialize arguments=ARGV
       @command = ARGV[0]
@@ -27,7 +26,6 @@ module RabbitFeed
       set_logging
       set_configuration
       load_dependancies
-      set_event_handler
     end
 
     def run
@@ -69,10 +67,6 @@ module RabbitFeed
       ENV['RACK_ENV'] = ENV['RAILS_ENV'] = RabbitFeed.environment
     end
 
-    def set_event_handler
-      RabbitFeed.event_handler_klass = options[:handler] unless RabbitFeed.event_handler.present?
-    end
-
     def load_dependancies
       if File.directory?(options[:require_path])
         require 'rails'
@@ -93,10 +87,6 @@ module RabbitFeed
       opts = {}
 
       parser = OptionParser.new do |o|
-
-        o.on '-H', '--handler VAL', "Event handling class name" do |arg|
-          opts[:handler] = arg
-        end
 
         o.on '-m', '--payload VAL', "Payload of event to produce" do |arg|
           opts[:payload] = arg

@@ -79,7 +79,6 @@ Starts a consumer. Note: until you've specified the event routing, this will not
     --config The location of the rabbit_feed configuration file
     --logfile The location of the log file
     --require The project file containing the dependancies (only necessary if running with non-rails application)
-    --handler The fully qualified name of the event handler class
     --pidfile The location at which to write a pid file
     --verbose Turns on DEBUG logging
     --daemon Run the consumer as a daemon
