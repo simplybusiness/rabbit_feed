@@ -31,15 +31,9 @@ module RabbitFeed
     end
     subject{ described_class.new arguments }
 
-    describe '#run' do
-
-    end
-
     describe '.new' do
 
-      it 'should be valid' do
-        expect(subject).to be_valid
-      end
+      it { should be_valid }
 
       it 'sets the environment' do
         subject
@@ -90,9 +84,23 @@ module RabbitFeed
 
       context 'when the environment is not present' do
         let(:environment) { '' }
+        before do
+          ENV['RAILS_ENV'] = nil
+          ENV['RACK_ENV']  = nil
+        end
 
         it 'should be invalid' do
           expect{subject}.to raise_error Error
+        end
+
+        context 'when the RAILS_ENV is present' do
+          before { ENV['RAILS_ENV'] = 'test' }
+          after do
+            ENV['RAILS_ENV'] = nil
+            ENV['RACK_ENV']  = nil
+          end
+
+          it { should be_valid }
         end
       end
 

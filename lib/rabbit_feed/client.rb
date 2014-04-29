@@ -44,7 +44,7 @@ module RabbitFeed
     end
 
     def log_file_path_exists
-      errors.add(:options, "log file path not found: '#{options[:logfile]}', specify this using the --logfile option") unless File.exists?(File.dirname(options[:logfile]))
+      errors.add(:options, "log file path not found: '#{options[:logfile]}', specify this using the --logfile option") unless Dir.exists?(File.dirname(options[:logfile]))
     end
 
     def config_file_exists
@@ -58,11 +58,11 @@ module RabbitFeed
     end
 
     def pidfile_path_exists
-      errors.add(:options, "pid file path not found: '#{options[:pidfile]}', specify this using the --pidfile option") unless File.exists?(File.dirname(options[:pidfile]))
+      errors.add(:options, "pid file path not found: '#{options[:pidfile]}', specify this using the --pidfile option") unless Dir.exists?(File.dirname(options[:pidfile]))
     end
 
     def environment_specified
-      errors.add(:options, '--environment not specified') unless options[:environment].present?
+      errors.add(:options, '--environment not specified') unless environment.present?
     end
 
     def consume
@@ -89,7 +89,7 @@ module RabbitFeed
     end
 
     def set_configuration
-      RabbitFeed.environment             = options[:environment]
+      RabbitFeed.environment             = environment
       RabbitFeed.configuration_file_path = options[:config_file]
       ENV['RACK_ENV'] = ENV['RAILS_ENV'] = RabbitFeed.environment
     end
@@ -108,6 +108,14 @@ module RabbitFeed
       Process.daemon(true, true)
       pid_path = File.split options[:pidfile]
       PidFile.new(piddir: pid_path[0], pidfile: pid_path[1])
+    end
+
+    def environment
+      if options[:environment].present?
+        options[:environment]
+      else
+        ENV['RACK_ENV'] || ENV['RAILS_ENV']
+      end
     end
 
     def daemonize?
