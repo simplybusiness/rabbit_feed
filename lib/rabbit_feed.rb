@@ -5,7 +5,16 @@ require 'bunny'
 require 'connection_pool'
 require 'yaml'
 require 'dsl'
-Dir[File.join(File.dirname(__FILE__), 'rabbit_feed', '*.rb')].each {|file| require file }
+require 'rabbit_feed/version'
+require 'rabbit_feed/client'
+require 'rabbit_feed/configuration'
+require 'rabbit_feed/connection'
+require 'rabbit_feed/event'
+require 'rabbit_feed/consumer_connection'
+require 'rabbit_feed/consumer'
+require 'rabbit_feed/event_routing'
+require 'rabbit_feed/producer_connection'
+require 'rabbit_feed/producer'
 
 module RabbitFeed
   extend self
