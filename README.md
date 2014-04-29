@@ -213,12 +213,16 @@ When the consumer is started, it will create its queue named using this pattern:
 
 ## TODO
 
+* Store schema with event: http://avro.apache.org/docs/current/gettingstartedpython.html
+* Event grammar, see: http://snowplowanalytics.com/blog/2013/08/12/towards-universal-event-analytics-building-an-event-grammar/
+* Payload-level versioning, see: http://johnnunemaker.com/analytics-at-github/
 * RSpec matcher to allow producers to verify event producing
+* RSpec matcher to allow consumers to verify event routing
 * DSL for event definitions on producer applications
 * Ability to run multiple consumer instances on the same server (pid file conflict)
 * Capistrano hooks
 * Add routing key wilcard capabilities to DSL
-* SBConf service definition
+* SBConf service definition?
 * More elegant control of consumer (i.e. reload, quit, kill methods)
 * Multi-threaded consumer
 

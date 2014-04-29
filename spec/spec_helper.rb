@@ -12,17 +12,17 @@ CodeClimate::TestReporter.start
 # Get rid of deprecation warnings
 I18n.enforce_available_locales = true
 
-# Set up the test environment
-RabbitFeed.log = Logger.new('test.log')
-RabbitFeed.environment = 'test'
-RabbitFeed.configuration_file_path = 'spec/fixtures/configuration.yml'
-
 # Loads the step definitions
 Dir.glob('spec/features/step_definitions/**/*_steps.rb') { |f| load f, true }
 
 RSpec.configure do |config|
 
+  config.before do
+    reset_environment
+  end
+
   config.after do
+    reset_environment
     # Delete the test exchange we create
     delete_exchange
     # Delete the test queue we create
@@ -52,4 +52,10 @@ def close_connections
   RabbitFeed::Connection.reconnect!
   RabbitFeed::ProducerConnection.reconnect!
   RabbitFeed::ConsumerConnection.reconnect!
+end
+
+def reset_environment
+  RabbitFeed.log = Logger.new('test.log')
+  RabbitFeed.environment = 'test'
+  RabbitFeed.configuration_file_path = 'spec/fixtures/configuration.yml'
 end
