@@ -4,14 +4,8 @@ module RabbitFeed
     def self.start
       ConsumerConnection.consume do |raw_event|
         event = Event.deserialize raw_event
-        event_handler.handle_event event
+        RabbitFeed.event_routing.handle_event event
       end
-    end
-
-    private
-
-    def self.event_handler
-      RabbitFeed.event_handler.new
     end
   end
 end

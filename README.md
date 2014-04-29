@@ -132,7 +132,9 @@ RabbitFeed.event_handler           = RabbitFeed::EventHandler
 # Define the event routing (if consuming)
 EventRouting do
   accept_from(application: 'beaver', version: '1.0.0') do
-    event('foo')
+    event('foo') do |event|
+      # Do something...
+    end
   end
 end
 ```
@@ -169,16 +171,7 @@ end
 
 ### Consuming events
 
-Create an `EventHandler` class, which will be called when you consume an event. Example:
-
-```ruby
-class EventHandler < RabbitFeed::EventHandler
-
-  def handle_event event
-    # Do something
-  end
-end
-```
+The consumer defines to which events it will subscribe as well as how it handles events using the Event Routing DSL(see below for example). In a rails app, this can be defined in the initialiser.
 
 An `Event` contains the following information:
 
@@ -190,8 +183,6 @@ An `Event` contains the following information:
     `created_at_utc` The time (in UTC) that the event was created
     `payload` The payload of the event
 
-Define event routing using the Event Routing DSL (see below for example). In a rails app, this can be defined in the initialiser.
-
 #### Running the consumer
 
     bundle exec rabbit_feed consume --environment development
@@ -200,20 +191,24 @@ See the `Consumer` section for a description of the arguments
 
 ## Event Routing DSL
 
-We need a way for consumers to specify to which types of events they wish to subscribe. This is accomplished using a custom DSL backed by a RabbitMQ [topic](http://www.rabbitmq.com/tutorials/tutorial-five-ruby.html) exchange.
+Provides a means for consumers to specify to which events it will subscribe as well as how it handles events. This is accomplished using a custom DSL backed by a RabbitMQ [topic](http://www.rabbitmq.com/tutorials/tutorial-five-ruby.html) exchange.
 
 Here is an example DSL:
 
 ```ruby
 EventRouting do
   accept_from(application: 'beavers', version: '1.0.0') do
-    event('beaver.created')
-    event('beaver.updated')
+    event('beaver.created') do |event|
+      puts event.payload
+    end
+    event('beaver.updated') do |event|
+      puts event.payload
+    end
   end
 end
 ```
 
-This will subscribe to specified events originating from the `beavers` application at version `1.0.0`. We have specified that we would like to subcribe to `beaver.created` and `beaver.updated` events.
+This will subscribe to specified events originating from the `beavers` application at version `1.0.0`. We have specified that we would like to subcribe to `beaver.created` and `beaver.updated` events. If either event type is received, we have specified that its payload will be printed to the screen.
 
 When the consumer is started, it will create its queue named using this pattern: `[environment].[consumer application name].[consumer application version]`. This allows for multiple versions of a consumer application to be running simultaneuosly. It will bind the queue to the `amq.topic` exchange on the routing keys as defined in the event routing. In this example, it will bind on:
 
@@ -222,6 +217,8 @@ When the consumer is started, it will create its queue named using this pattern:
 
 ## TODO
 
+* RSpec matcher to allow producers to verify event producing
+* DSL for event definitions on producer applications
 * Ability to run multiple consumer instances on the same server (pid file conflict)
 * Capistrano hooks
 * Add routing key wilcard capabilities to DSL

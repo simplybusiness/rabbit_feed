@@ -1,5 +1,6 @@
 module NonRailsApp
-  class EventHandler < RabbitFeed::EventHandler
+  module EventHandler
+    extend self
 
     def handle_event event
       puts "NonRailsApp::EventHandler - Consumed event: #{event.name} with payload: #{event.payload}"

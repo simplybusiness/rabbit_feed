@@ -3,8 +3,6 @@ require 'spec_helper'
 module RabbitFeed
   describe EventRouting do
     before do
-      @existing_routing = RabbitFeed.event_routing
-
       EventRouting do
         accept_from(application: 'dummy_1', version: '1.0.0') do
           event('event_1') do |event|
@@ -28,9 +26,6 @@ module RabbitFeed
           end
         end
       end
-    end
-    after do
-      RabbitFeed.event_routing = @existing_routing
     end
 
     it 'should create routing keys for the specified routes' do

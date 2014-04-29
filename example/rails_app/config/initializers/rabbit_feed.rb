@@ -9,7 +9,7 @@ require 'rabbit_feed_consumer'
 EventRouting do
   accept_from(application: 'non_rails_app', version: '1.0.0') do
     event('event.processed') do |event|
-      ::EventHandler.new.handle_event event
+      ::EventHandler.handle_event event
     end
   end
 end

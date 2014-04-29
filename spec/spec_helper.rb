@@ -18,17 +18,11 @@ RabbitFeed.log = Logger.new('test.log')
 RabbitFeed.environment = 'test'
 RabbitFeed.configuration_file_path = 'spec/fixtures/configuration.yml'
 
-# Set up event routing
-EventRouting do
-  accept_from(application: 'rabbit_feed', version: '1.0.0') do
-    event('test') {|event| }
-  end
-end
-
 # Loads the step definitions
 Dir.glob('spec/features/step_definitions/**/*_steps.rb') { |f| load f, true }
 
 RSpec.configure do |config|
+
   config.after do
     # Delete the test exchange we create
     delete_exchange
@@ -36,6 +30,8 @@ RSpec.configure do |config|
     delete_queue
     # Ensure that connections don't persist between tests
     close_connections
+    # Clear event routing
+    RabbitFeed.event_routing = nil
   end
 end
 
