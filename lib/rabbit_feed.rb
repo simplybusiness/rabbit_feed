@@ -4,16 +4,15 @@ require 'airbrake'
 require 'bunny'
 require 'connection_pool'
 require 'yaml'
-require 'rabbit_feed/version'
-require 'rabbit_feed/client'
-require 'rabbit_feed/configuration'
-require 'rabbit_feed/connection'
-require 'rabbit_feed/event'
+require 'dsl'
+Dir[File.join(File.dirname(__FILE__), 'rabbit_feed', '*.rb')].each {|file| require file }
 
 module RabbitFeed
   extend self
   class Error < StandardError; end
   class ConfigurationError < Error; end
+  class RoutingError < Error; end
+  class ReturnedMessageError < Error; end
 
   attr_accessor :log, :environment, :configuration_file_path
 

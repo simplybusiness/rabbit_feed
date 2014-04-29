@@ -117,18 +117,14 @@ Note that this gem uses Airbrake for exception notifications, so your project wi
 If installing in a rails application, the following should be defined in `config/initializers/rabbit_feed.rb`:
 
 ```ruby
-# Require the producer (if producing)
-require 'rabbit_feed_producer'
-# Require the consumer (if consuming)
-require 'rabbit_feed_consumer'
+# Require the gem
+require 'rabbit_feed'
 # Set the logger
 RabbitFeed.log                     = Logger.new(Rails.root.join('log/rabbit_feed.log'))
 # Set the environment
 RabbitFeed.environment             = Rails.env
 # Set the config file location
 RabbitFeed.configuration_file_path = File.join(Rails.root, 'config/rabbit_feed.yml')
-# Set the class that will handle incoming events (if consuming)
-RabbitFeed.event_handler           = RabbitFeed::EventHandler
 # Define the event routing (if consuming)
 EventRouting do
   accept_from(application: 'beaver', version: '1.0.0') do
@@ -156,8 +152,8 @@ If running with Unicorn, you must reconnect to RabbitMQ after the workers are fo
 
 ```ruby
 after_fork do |server, worker|
-  require 'rabbit_feed_producer'
-  RabbitFeed.reconnect!
+  require 'rabbit_feed'
+  RabbitFeed::Producer.reconnect!
 end
 ```
 
@@ -165,7 +161,7 @@ To prevent RabbitFeed from firing events during tests, add the following to `spe
 
 ```ruby
 config.before :each do
-  RabbitFeed.stub!
+  RabbitFeed::Producer.stub!
 end
 ```
 

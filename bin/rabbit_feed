@@ -1,8 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'bundler/setup'
-require_relative '../lib/rabbit_feed_consumer'
-require_relative '../lib/rabbit_feed_producer'
+require_relative '../lib/rabbit_feed'
 
 # Prevent deprecation warnings
 I18n.enforce_available_locales = true

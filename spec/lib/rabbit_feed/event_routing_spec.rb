@@ -30,7 +30,7 @@ module RabbitFeed
 
     it 'should create routing keys for the specified routes' do
 
-      RabbitFeed.event_routing.accepted_routes.should =~ %w{
+      RabbitFeed::Consumer.event_routing.accepted_routes.should =~ %w{
         test.dummy_1.1.0.0.event_1
         test.dummy_1.1.0.0.event_2
         test.dummy_1.2.0.0.event_3
@@ -48,7 +48,7 @@ module RabbitFeed
         (Event.new 'dummy_2', '2.0.0', 'event_5', 5),
       ]
       events.each do |event|
-        (RabbitFeed.event_routing.handle_event event).should eq event.payload
+        (RabbitFeed::Consumer.event_routing.handle_event event).should eq event.payload
       end
     end
 
@@ -59,7 +59,7 @@ module RabbitFeed
         (Event.new 'dummy_1', '2.0.0', 'event_9', 3),
       ]
       events.each do |event|
-        expect{ RabbitFeed.event_routing.handle_event event }.to raise_error RoutingError
+        expect{ RabbitFeed::Consumer.event_routing.handle_event event }.to raise_error RoutingError
       end
     end
 

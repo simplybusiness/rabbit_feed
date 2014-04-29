@@ -1,5 +1,4 @@
-require 'rabbit_feed_consumer'
-require 'rabbit_feed_producer'
+require 'rabbit_feed'
 require_relative 'non_rails_app/event_handler'
 
 EventRouting do

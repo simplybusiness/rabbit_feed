@@ -1,10 +1,13 @@
 module RabbitFeed
-  class Consumer
+  module Consumer
+    extend self
 
-    def self.start
+    attr_accessor :event_routing
+
+    def start
       ConsumerConnection.consume do |raw_event|
         event = Event.deserialize raw_event
-        RabbitFeed.event_routing.handle_event event
+        event_routing.handle_event event
       end
     end
   end

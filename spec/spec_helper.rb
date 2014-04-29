@@ -1,5 +1,4 @@
-require 'rabbit_feed_producer'
-require 'rabbit_feed_consumer'
+require 'rabbit_feed'
 require 'timeout'
 require 'codeclimate-test-reporter'
 
@@ -31,7 +30,7 @@ RSpec.configure do |config|
     # Ensure that connections don't persist between tests
     close_connections
     # Clear event routing
-    RabbitFeed.event_routing = nil
+    RabbitFeed::Consumer.event_routing = nil
   end
 end
 

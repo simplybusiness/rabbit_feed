@@ -50,8 +50,8 @@ module RabbitFeed
     end
 
     def bind_on_accepted_routes
-      if RabbitFeed.event_routing.present?
-        RabbitFeed.event_routing.accepted_routes.each do |accepted_route|
+      if RabbitFeed::Consumer.event_routing.present?
+        RabbitFeed::Consumer.event_routing.accepted_routes.each do |accepted_route|
           queue.bind(RabbitFeed.configuration.exchange, { routing_key: accepted_route })
         end
       else
