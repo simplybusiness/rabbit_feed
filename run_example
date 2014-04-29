@@ -1,0 +1,59 @@
+#!/bin/bash
+
+set -e
+
+# Start consumer on the non-rails application
+echo 'Starting non rails application consumer...'
+pushd example/non_rails_app >/dev/null
+bundle >/dev/null
+bundle exec rabbit_feed consume --environment development --require `pwd`/lib/non_rails_app.rb --daemon --verbose
+sleep 1
+popd >/dev/null
+echo 'Non rails application consumer started'
+
+# Start consumer on the rails application
+echo 'Starting rails application consumer...'
+pushd example/rails_app >/dev/null
+bundle >/dev/null
+bundle exec rabbit_feed consume --environment development --daemon --verbose
+sleep 1
+popd >/dev/null
+echo 'Rails application consumer started'
+
+# Start the rails application
+echo 'Starting rails application...'
+pushd example/rails_app >/dev/null
+nodenv local v0.10 >/dev/null
+bundle exec rake db:migrate
+bundle exec unicorn -c config/unicorn.rb -D
+sleep 1
+popd >/dev/null
+echo 'Rails application started'
+
+# Trigger an event
+echo 'Triggering event...'
+curl -silent -H -X POST http://localhost:8080/beavers -d "beaver[name]=`date '+%m/%d/%y %H:%M:%S'`" >/dev/null
+echo 'Event triggered'
+
+sleep 3
+
+# Stop consumer on the non-rails application
+echo 'Stopping non rails application consumer...'
+pushd example/non_rails_app >/dev/null
+kill `cat tmp/pids/rabbit_feed.pid`
+popd >/dev/null
+echo 'Non rails application consumer stopped'
+
+# Stop consumer on the rails application
+echo 'Stopping rails application consumer...'
+pushd example/rails_app >/dev/null
+kill `cat tmp/pids/rabbit_feed.pid`
+popd >/dev/null
+echo 'Rails application consumer stopped'
+
+# Stop the rails application
+echo 'Stopping rails application...'
+pushd example/rails_app >/dev/null
+kill `cat tmp/pids/unicorn.pid`
+popd >/dev/null
+echo 'Rails application stopped'

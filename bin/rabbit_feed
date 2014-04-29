@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+require 'bundler/setup'
+require_relative '../lib/rabbit_feed'
+
+# Prevent deprecation warnings
+I18n.enforce_available_locales = true
+
+client = RabbitFeed::Client.new
+client.run
+
