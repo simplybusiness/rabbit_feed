@@ -30,4 +30,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'airbrake'
   # Manages process pidfile
   spec.add_dependency 'pidfile'
+  # Schema definitions for events
+  spec.add_dependency 'avro'
 end

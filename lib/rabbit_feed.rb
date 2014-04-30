@@ -1,6 +1,7 @@
 require 'active_support/all'
 require 'active_model'
 require 'airbrake'
+require 'avro'
 require 'bunny'
 require 'connection_pool'
 require 'yaml'
@@ -15,6 +16,7 @@ require 'rabbit_feed/consumer'
 require 'rabbit_feed/event_routing'
 require 'rabbit_feed/producer_connection'
 require 'rabbit_feed/producer'
+require 'rabbit_feed/event_definitions'
 
 module RabbitFeed
   extend self

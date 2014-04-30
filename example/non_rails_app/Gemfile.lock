@@ -1,10 +1,11 @@
 PATH
   remote: ../../
   specs:
-    rabbit_feed (0.0.1)
+    rabbit_feed (0.0.2)
       activemodel
       activesupport
       airbrake
+      avro
       bunny
       connection_pool
       pidfile
@@ -25,6 +26,8 @@ GEM
       builder
       multi_json
     amq-protocol (1.9.2)
+    avro (1.7.5)
+      yajl-ruby
     builder (3.2.2)
     bunny (1.2.1)
       amq-protocol (>= 1.9.2)
@@ -32,11 +35,12 @@ GEM
     i18n (0.6.9)
     json (1.8.1)
     minitest (5.3.3)
-    multi_json (1.9.2)
+    multi_json (1.9.3)
     pidfile (0.3.0)
     thread_safe (0.3.3)
     tzinfo (1.1.0)
       thread_safe (~> 0.1)
+    yajl-ruby (1.2.0)
 
 PLATFORMS
   ruby
