@@ -31,6 +31,8 @@ RSpec.configure do |config|
     close_connections
     # Clear event routing
     RabbitFeed::Consumer.event_routing = nil
+    # Clear event definitions
+    RabbitFeed::Producer.event_definitions = nil
   end
 end
 

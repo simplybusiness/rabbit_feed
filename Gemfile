@@ -5,6 +5,7 @@ gemspec
 
 group :development, :test do
   gem 'rake'
+  gem 'pry-plus'
 end
 
 group :test do

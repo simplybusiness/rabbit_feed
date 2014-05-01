@@ -27,8 +27,18 @@ step 'the exchange is created' do
 end
 
 step 'I can publish an event to the exchange' do
+  EventDefinitions do
+    define_event('test', version: '1.0.0') do
+      defined_as do
+        'The test event'
+      end
+      payload_contains do
+        field('field', type: 'string', definition: 'The field')
+      end
+    end
+  end
   @event_text = 'test_event_'+Time.now.to_f.to_s
-  RabbitFeed::Producer.publish_event 'test', @event_text
+  RabbitFeed::Producer.publish_event 'test', { 'field' => @event_text }
 end
 
 step 'I declare a new queue' do
@@ -36,7 +46,7 @@ step 'I declare a new queue' do
   allow_any_instance_of(RabbitFeed::Configuration).to receive(:queue).and_return(@queue)
 
   EventRouting do
-    accept_from(application: 'rabbit_feed', version: '1.0.0') do
+    accept_from('rabbit_feed') do
       event('test') {|event|}
     end
   end
@@ -52,7 +62,7 @@ step 'the queue is bound to the exchange' do; end
 step 'I can consume an event from the queue' do
   event_count.should eq 0
   send 'I can publish an event to the exchange'
-  consume_event.should eq @event_text
+  consume_event.field.should eq @event_text
   event_count.should eq 0
 end
 
@@ -60,10 +70,10 @@ step 'I am unable to successfully process an event' do
   send 'I declare a new queue'
   event_count.should eq 0
   send 'I can publish an event to the exchange'
-  actual_text = consume_event do |event|
-    raise 'Could not process this event: '+event
+  event = consume_event do |event|
+    raise 'Could not process this event: '+event.field
   end
-  actual_text.should eq @event_text
+  event.field.should eq @event_text
 end
 
 step 'the event remains on the queue' do
@@ -77,10 +87,10 @@ module Turnip::Steps
   def consume_event &block
     handled_event = nil
     EventRouting do
-      accept_from(application: 'rabbit_feed', version: '1.0.0') do
+      accept_from('rabbit_feed') do
         event('test') do |event|
           handled_event = event
-          (block.call event.payload) if block.present?
+          (block.call event) if block.present?
         end
       end
     end
@@ -91,7 +101,7 @@ module Turnip::Steps
       end
     rescue Timeout::Error
     end
-    handled_event.payload if handled_event.present?
+    handled_event
   end
 
   def event_count

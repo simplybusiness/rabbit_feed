@@ -4,7 +4,6 @@ test:
   user: guest
   password: guest
   application: rabbit_feed
-  version: 1.0.0
   exchange: amq.topic
   pool_size: 1
   pool_timeout: 1

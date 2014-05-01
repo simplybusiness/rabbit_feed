@@ -4,4 +4,3 @@ development:
   user: guest
   password: guest
   application: non_rails_app
-  version: 1.0.0
