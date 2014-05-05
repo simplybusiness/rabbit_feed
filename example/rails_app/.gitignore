@@ -14,3 +14,4 @@
 # Ignore all logfiles and temp files.
 /log/*.log
 /tmp/cache
+/tmp/pids/*.pid
