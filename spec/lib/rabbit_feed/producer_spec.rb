@@ -5,6 +5,7 @@ module RabbitFeed
     describe '.publish' do
       let(:event_name) { 'event_name' }
       before do
+        RabbitFeed::Producer.stub!
         EventDefinitions do
           define_event('event_name', version: '1.0.0') do
             defined_as do
