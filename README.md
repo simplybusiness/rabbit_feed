@@ -214,7 +214,7 @@ When the consumer is started, it will create its queue named using this pattern:
 ## TODO
 
 * Store schema with event: http://avro.apache.org/docs/current/gettingstartedpython.html
-* Event grammar, see: http://snowplowanalytics.com/blog/2013/08/12/towards-universal-event-analytics-building-an-event-grammar/
+* Event grammar, see: http://snowplowanalytics.com/blog/2013/08/12/towards-universal-event-analytics-building-an-event-grammar/. For additional info on event contexts, see: http://snowplowanalytics.com/blog/2014/01/27/snowplow-custom-contexts-guide/
 * Payload-level versioning, see: http://johnnunemaker.com/analytics-at-github/
 * RSpec matcher to allow producers to verify event producing
 * RSpec matcher to allow consumers to verify event routing
