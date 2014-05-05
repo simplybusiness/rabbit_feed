@@ -24,7 +24,7 @@ describe BeaversController do
     describe 'DELETE destroy' do
       it 'publishes an delete event' do
         expect{
-          delete :update, id: beaver.id, beaver: { name: 'beaver' }
+          delete :destroy, id: beaver.id
         }.to publish_event('user_deletes_beaver', { 'beaver_name' => 'beaver' })
       end
     end

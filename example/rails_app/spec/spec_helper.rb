@@ -47,7 +47,5 @@ RSpec.configure do |config|
     RabbitFeed::Producer.stub!
   end
 
-  RSpec::configure do |config|
-    config.include(RabbitFeed::RSpecMatchers)
-  end
+  config.include(RabbitFeed::RSpecMatchers)
 end

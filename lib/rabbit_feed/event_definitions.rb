@@ -29,7 +29,7 @@ module RabbitFeed
       include ActiveModel::Validations
 
       attr_reader :name, :definition, :version, :fields
-      validates_presence_of :name, :definition, :version, :fields
+      validates_presence_of :name, :definition, :version
       validate :schema_parseable
       validates :version, format: { with: /\A\d+\.\d+\.\d+\z/, message: 'must be in *.*.* format' }
 

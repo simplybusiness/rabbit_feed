@@ -1,12 +1,9 @@
 module RabbitFeed
   module RSpecMatchers
     class PublishEvent
-      attr_reader :block, :actual_event, :actual_payload, :expected_event, :expected_payload, :received_events, :received_expected_event, :with_expected_payload
+      attr_reader :expected_event, :expected_payload, :received_events
 
-      def initialize(expected_event, expected_payload, &block)
-        @block            = block
-        @actual_event     = nil
-        @actual_payload   = nil
+      def initialize(expected_event, expected_payload)
         @expected_event   = expected_event
         @expected_payload = expected_payload
         @received_events  = []
@@ -14,10 +11,6 @@ module RabbitFeed
       end
 
       def matches?(given_proc, negative_expectation = false)
-        @received_expected_event = false
-        @with_expected_payload   = false
-        @eval_block = false
-        @eval_block_passed = false
         unless given_proc.respond_to?(:call)
           ::Kernel.warn "`publish_event` was called with non-proc object #{given_proc.inspect}"
           return false
@@ -25,15 +18,16 @@ module RabbitFeed
 
         given_proc.call
 
-        @actual_event = received_events.detect do |event|
-          event.name = expected_event
+        actual_event = received_events.detect do |event|
+          event.name == expected_event
         end
 
-        @received_expected_event = actual_event.present?
+        received_expected_event = actual_event.present?
 
-        if received_expected_event
-          @actual_payload        = (strip_defaults_from actual_event.payload)
-          @with_expected_payload = actual_payload == expected_payload
+        with_expected_payload = negative_expectation
+        if received_expected_event && !with_expected_payload
+          actual_payload        = (strip_defaults_from actual_event.payload)
+          with_expected_payload = actual_payload == expected_payload
         end
 
         return received_expected_event && with_expected_payload
@@ -48,9 +42,10 @@ module RabbitFeed
         "expected #{expected_event} with #{expected_payload} but instead received #{received_events_message}"
       end
 
-      def failure_message_when_negated
-        "expected no #{expected_event}"
+      def negative_failure_message
+        "expected no #{expected_event} event, but received one anyways"
       end
+      alias failure_message_when_negated negative_failure_message
 
       def description
         "publish_event #{expected_event}"
