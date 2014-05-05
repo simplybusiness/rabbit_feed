@@ -45,8 +45,9 @@ module RabbitFeed
         {name: 'host', type: 'string', doc: 'The hostname of the server on which the event was created'},
         {name: 'environment', type: 'string', doc: 'The environment in which the event was created'},
         {name: 'version', type: 'string', doc: 'The version of the event'},
-        {name: 'created_at_utc', type: 'float', doc: 'The UTC time that the event was created'},
-        {name: 'field', type: 'string', doc: 'field definition'}
+        {name: 'created_at_utc', type: 'string', doc: 'The UTC time that the event was created'},
+        {name: 'field', type: 'string', doc: 'field definition'},
+        {name: 'name', type: 'string', doc: 'The name of the event'}
         ]
       }
 

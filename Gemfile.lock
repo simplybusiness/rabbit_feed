@@ -118,4 +118,5 @@ DEPENDENCIES
   pry-plus
   rabbit_feed!
   rake
+  rspec
   rutabaga

@@ -32,4 +32,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'pidfile'
   # Schema definitions for events
   spec.add_dependency 'avro'
+  # For stubbing and custom matchers
+  spec.add_development_dependency 'rspec'
 end

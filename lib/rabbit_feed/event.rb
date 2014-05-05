@@ -25,14 +25,9 @@ module RabbitFeed
       payload      = nil
       reader.each do |datum|
         payload = datum
-        break
       end
       reader.close
       Event.new datum_reader.readers_schema, payload
-    end
-
-    def name
-      schema.name
     end
 
     def method_missing(method_name, *args, &block)

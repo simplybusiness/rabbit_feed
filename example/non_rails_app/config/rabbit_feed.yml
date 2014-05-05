@@ -4,3 +4,5 @@ development:
   user: guest
   password: guest
   application: non_rails_app
+test:
+  application: non_rails_app

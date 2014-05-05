@@ -79,7 +79,7 @@ end
 step 'the event remains on the queue' do
   RabbitFeed::ConsumerConnection.reconnect! # Don't let the existing connection keep a monopoly on the event
   event_count.should eq 1
-  consume_event.should eq @event_text
+  consume_event.field.should eq @event_text
 end
 
 module Turnip::Steps

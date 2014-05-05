@@ -28,7 +28,7 @@ class BeaversController < ApplicationController
 
     respond_to do |format|
       if @beaver.save
-        RabbitFeed::Producer.publish_event 'beaver.created', @beaver.to_json
+        publish_event 'user_creates_beaver'
         format.html { redirect_to @beaver, notice: 'Beaver was successfully created.' }
         format.json { render :show, status: :created, location: @beaver }
       else
@@ -43,7 +43,7 @@ class BeaversController < ApplicationController
   def update
     respond_to do |format|
       if @beaver.update(beaver_params)
-        RabbitFeed::Producer.publish_event 'beaver.updated', @beaver.to_json
+        publish_event 'user_updates_beaver'
         format.html { redirect_to @beaver, notice: 'Beaver was successfully updated.' }
         format.json { render :show, status: :ok, location: @beaver }
       else
@@ -57,7 +57,7 @@ class BeaversController < ApplicationController
   # DELETE /beavers/1.json
   def destroy
     @beaver.destroy
-    RabbitFeed::Producer.publish_event 'beaver.deleted', @beaver.to_json
+    publish_event 'user_deletes_beaver'
     respond_to do |format|
       format.html { redirect_to beavers_url }
       format.json { head :no_content }
@@ -73,5 +73,9 @@ class BeaversController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def beaver_params
       params.require(:beaver).permit(:name)
+    end
+
+    def publish_event name
+      RabbitFeed::Producer.publish_event name, { 'beaver_name' => @beaver.name }
     end
 end

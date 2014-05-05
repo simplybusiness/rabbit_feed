@@ -34,7 +34,7 @@ module RabbitFeed
 
     def self.handle_returned_message return_info, content
       RabbitFeed.log.error "Handling returned message on #{self.to_s} details: #{return_info}..."
-      Airbrake.notify (ReturnedMessageError.new return_info)
+      RabbitFeed.exception_notify (ReturnedMessageError.new return_info)
     end
 
     private
