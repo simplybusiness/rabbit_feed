@@ -33,7 +33,7 @@ After doing any dev work, it is good practice to verify you haven't broken the e
 
     ./run_example
 
-You should see the following output:
+You should see something similar to the following output:
 
     Starting non rails application consumer...
     /opt/boxen/rbenv/versions/2.0.0-p451/bin/ruby -S rspec ./spec/lib/non_rails_app/event_handler_spec.rb
