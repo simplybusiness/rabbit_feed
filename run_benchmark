@@ -2,28 +2,6 @@
 
 set -e
 
-#-----------------------------------------
-# Test publishing from a rails application
-
-# As of 20140506 on MacBook Pro Retina, Mid 2012
-# Processor  2.6 GHz Intel Core i7
-# Memory  8 GB 1600 MHz DDR3
-# Software  OS X 10.8.5 (12F45)
-
-# Transactions:            200 hits
-# Availability:         100.00 %
-# Elapsed time:           0.88 secs
-# Data transferred:         0.16 MB
-# Response time:            0.04 secs
-# Transaction rate:       227.27 trans/sec
-# Throughput:           0.18 MB/sec
-# Concurrency:            9.49
-# Successful transactions:         100
-# Failed transactions:             0
-# Longest transaction:          0.26
-# Shortest transaction:         0.00
-#-----------------------------------------
-
 echo 'Starting test of rails application...'
 # Start the rails application
 echo 'Starting rails application...'
@@ -48,23 +26,6 @@ echo 'Rails application stopped'
 echo 'Rails application test complete'
 echo ''
 echo ''
-
-#-----------------------------------------
-# Test publishing from a ruby app
-
-# As of 20140506 on MacBook Pro Retina, Mid 2012
-# Processor  2.6 GHz Intel Core i7
-# Memory  8 GB 1600 MHz DDR3
-# Software  OS X 10.8.5 (12F45)
-
-# Publishing 5000 events...
-#        user     system      total        real
-#    1.490000   0.240000   1.730000 (  1.744768)
-# Consuming 5000 events...
-#        user     system      total        real
-#    2.310000   0.600000   2.910000 (  3.346241)
-
-#-----------------------------------------
 
 # Test standalone publishing and consuming
 echo 'Starting standalone publishing and consuming benchmark...'
