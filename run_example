@@ -16,6 +16,8 @@ echo 'Non rails application consumer started'
 echo 'Starting rails application consumer...'
 pushd example/rails_app >/dev/null
 bundle >/dev/null
+bundle exec rake db:reset
+bundle exec rake db:reset RAILS_ENV=test
 bundle exec rake
 bundle exec rabbit_feed consume --environment development --daemon --verbose
 sleep 1
@@ -26,7 +28,6 @@ echo 'Rails application consumer started'
 echo 'Starting rails application...'
 pushd example/rails_app >/dev/null
 nodenv local v0.10 >/dev/null
-bundle exec rake db:migrate
 bundle exec unicorn -c config/unicorn.rb -D
 sleep 1
 popd >/dev/null

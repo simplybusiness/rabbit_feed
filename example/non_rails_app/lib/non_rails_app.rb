@@ -17,6 +17,10 @@ EventRouting do
       NonRailsApp::EventHandler.handle_event event
     end
   end
+  accept_from('non_rails_app') do
+    event('test_event') do |event|
+    end
+  end
 end
 
 EventDefinitions do

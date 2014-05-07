@@ -1,0 +1,60 @@
+#!/usr/bin/env ruby
+
+require 'benchmark'
+require 'bundler/setup'
+require_relative '../lib/non_rails_app'
+
+# Prevent deprecation warnings
+I18n.enforce_available_locales = true
+
+RabbitFeed.log                     = Logger.new('development.log')
+RabbitFeed.environment             = 'development'
+RabbitFeed.configuration_file_path = 'config/rabbit_feed.yml'
+
+payload = 'abc'*5000
+number_of_events = 5000
+
+EventDefinitions do
+  define_event('test_event', version: '1.0.0') do
+    defined_as do
+      'An event used in the benchmarking tests'
+    end
+    payload_contains do
+      field('data', type: 'string', definition: 'A large chunk of text')
+    end
+  end
+end
+
+puts "Publishing #{number_of_events} events..."
+Benchmark.bm do |x|
+  x.report { number_of_events.times { RabbitFeed::Producer.publish_event 'test_event', { 'data' => payload } } }
+end
+
+events_consumed = 0
+
+EventRouting do
+  accept_from('non_rails_app') do
+    event('test_event') do |event|
+      events_consumed += 1
+      raise Interrupt if events_consumed >= number_of_events
+    end
+  end
+  accept_from('rails_app') do
+    event('user_creates_beaver') do |event|
+    end
+    event('user_updates_beaver') do |event|
+    end
+    event('user_deletes_beaver') do |event|
+    end
+  end
+end
+
+puts "Consuming #{number_of_events} events..."
+Benchmark.bm do |x|
+  x.report do
+    begin
+      RabbitFeed::Consumer.start
+    rescue Interrupt
+    end
+  end
+end

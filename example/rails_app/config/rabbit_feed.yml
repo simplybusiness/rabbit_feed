@@ -4,6 +4,11 @@ development:
   user: guest
   password: guest
   application: rails_app
-
 test:
+  application: rails_app
+production:
+  host: localhost
+  port: 5672
+  user: guest
+  password: guest
   application: rails_app
