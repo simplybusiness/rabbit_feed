@@ -65,7 +65,7 @@ module RabbitFeed
       queue.channel.nack(delivery_info.delivery_tag, false, true) if connection.open?
 
       RabbitFeed.log.error "Exception encountered while consuming message on #{self.to_s} from queue #{RabbitFeed.configuration.queue}: #{exception.message} #{exception.backtrace}"
-      Airbrake.notify exception
+      RabbitFeed.exception_notify exception
     end
   end
 end

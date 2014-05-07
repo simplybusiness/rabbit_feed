@@ -6,6 +6,7 @@ set -e
 echo 'Starting non rails application consumer...'
 pushd example/non_rails_app >/dev/null
 bundle >/dev/null
+bundle exec rake
 bundle exec rabbit_feed consume --environment development --require `pwd`/lib/non_rails_app.rb --daemon --verbose
 sleep 1
 popd >/dev/null
@@ -15,6 +16,7 @@ echo 'Non rails application consumer started'
 echo 'Starting rails application consumer...'
 pushd example/rails_app >/dev/null
 bundle >/dev/null
+bundle exec rake
 bundle exec rabbit_feed consume --environment development --daemon --verbose
 sleep 1
 popd >/dev/null

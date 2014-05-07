@@ -8,12 +8,11 @@ module RabbitFeed
         {
           application: 'rabbit_feed',
           environment: 'test',
-          version:     '1.0.0',
         }
       end
       subject { (described_class.new options).queue }
 
-      it { should eq 'test.rabbit_feed.1.0.0' }
+      it { should eq 'test.rabbit_feed' }
     end
 
     describe '.load' do
@@ -37,7 +36,6 @@ module RabbitFeed
         its(:password)        { should eq 'guest' }
         its(:application)     { should eq 'rabbit_feed' }
         its(:environment)     { should eq 'test' }
-        its(:version)         { should eq '1.0.0' }
         its(:exchange)        { should eq 'amq.topic' }
         its(:pool_size)       { should eq 1 }
         its(:pool_timeout)    { should eq 1 }
@@ -56,7 +54,6 @@ module RabbitFeed
           {
             application: 'rabbit_feed',
             environment: 'test',
-            version:     '1.0.0',
           }
         end
 
@@ -69,14 +66,6 @@ module RabbitFeed
         its(:pool_timeout)    { should eq 5 }
         its(:heartbeat)       { should eq 5 }
         its(:connect_timeout) { should eq 10 }
-
-        context 'with invalid version' do
-
-          it 'should raise an error' do
-            options.merge!(version: '1.0')
-            expect{ subject }.to raise_error ConfigurationError
-          end
-        end
       end
 
       context 'with provided options' do
@@ -88,7 +77,6 @@ module RabbitFeed
             password:        'password',
             application:     'rabbit_feed',
             environment:     'test',
-            version:         '1.0.0',
             exchange:        'exchange_name',
             pool_size:       2,
             pool_timeout:    6,
@@ -103,7 +91,6 @@ module RabbitFeed
         its(:password)        { should eq 'password' }
         its(:application)     { should eq 'rabbit_feed' }
         its(:environment)     { should eq 'test' }
-        its(:version)         { should eq '1.0.0' }
         its(:exchange)        { should eq 'exchange_name' }
         its(:pool_size)       { should eq 2 }
         its(:pool_timeout)    { should eq 6 }

@@ -1,6 +1,7 @@
 require 'active_support/all'
 require 'active_model'
 require 'airbrake'
+require 'avro'
 require 'bunny'
 require 'connection_pool'
 require 'yaml'
@@ -15,6 +16,8 @@ require 'rabbit_feed/consumer'
 require 'rabbit_feed/event_routing'
 require 'rabbit_feed/producer_connection'
 require 'rabbit_feed/producer'
+require 'rabbit_feed/event_definitions'
+require 'rabbit_feed/rspec_matchers/publish_event'
 
 module RabbitFeed
   extend self
@@ -28,5 +31,9 @@ module RabbitFeed
   def configuration
     raise ConfigurationError.new 'rabbit feed log is not set' unless log.present?
     @configuration ||= (Configuration.load RabbitFeed.configuration_file_path, RabbitFeed.environment)
+  end
+
+  def exception_notify exception
+    (Airbrake.notify exception) if Airbrake.configuration.public?
   end
 end

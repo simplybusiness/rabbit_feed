@@ -4,7 +4,7 @@ module RabbitFeed
   describe EventRouting do
     before do
       EventRouting do
-        accept_from(application: 'dummy_1', version: '1.0.0') do
+        accept_from('dummy_1') do
           event('event_1') do |event|
             event.payload
           end
@@ -12,16 +12,8 @@ module RabbitFeed
             event.payload
           end
         end
-        accept_from(application: 'dummy_1', version: '2.0.0') do
+        accept_from('dummy_2') do
           event('event_3') do |event|
-            event.payload
-          end
-          event('event_4') do |event|
-            event.payload
-          end
-        end
-        accept_from(application: 'dummy_2', version: '2.0.0') do
-          event('event_5') do |event|
             event.payload
           end
         end
@@ -31,21 +23,17 @@ module RabbitFeed
     it 'should create routing keys for the specified routes' do
 
       RabbitFeed::Consumer.event_routing.accepted_routes.should =~ %w{
-        test.dummy_1.1.0.0.event_1
-        test.dummy_1.1.0.0.event_2
-        test.dummy_1.2.0.0.event_3
-        test.dummy_1.2.0.0.event_4
-        test.dummy_2.2.0.0.event_5
+        test.dummy_1.event_1
+        test.dummy_1.event_2
+        test.dummy_2.event_3
       }
     end
 
     it 'routes the event to the correct action' do
       events = [
-        (Event.new 'dummy_1', '1.0.0', 'event_1', 1),
-        (Event.new 'dummy_1', '1.0.0', 'event_2', 2),
-        (Event.new 'dummy_1', '2.0.0', 'event_3', 3),
-        (Event.new 'dummy_1', '2.0.0', 'event_4', 4),
-        (Event.new 'dummy_2', '2.0.0', 'event_5', 5),
+        double(:event, application: 'dummy_1', name: 'event_1', payload: 1),
+        double(:event, application: 'dummy_1', name: 'event_2', payload: 2),
+        double(:event, application: 'dummy_2', name: 'event_3', payload: 3),
       ]
       events.each do |event|
         (RabbitFeed::Consumer.event_routing.handle_event event).should eq event.payload
@@ -54,36 +42,58 @@ module RabbitFeed
 
     it 'raises a routing error when the event cannot be routed' do
       events = [
-        (Event.new 'dummy_9', '1.0.0', 'event_1', 1),
-        (Event.new 'dummy_1', '1.0.9', 'event_2', 2),
-        (Event.new 'dummy_1', '2.0.0', 'event_9', 3),
+        double(:event, application: 'dummy_9', name: 'event_1', payload: 1),
+        double(:event, application: 'dummy_1', name: 'event_9', payload: 3),
       ]
       events.each do |event|
         expect{ RabbitFeed::Consumer.event_routing.handle_event event }.to raise_error RoutingError
       end
     end
 
-    context 'when the version specification is invalid' do
+    describe EventRouting::Application do
+      let(:name) { 'name' }
+      subject{ EventRouting::Application.new name }
 
-      it 'raises a configuration error' do
-        expect do
-          EventRouting do
-            accept_from(application: 'dummy_1', version: '1.0.b') {}
-          end
-        end.to raise_error ConfigurationError
+      it { should be_valid }
+
+      context 'when the name is nil' do
+        let(:name) {}
+
+        it 'raises a configuration error' do
+          expect{ subject }.to raise_error ConfigurationError
+        end
       end
     end
 
-    context 'when the event action does not provide the event' do
+    describe EventRouting::Event do
+      let(:name)  { 'name' }
+      let(:block) { Proc.new{|event|} }
+      subject{ EventRouting::Event.new name, block }
 
-      it 'raises a configuration error' do
-        expect do
-          EventRouting do
-            accept_from(application: 'dummy_1', version: '1.0.1') do
-              event('dummy_1') {}
-            end
-          end
-        end.to raise_error ConfigurationError
+      it { should be_valid }
+
+      context 'when the name is nil' do
+        let(:name) {}
+
+        it 'raises a configuration error' do
+          expect{ subject }.to raise_error ConfigurationError
+        end
+      end
+
+      context 'when no action is provided' do
+        let(:block) {}
+
+        it 'raises a configuration error' do
+          expect{ subject }.to raise_error ConfigurationError
+        end
+      end
+
+      context 'when the event is not provided to the event action' do
+        let(:block) { Proc.new{} }
+
+        it 'raises a configuration error' do
+          expect{ subject }.to raise_error ConfigurationError
+        end
       end
     end
   end

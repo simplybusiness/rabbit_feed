@@ -2,9 +2,8 @@ module RabbitFeed
   class Configuration
     include ActiveModel::Validations
 
-    attr_reader :host, :port, :user, :password, :application, :environment, :version, :exchange, :pool_size, :pool_timeout, :heartbeat, :connect_timeout
-    validates_presence_of :host, :port, :user, :password, :application, :environment, :version, :exchange, :pool_size, :pool_timeout, :heartbeat, :connect_timeout
-    validates :version, format: { with: /\A\d+\.\d+\.\d+\z/, message: 'must be in *.*.* format' }
+    attr_reader :host, :port, :user, :password, :application, :environment, :exchange, :pool_size, :pool_timeout, :heartbeat, :connect_timeout
+    validates_presence_of :host, :port, :user, :password, :application, :environment, :exchange, :pool_size, :pool_timeout, :heartbeat, :connect_timeout
 
     def initialize options
       RabbitFeed.log.debug "RabbitFeed initialising with options: #{options}..."
@@ -20,7 +19,6 @@ module RabbitFeed
       @connect_timeout = options[:connect_timeout] || 10
       @application     = options[:application]
       @environment     = options[:environment]
-      @version         = options[:version]
       validate!
     end
 
@@ -32,7 +30,7 @@ module RabbitFeed
     end
 
     def queue
-      "#{environment}.#{application}.#{version}"
+      "#{environment}.#{application}"
     end
 
     private

@@ -8,7 +8,7 @@ A gem providing asynchronous event publish and subscribe capabilities with Rabbi
 * Persistent events: Once an event has been published, it will persist until it has been processed successfully.
 * Event order preserved: Events are received in the order they were generated.
 * Multiple subscribers: Multiple applications can subscribe to the same events.
-* Application versioning: Allows for multiple [incompatible] versions of application events to exist simulaneously.
+* Event versioning: Consumers can customize event handling based on the event version.
 
 ## Developing
 
@@ -33,18 +33,35 @@ After doing any dev work, it is good practice to verify you haven't broken the e
 
     ./run_example
 
-You should see the following output:
+You should see something similar to the following output:
 
     Starting non rails application consumer...
+    /opt/boxen/rbenv/versions/2.0.0-p451/bin/ruby -S rspec ./spec/lib/non_rails_app/event_handler_spec.rb
+    NonRailsApp::EventHandler - Consumed event: user_updates_beaver with payload: {"beaver_name"=>"beaver"}
+    .
+
+    Finished in 0.00349 seconds
+    1 example, 0 failures
+
+    Randomized with seed 59391
+
     Non rails application consumer started
     Starting rails application consumer...
+    /opt/boxen/rbenv/versions/2.0.0-p451/bin/ruby -S rspec ./spec/controllers/beavers_controller_spec.rb
+    ...
+
+    Finished in 0.04397 seconds
+    3 examples, 0 failures
+
+    Randomized with seed 18883
+
     Rails application consumer started
     Starting rails application...
     Rails application started
     Triggering event...
-    NonRailsApp::EventHandler - Consumed event: beaver.created with payload: {"id":10,"name":"04/24/14 13:40:43","created_at":"2014-04-24T12:40:44.618Z","updated_at":"2014-04-24T12:40:44.618Z"}
+    NonRailsApp::EventHandler - Consumed event: user_creates_beaver with payload: {"application"=>"rails_app", "host"=>"macjfleck.home", "environment"=>"development", "version"=>"1.0.0", "name"=>"user_creates_beaver", "created_at_utc"=>"2014-05-05T14:16:44.045395Z", "beaver_name"=>"05/05/14 15:16:43"}
     Event triggered
-    RailsApp::EventHandler - Consumed event: event.processed with payload: {:event_name=>"beaver.created", :original_payload=>"{\"id\":10,\"name\":\"04/24/14 13:40:43\",\"created_at\":\"2014-04-24T12:40:44.618Z\",\"updated_at\":\"2014-04-24T12:40:44.618Z\"}"}
+    RailsApp::EventHandler - Consumed event: application_acknowledges_event with payload: {"application"=>"non_rails_app", "host"=>"macjfleck.home", "environment"=>"development", "version"=>"1.0.0", "name"=>"application_acknowledges_event", "created_at_utc"=>"2014-05-05T14:16:44.057279Z", "beaver_name"=>"05/05/14 15:16:43", "event_name"=>"user_creates_beaver"}
     Stopping non rails application consumer...
     Non rails application consumer stopped
     Stopping rails application consumer...
@@ -58,7 +75,7 @@ You should see the following output:
 
     bundle exec bin/rabbit_feed produce --payload 'Event payload' --name 'Event name' --environment test --config spec/fixtures/configuration.yml --logfile test.log --require rabbit_feed.rb --verbose
 
-Publishes an event. Options are as follows:
+Publishes an event. Note: until you've specified the event definitions, this will not publish any events. Options are as follows:
 
     --payload The payload of the event
     --name The name of the event
@@ -99,7 +116,6 @@ Create a `config/rabbit_feed.yml` file. The following options can be specified:
       user: RabbitMQ user name
       password: RabbitMQ password
       application: Application name
-      version: Application version number
 
 Sample:
 
@@ -108,7 +124,6 @@ Sample:
       user: guest
       password: guest
       application: beavers
-      version: 1.0.0
 
 Note that this gem uses Airbrake for exception notifications, so your project will need to have Airbrake configured.
 
@@ -125,9 +140,20 @@ RabbitFeed.log                     = Logger.new(Rails.root.join('log/rabbit_feed
 RabbitFeed.environment             = Rails.env
 # Set the config file location
 RabbitFeed.configuration_file_path = File.join(Rails.root, 'config/rabbit_feed.yml')
+# Define the events (if producing)
+EventDefinitions do
+  define_event('user_creates_beaver', version: '1.0.0') do
+    defined_as do
+      'A beaver has been created'
+    end
+    payload_contains do
+      field('beaver_name', type: 'string', definition: 'The name of the beaver')
+    end
+  end
+end
 # Define the event routing (if consuming)
 EventRouting do
-  accept_from(application: 'beaver', version: '1.0.0') do
+  accept_from('beavers') do
     event('foo') do |event|
       # Do something...
     end
@@ -137,16 +163,20 @@ end
 
 ### Producing events
 
+The producer defines the events and their payloads using the Event Definitions DSL (see below for example). In a rails app, this can be defined in the initialiser.
+
+To produce an event:
+
 ```ruby
 require 'rabbit_feed_producer'
-RabbitFeed::Producer.publish_event 'Event name', 'Event payload'
+RabbitFeed::Producer.publish_event 'Event name', { 'payload_field' => 'payload field value' }
 ```
 
 **Event name:** This tells you what the event is.
 
-**Event payload:** This is the data about the event. This could be anything: text, ruby class, JSON, etc.
+**Event payload:** This is the data about the event. This should be a hash.
 
-The event will be published to the `amq.topic` exchange on RabbitMQ with a routing key having the pattern of:  `[environment].[producer application name].[producer application version].[event name]`.
+The event will be published to the `amq.topic` exchange on RabbitMQ with a routing key having the pattern of:  `[environment].[producer application name].[event name]`.
 
 If running with Unicorn, you must reconnect to RabbitMQ after the workers are forked due to how Unicorn forks its child processes. Add the following to your `config/unicorn.rb`:
 
@@ -165,15 +195,44 @@ config.before :each do
 end
 ```
 
+#### RSpec Matcher
+
+To verify that your application publishes an event, use the custom RSpec matcher provided with this application.
+
+Add the following RSpec configuration to `spec_helper.rb`:
+
+```ruby
+RSpec.configure do |config|
+  config.include(RabbitFeed::RSpecMatchers)
+end
+```
+
+The expectation looks like this:
+
+```ruby
+require 'spec_helper'
+
+describe BeaversController do
+
+  describe 'POST create' do
+    it 'publishes a create event' do
+      expect{
+        post :create, beaver: { name: 'beaver' }
+      }.to publish_event('user_creates_beaver', { 'beaver_name' => 'beaver' })
+    end
+  end
+end
+```
+
 ### Consuming events
 
-The consumer defines to which events it will subscribe as well as how it handles events using the Event Routing DSL(see below for example). In a rails app, this can be defined in the initialiser.
+The consumer defines to which events it will subscribe as well as how it handles events using the Event Routing DSL (see below for example). In a rails app, this can be defined in the initialiser.
 
 An `Event` contains the following information:
 
     `environment` The environment in which the event was created (e.g. development, test, production)
     `application` The name of the application that generated the event (as specified in rabbit_feed.yml)
-    `version` The version of the application that generated the event (as specified in rabbit_feed.yml)
+    `version` The version of the event
     `name` The name of the event
     `host` The hostname of the server on which the event was generated
     `created_at_utc` The time (in UTC) that the event was created
@@ -185,6 +244,49 @@ An `Event` contains the following information:
 
 See the `Consumer` section for a description of the arguments
 
+## Event Definitions DSL
+
+Provides a means to define all events that are published by an application. Defines the event names and the payload associated with each event. The DSL is converted into a schema that is serialized along with the event payload, meaning the events are self-describing. This is accomplished using Apache [Avro](http://avro.apache.org/docs/current/). This also validates the event payload against its schema before it is published.
+
+Here is an example DSL:
+
+```ruby
+EventDefinitions do
+  define_event('user_creates_beaver', version: '1.0.0') do
+    defined_as do
+      'A beaver has been created'
+    end
+    payload_contains do
+      field('beaver_name', type: 'string', definition: 'The name of the beaver')
+    end
+  end
+
+  define_event('user_updates_beaver', version: '1.0.0') do
+    defined_as do
+      'A beaver has been updated'
+    end
+    payload_contains do
+      field('beaver_name', type: 'string', definition: 'The name of the beaver')
+    end
+  end
+end
+```
+
+This defines two events:
+
+1. `user_creates_beaver`
+2. `user_updates_beaver`
+
+Each event has a mandatory string field in its payload, called `beaver_name`.
+
+The available field types are described [here](http://avro.apache.org/docs/current/spec.html#schema_primitive).
+
+Publishing a `user_creates_beaver` event would look like this:
+
+```ruby
+RabbitFeed::Producer.publish_event 'user_creates_beaver', { 'beaver_name' => @beaver.name }
+```
+
 ## Event Routing DSL
 
 Provides a means for consumers to specify to which events it will subscribe as well as how it handles events. This is accomplished using a custom DSL backed by a RabbitMQ [topic](http://www.rabbitmq.com/tutorials/tutorial-five-ruby.html) exchange.
@@ -193,33 +295,28 @@ Here is an example DSL:
 
 ```ruby
 EventRouting do
-  accept_from(application: 'beavers', version: '1.0.0') do
-    event('beaver.created') do |event|
+  accept_from('beavers') do
+    event('user_created_beaver') do |event|
       puts event.payload
     end
-    event('beaver.updated') do |event|
+    event('user_updated_beaver') do |event|
       puts event.payload
     end
   end
 end
 ```
 
-This will subscribe to specified events originating from the `beavers` application at version `1.0.0`. We have specified that we would like to subcribe to `beaver.created` and `beaver.updated` events. If either event type is received, we have specified that its payload will be printed to the screen.
+This will subscribe to specified events originating from the `beavers` application. We have specified that we would like to subcribe to `user_created_beaver` and `user_updated_beaver` events. If either event type is received, we have specified that its payload will be printed to the screen.
 
-When the consumer is started, it will create its queue named using this pattern: `[environment].[consumer application name].[consumer application version]`. This allows for multiple versions of a consumer application to be running simultaneuosly. It will bind the queue to the `amq.topic` exchange on the routing keys as defined in the event routing. In this example, it will bind on:
+When the consumer is started, it will create its queue named using this pattern: `[environment].[consumer application name]`. It will bind the queue to the `amq.topic` exchange on the routing keys as defined in the event routing. In this example, it will bind on:
 
-    environment.beavers.1.0.0.beaver.created
-    environment.beavers.1.0.0.beaver.updated
+    environment.beavers.user_created_beaver
+    environment.beavers.user_updated_beaver
 
 ## TODO
 
-* Store schema with event: http://avro.apache.org/docs/current/gettingstartedpython.html
 * Event grammar, see: http://snowplowanalytics.com/blog/2013/08/12/towards-universal-event-analytics-building-an-event-grammar/. For additional info on event contexts, see: http://snowplowanalytics.com/blog/2014/01/27/snowplow-custom-contexts-guide/
-* Payload-level versioning, see: http://johnnunemaker.com/analytics-at-github/
-* RSpec matcher to allow producers to verify event producing
 * RSpec matcher to allow consumers to verify event routing
-* DSL for event definitions on producer applications
-* Ability to run multiple consumer instances on the same server (pid file conflict)
 * Capistrano hooks
 * Add routing key wilcard capabilities to DSL
 * SBConf service definition?

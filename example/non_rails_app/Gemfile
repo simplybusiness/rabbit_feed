@@ -1,3 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'rabbit_feed', path: '../../'
+
+gem 'rake'
+
+gem 'rspec', group: :test

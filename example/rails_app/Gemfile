@@ -32,3 +32,5 @@ gem 'unicorn'
 # gem 'capistrano-rails', group: :development
 
 gem 'rabbit_feed', path: '../../'
+
+gem 'rspec-rails', group: :test

@@ -4,4 +4,6 @@ development:
   user: guest
   password: guest
   application: rails_app
-  version: 1.0.0
+
+test:
+  application: rails_app

@@ -74,7 +74,7 @@ module RabbitFeed
           raise
         rescue => e
           warn "#{e.message} #{e.backtrace}"
-          Airbrake.notify e
+          RabbitFeed.exception_notify e
         end
       end
     end
