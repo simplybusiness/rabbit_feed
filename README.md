@@ -16,7 +16,7 @@ A gem providing asynchronous event publish and subscribe capabilities with Rabbi
 
 1. RabbitMQ running locally
 
-        brew install rabbitmq
+        brew project
         rabbitmq-server
 
 The management interface can be found [here](http://localhost:15672/). The default login is `guest/guest`. You can view exchanges [here](http://localhost:15672/#/exchanges) and queues [here](http://localhost:15672/#/queues).
@@ -68,6 +68,64 @@ You should see something similar to the following output:
     Rails application consumer stopped
     Stopping rails application...
     Rails application stopped
+
+### Performance Benchmarking
+
+There is a script that can be run to benchmark the tool. It benchmarks three areas:
+
+1. Producing events during HTTP requests within a rails application (using [siege](http://www.joedog.org/siege-home/))
+2. Producing events directly
+3. Consuming events
+
+To run the benchmarking script
+
+    brew project
+    ./run_benchmark
+
+As of 20140506, running the benchmark on this hardware:
+
+    MacBook Pro Retina, Mid 2012
+    Processor  2.6 GHz Intel Core i7
+    Memory  8 GB 1600 MHz DDR3
+    Software  OS X 10.8.5 (12F45)
+
+Results in this output:
+
+    Starting test of rails application...
+    Starting rails application...
+    -- create_table("beavers", {:force=>true})
+       -> 0.0140s
+    -- initialize_schema_migrations_table()
+       -> 0.0196s
+    Rails application started
+          done.
+
+    Transactions:            200 hits
+    Availability:         100.00 %
+    Elapsed time:           0.65 secs
+    Data transferred:         0.16 MB
+    Response time:            0.03 secs
+    Transaction rate:       307.69 trans/sec
+    Throughput:           0.24 MB/sec
+    Concurrency:            9.62
+    Successful transactions:         100
+    Failed transactions:             0
+    Longest transaction:          0.25
+    Shortest transaction:         0.00
+
+    Stopping rails application...
+    Rails application stopped
+    Rails application test complete
+
+
+    Starting standalone publishing and consuming benchmark...
+    Publishing 5000 events...
+           user     system      total        real
+       1.460000   0.230000   1.690000 (  1.692004)
+    Consuming 5000 events...
+           user     system      total        real
+       2.270000   0.570000   2.840000 (  3.339304)
+    Benchmark complete
 
 ### Command Line Tools
 

@@ -1,0 +1,35 @@
+#!/bin/bash
+
+set -e
+
+echo 'Starting test of rails application...'
+# Start the rails application
+echo 'Starting rails application...'
+pushd example/rails_app >/dev/null
+nodenv local v0.10 >/dev/null
+bundle exec rake db:reset RAILS_ENV=production
+SECRET_KEY_BASE=1234abc bundle exec unicorn -c config/unicorn.rb -E production -D
+sleep 1
+popd >/dev/null
+echo 'Rails application started'
+
+# Test publishing via the rails application
+siege -c 10 -r 10 -q -b "http://localhost:8080/beavers POST beaver[name]=`date '+%m/%d/%y %H:%M:%S'`"
+sleep 4
+
+# Stop the rails application
+echo 'Stopping rails application...'
+pushd example/rails_app >/dev/null
+kill `cat tmp/pids/unicorn.pid`
+popd >/dev/null
+echo 'Rails application stopped'
+echo 'Rails application test complete'
+echo ''
+echo ''
+
+# Test standalone publishing and consuming
+echo 'Starting standalone publishing and consuming benchmark...'
+pushd example/non_rails_app >/dev/null
+bin/benchmark
+popd >/dev/null
+echo 'Benchmark complete'
