@@ -373,6 +373,7 @@ When the consumer is started, it will create its queue named using this pattern:
 
 ## TODO
 
+* Allow for multiple users to share rabbitmq infrastructure in integration environment
 * Event grammar, see: http://snowplowanalytics.com/blog/2013/08/12/towards-universal-event-analytics-building-an-event-grammar/. For additional info on event contexts, see: http://snowplowanalytics.com/blog/2014/01/27/snowplow-custom-contexts-guide/
 * RSpec matcher to allow consumers to verify event routing
 * Capistrano hooks
