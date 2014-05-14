@@ -190,14 +190,12 @@ Note that this gem uses Airbrake for exception notifications, so your project wi
 If installing in a rails application, the following should be defined in `config/initializers/rabbit_feed.rb`:
 
 ```ruby
-# Require the gem
-require 'rabbit_feed'
-# Set the logger
-RabbitFeed.log                     = Logger.new(Rails.root.join('log/rabbit_feed.log'))
-# Set the environment
-RabbitFeed.environment             = Rails.env
-# Set the config file location
-RabbitFeed.configuration_file_path = File.join(Rails.root, 'config/rabbit_feed.yml')
+RabbitFeed.instance_eval do
+  self.log                     = Logger.new (Rails.root.join 'log', 'rabbit_feed.log')
+  self.log.level               = Logger::INFO
+  self.environment             = Rails.env
+  self.configuration_file_path = Rails.root.join 'config', 'rabbit_feed.yml'
+end
 # Define the events (if producing)
 EventDefinitions do
   define_event('user_creates_beaver', version: '1.0.0') do
