@@ -13,6 +13,42 @@ module RabbitFeed
       allow(bunny_queue).to receive(:subscribe).and_yield(double(:delivery_info, delivery_tag: :test), {}, event)
     end
 
+    describe '#run' do
+      let(:error) { }
+      before do
+        allow(described_class).to receive(:start).and_raise(error)
+      end
+
+      context 'when a ConfigurationError is raised' do
+        let(:error) { ConfigurationError.new }
+
+        it 'raises the exception' do
+          expect{ described_class.run }.to raise_error(ConfigurationError)
+        end
+      end
+
+      context 'when a different error is raised' do
+        let(:error) { Error.new }
+        before do
+          allow(described_class).to receive(:recover?).and_return(true, false)
+        end
+
+        it 'does not raise the exception' do
+          expect{ described_class.run }.not_to raise_error
+        end
+
+        it 'triggers a reconnect' do
+          expect(ConsumerConnection).to receive(:reconnect!).at_least(:twice)
+          described_class.run
+        end
+
+        it 'recovers' do
+          expect(described_class).to receive(:start).at_least(:twice)
+          described_class.run
+        end
+      end
+    end
+
     describe '#start' do
       subject{ described_class.start }
 
