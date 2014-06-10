@@ -67,16 +67,7 @@ module RabbitFeed
 
     def consume
       daemonize if daemonize?
-      while true do
-        begin
-          RabbitFeed::Consumer.start
-        rescue ConfigurationError
-          raise
-        rescue => e
-          warn "#{e.message} #{e.backtrace}"
-          RabbitFeed.exception_notify e
-        end
-      end
+      RabbitFeed::Consumer.run
     end
 
     def produce
@@ -135,50 +126,50 @@ module RabbitFeed
 
       parser = OptionParser.new do |o|
 
-        o.on '-m', '--payload VAL', "Payload of event to produce" do |arg|
+        o.on '-m', '--payload VAL', 'Payload of event to produce' do |arg|
           opts[:payload] = arg
         end
 
-        o.on '-n', '--name VAL', "Name of event to produce" do |arg|
+        o.on '-n', '--name VAL', 'Name of event to produce' do |arg|
           opts[:name] = arg
         end
 
-        o.on '-d', '--daemon', "Daemonize process" do |arg|
+        o.on '-d', '--daemon', 'Daemonize process' do |arg|
           opts[:daemon] = arg
         end
 
-        o.on '-e', '--environment ENV', "Application environment" do |arg|
+        o.on '-e', '--environment ENV', 'Application environment' do |arg|
           opts[:environment] = arg
         end
 
-        o.on '-r', '--require [PATH|DIR]', "Location of Rails application with workers or file to require" do |arg|
+        o.on '-r', '--require [PATH|DIR]', 'Location of Rails application with workers or file to require' do |arg|
           opts[:require_path] = arg
         end
 
-        o.on "-v", "--verbose", "Print more verbose output" do |arg|
+        o.on '-v', '--verbose', 'Print more verbose output' do |arg|
           opts[:verbose] = arg
         end
 
-        o.on '-C', '--config PATH', "Path to YAML config file" do |arg|
+        o.on '-C', '--config PATH', 'Path to YAML config file' do |arg|
           opts[:config_file] = arg
         end
 
-        o.on '-L', '--logfile PATH', "Path to writable logfile" do |arg|
+        o.on '-L', '--logfile PATH', 'Path to writable logfile' do |arg|
           opts[:logfile] = arg
         end
 
-        o.on '-P', '--pidfile PATH', "Path to pidfile" do |arg|
+        o.on '-P', '--pidfile PATH', 'Path to pidfile' do |arg|
           opts[:pidfile] = arg
         end
 
-        o.on '-V', '--version', "Print version and exit" do |arg|
+        o.on '-V', '--version', 'Print version and exit' do |arg|
           puts "RabbitFeed #{RabbitFeed::VERSION}"
           exit 0
         end
       end
 
-      parser.banner = "rabbit_feed action [options]"
-      parser.on_tail "-h", "--help", "Show help" do
+      parser.banner = 'rabbit_feed action [options]'
+      parser.on_tail '-h', '--help', 'Show help' do
         puts parser
         exit 1
       end

@@ -1,7 +1,7 @@
 PATH
   remote: ../../
   specs:
-    rabbit_feed (0.0.2)
+    rabbit_feed (0.1.0)
       activemodel
       activesupport
       airbrake
