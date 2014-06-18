@@ -1,5 +1,7 @@
 # RabbitFeed
 
+![RabbitFeed logo](https://cloud.githubusercontent.com/assets/768254/3286432/b4e65e7e-f548-11e3-9c91-f7d04f489cf3.png)
+
 A gem providing asynchronous event publish and subscribe capabilities with RabbitMQ.
 
 ## Core concepts
