@@ -39,10 +39,15 @@ module RabbitFeed
 
     private
 
+    SEVEN_DAYS_IN_MS = 7.days * 1000
+
     QUEUE_OPTIONS = {
       durable:    true,  # Persist across server restart
       no_declare: false, # Create the queue if it does not exist
-      arguments:  {'x-ha-policy' => 'all'}, # Apply the queue on all mirrors
+      arguments:  {
+        'x-ha-policy' => 'all', # Apply the queue on all mirrors
+        'x-expires'   => SEVEN_DAYS_IN_MS, # Auto-delete the queue after a period of inactivity (in ms)
+        },
     }.freeze
 
     def queue

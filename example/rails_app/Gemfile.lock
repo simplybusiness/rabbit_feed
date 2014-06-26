@@ -1,7 +1,7 @@
 PATH
   remote: ../../
   specs:
-    rabbit_feed (0.1.0)
+    rabbit_feed (0.1.1)
       activemodel
       activesupport
       airbrake
@@ -39,7 +39,7 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.1)
       tzinfo (~> 1.1)
-    airbrake (3.1.16)
+    airbrake (4.0.0)
       builder
       multi_json
     amq-protocol (1.9.2)
@@ -47,7 +47,7 @@ GEM
     avro (1.7.5)
       yajl-ruby
     builder (3.2.2)
-    bunny (1.2.1)
+    bunny (1.2.2)
       amq-protocol (>= 1.9.2)
     coffee-rails (4.0.1)
       coffee-script (>= 2.2.0)
@@ -157,7 +157,7 @@ GEM
       kgio (~> 2.6)
       rack
       raindrops (~> 0.7)
-    yajl-ruby (1.2.0)
+    yajl-ruby (1.2.1)
 
 PLATFORMS
   ruby
