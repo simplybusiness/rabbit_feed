@@ -369,6 +369,8 @@ When the consumer is started, it will create its queue named using this pattern:
     environment.beavers.user_created_beaver
     environment.beavers.user_updated_beaver
 
+_Note: The consumer queues will automatically expire (delete) after 7 days without any consumer connections. This is to prevent unused queues from hanging around once their associated consumer has been terminated._
+
 ## TODO
 
 * Allow for multiple users to share rabbitmq infrastructure in integration environment
