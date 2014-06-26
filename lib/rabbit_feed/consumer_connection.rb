@@ -39,7 +39,7 @@ module RabbitFeed
 
     private
 
-    SEVEN_DAYS_IN_MS = 604800000
+    SEVEN_DAYS_IN_MS = 7.days * 1000
 
     QUEUE_OPTIONS = {
       durable:    true,  # Persist across server restart
