@@ -306,6 +306,8 @@ See the `Consumer` section for a description of the arguments
 
 Provides a means to define all events that are published by an application. Defines the event names and the payload associated with each event. The DSL is converted into a schema that is serialized along with the event payload, meaning the events are self-describing. This is accomplished using Apache [Avro](http://avro.apache.org/docs/current/). This also validates the event payload against its schema before it is published.
 
+Event definitions are cumulative, meaning you can load multiple `EventDefinitions` blocks.
+
 Here is an example DSL:
 
 ```ruby
@@ -348,6 +350,8 @@ RabbitFeed::Producer.publish_event 'user_creates_beaver', { 'beaver_name' => @be
 ## Event Routing DSL
 
 Provides a means for consumers to specify to which events it will subscribe as well as how it handles events. This is accomplished using a custom DSL backed by a RabbitMQ [topic](http://www.rabbitmq.com/tutorials/tutorial-five-ruby.html) exchange.
+
+Event routing definitions are cumulative, meaning you can load multiple `EventRouting` blocks.
 
 Here is an example DSL:
 
