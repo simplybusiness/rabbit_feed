@@ -34,6 +34,12 @@ module RabbitFeed
             RabbitFeed::Producer.publish_event 'different name', {}
           }.to_not publish_event(event_name, {})
         end
+
+        it 'traps exceptions' do
+          expect{
+            raise 'this hurts me more than it hurts you'
+          }.to_not publish_event(event_name, {})
+        end
       end
 
       it 'validates the event name' do
