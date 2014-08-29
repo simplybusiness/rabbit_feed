@@ -115,5 +115,25 @@ module RabbitFeed
         end
       end
     end
+
+    context 'testing cumulative definitions' do
+      before do
+        EventDefinitions do
+          define_event('plumber_fixes_tap', version: '1.0.0') do
+            defined_as do
+              'What a plumber does'
+            end
+            payload_contains do
+              field('plumber_name', type: 'string', definition: 'The name of the plumber')
+            end
+          end
+        end
+      end
+
+      it 'applies event definitions in a cumulative manner' do
+        expect(RabbitFeed::Producer.event_definitions['customer_purchases_policy']).to be_present
+        expect(RabbitFeed::Producer.event_definitions['plumber_fixes_tap']).to be_present
+      end
+    end
   end
 end

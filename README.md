@@ -1,5 +1,7 @@
 # RabbitFeed
 
+![RabbitFeed logo](https://cloud.githubusercontent.com/assets/768254/3286432/b4e65e7e-f548-11e3-9c91-f7d04f489cf3.png)
+
 A gem providing asynchronous event publish and subscribe capabilities with RabbitMQ.
 
 ## Core concepts
@@ -304,6 +306,8 @@ See the `Consumer` section for a description of the arguments
 
 Provides a means to define all events that are published by an application. Defines the event names and the payload associated with each event. The DSL is converted into a schema that is serialized along with the event payload, meaning the events are self-describing. This is accomplished using Apache [Avro](http://avro.apache.org/docs/current/). This also validates the event payload against its schema before it is published.
 
+Event definitions are cumulative, meaning you can load multiple `EventDefinitions` blocks.
+
 Here is an example DSL:
 
 ```ruby
@@ -347,6 +351,8 @@ RabbitFeed::Producer.publish_event 'user_creates_beaver', { 'beaver_name' => @be
 
 Provides a means for consumers to specify to which events it will subscribe as well as how it handles events. This is accomplished using a custom DSL backed by a RabbitMQ [topic](http://www.rabbitmq.com/tutorials/tutorial-five-ruby.html) exchange.
 
+Event routing definitions are cumulative, meaning you can load multiple `EventRouting` blocks.
+
 Here is an example DSL:
 
 ```ruby
@@ -368,6 +374,8 @@ When the consumer is started, it will create its queue named using this pattern:
 
     environment.beavers.user_created_beaver
     environment.beavers.user_updated_beaver
+
+_Note: The consumer queues will automatically expire (delete) after 7 days without any consumer connections. This is to prevent unused queues from hanging around once their associated consumer has been terminated._
 
 ## TODO
 

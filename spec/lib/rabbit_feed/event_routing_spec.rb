@@ -96,5 +96,26 @@ module RabbitFeed
         end
       end
     end
+
+    context 'testing cumulative routing definitions' do
+      before do
+        EventRouting do
+          accept_from('dummy_3') do
+            event('event_4') do |event|
+              event.payload
+            end
+          end
+        end
+      end
+
+      it 'applies routing definitions in a cumulative manner' do
+        RabbitFeed::Consumer.event_routing.accepted_routes.should =~ %w{
+          test.dummy_1.event_1
+          test.dummy_1.event_2
+          test.dummy_2.event_3
+          test.dummy_3.event_4
+        }
+      end
+    end
   end
 end

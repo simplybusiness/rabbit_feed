@@ -16,7 +16,10 @@ module RabbitFeed
           return false
         end
 
-        given_proc.call
+        begin
+          given_proc.call
+        rescue
+        end
 
         actual_event = received_events.detect do |event|
           event.name == expected_event
