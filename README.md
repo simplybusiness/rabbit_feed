@@ -376,22 +376,3 @@ When the consumer is started, it will create its queue named using this pattern:
     environment.beavers.user_updated_beaver
 
 _Note: The consumer queues will automatically expire (delete) after 7 days without any consumer connections. This is to prevent unused queues from hanging around once their associated consumer has been terminated._
-
-## TODO
-
-* Allow for multiple users to share rabbitmq infrastructure in integration environment
-* Event grammar, see: http://snowplowanalytics.com/blog/2013/08/12/towards-universal-event-analytics-building-an-event-grammar/. For additional info on event contexts, see: http://snowplowanalytics.com/blog/2014/01/27/snowplow-custom-contexts-guide/
-* RSpec matcher to allow consumers to verify event routing
-* Capistrano hooks
-* Add routing key wilcard capabilities to DSL
-* SBConf service definition?
-* More elegant control of consumer (i.e. reload, quit, kill methods)
-* Multi-threaded consumer
-
-## Contributing
-
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
