@@ -8,7 +8,7 @@ A gem providing asynchronous event publish and subscribe capabilities with Rabbi
 
 * Fire and forget: Application can publish an event and it has no knowledge/care of how that event is consumed.
 * Persistent events: Once an event has been published, it will persist until it has been processed successfully.
-* Event order preserved: Events are received in the order they were generated.
+* Self-describing events: The event not only contains a payload, but also a schema that describes that payload.
 * Multiple subscribers: Multiple applications can subscribe to the same events.
 * Event versioning: Consumers can customize event handling based on the event version.
 
