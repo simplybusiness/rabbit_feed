@@ -34,6 +34,6 @@ module RabbitFeed
   end
 
   def exception_notify exception
-    (Airbrake.notify exception) if Airbrake.configuration.public?
+    (Airbrake.notify_or_ignore exception) if Airbrake.configuration.public?
   end
 end

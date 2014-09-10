@@ -41,7 +41,7 @@ module RabbitFeed
       context 'when an exception is raised' do
 
         it 'notifies airbrake' do
-          expect(Airbrake).to receive(:notify).with(an_instance_of RuntimeError)
+          expect(Airbrake).to receive(:notify_or_ignore).with(an_instance_of RuntimeError)
 
           expect{ subject.consume { raise 'Consuming time' } }.to raise_error RuntimeError
         end

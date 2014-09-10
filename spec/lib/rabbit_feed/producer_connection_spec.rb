@@ -20,7 +20,7 @@ module RabbitFeed
     describe '.handle_returned_message' do
 
       it 'notifies Airbrake of the return' do
-        expect(Airbrake).to receive(:notify).with(an_instance_of ReturnedMessageError)
+        expect(Airbrake).to receive(:notify_or_ignore).with(an_instance_of ReturnedMessageError)
         described_class.handle_returned_message 1, 2
       end
     end
