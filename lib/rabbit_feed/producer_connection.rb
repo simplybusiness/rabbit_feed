@@ -6,18 +6,20 @@ module RabbitFeed
       mandatory:  true, # Return the message if it can't be routed to a queue
     }.freeze
 
-    def self.publish message, routing_key=nil
+    def self.publish message, options
       ProducerConnection.retry_on_exception do
         open do |connection|
-          connection.publish message, routing_key
+          connection.publish message, options
         end
       end
     end
 
-    def publish message, routing_key=nil
-      RabbitFeed.log.debug "Publishing message on #{self.to_s} with key: #{routing_key} to exchange: #{RabbitFeed.configuration.exchange}..."
+    def publish message, options
+      options.merge! PUBLISH_OPTIONS
 
-      exchange.publish message, PUBLISH_OPTIONS.merge(routing_key: routing_key)
+      RabbitFeed.log.debug "Publishing message on #{self.to_s} with options: #{options} to exchange: #{RabbitFeed.configuration.exchange}..."
+
+      exchange.publish message, options
     end
 
     def reset

@@ -39,9 +39,18 @@ module RabbitFeed
         expect(subject).to be_a Event
       end
 
-      it 'serializes the event and provides a routing key' do
-        expect(ProducerConnection).to receive(:publish).with(an_instance_of(String), 'test.rabbit_feed.event_name')
-        subject
+      it 'serializes the event and provides message metadata' do
+        Timecop.freeze do
+          expect(ProducerConnection).to receive(:publish).with(
+            an_instance_of(String),
+            {
+              routing_key: 'test.rabbit_feed.event_name',
+              type:        'event_name',
+              app_id:      'rabbit_feed',
+              timestamp:   Time.now.utc.to_i,
+            })
+          subject
+        end
       end
     end
   end

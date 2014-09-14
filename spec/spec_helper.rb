@@ -1,6 +1,7 @@
-require 'rabbit_feed'
-require 'timeout'
 require 'codeclimate-test-reporter'
+require 'rabbit_feed'
+require 'timecop'
+require 'timeout'
 
 # Send data to code climate from semaphore
 # Disable the warning messages

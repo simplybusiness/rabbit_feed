@@ -104,6 +104,7 @@ GEM
     simplecov-html (0.8.0)
     slop (3.4.7)
     thread_safe (0.3.4)
+    timecop (0.4.4)
     turnip (1.2.1)
       gherkin (>= 2.5)
       rspec (>= 2.0, < 4.0)
@@ -121,3 +122,4 @@ DEPENDENCIES
   rake
   rspec
   rutabaga
+  timecop

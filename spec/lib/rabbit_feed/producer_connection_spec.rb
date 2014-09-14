@@ -36,12 +36,12 @@ module RabbitFeed
     end
 
     describe '#publish' do
-      let(:message)     { 'the message' }
-      let(:routing_key) { 'routing_key' }
+      let(:message) { 'the message' }
+      let(:options) { {routing_key: 'routing_key'} }
 
-      it 'publishes the message' do
+      it 'publishes the message as mandatory and peristent' do
         expect(bunny_exchange).to receive(:publish).with(message, { persistent: true, mandatory: true, routing_key: 'routing_key' })
-        described_class.publish message, routing_key
+        described_class.publish message, options
       end
 
       context 'when publishing raises an exception' do
@@ -51,7 +51,7 @@ module RabbitFeed
           it 'traps the exception' do
             tries = 0
             bunny_exchange.stub(:publish) { (tries += 1) < 3 ? (raise RuntimeError.new 'Publishing time') : nil }
-            expect{ described_class.publish message, routing_key }.to_not raise_error
+            expect{ described_class.publish message, options }.to_not raise_error
           end
         end
 
@@ -59,7 +59,7 @@ module RabbitFeed
 
           it 'raises the exception' do
             allow(bunny_exchange).to receive(:publish).exactly(3).times.and_raise('Publishing time')
-            expect{ described_class.publish message, routing_key }.to raise_error RuntimeError, 'Publishing time'
+            expect{ described_class.publish message, options }.to raise_error RuntimeError, 'Publishing time'
           end
         end
       end
