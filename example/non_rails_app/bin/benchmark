@@ -56,7 +56,7 @@ puts "Consuming #{number_of_events} events..."
 Benchmark.bm do |x|
   x.report do
     begin
-      RabbitFeed::Consumer.start
+      RabbitFeed::Consumer.run
     rescue Interrupt
     end
   end

@@ -2,19 +2,11 @@ require 'spec_helper'
 
 module RabbitFeed
   describe ProducerConnection do
-    let(:bunny_exchange)   { double(:bunny_exchange, on_return: nil)}
-    let(:bunny_connection) { double(:bunny_connection, start: nil, open?: true, close: nil, exchange: bunny_exchange) }
+    let(:bunny_exchange)   { double(:bunny_exchange, on_return: nil) }
+    let(:bunny_channel)    { double(:bunny_channel, exchange: bunny_exchange) }
+    let(:bunny_connection) { double(:bunny_connection, start: nil, open?: true, close: nil, create_channel: bunny_channel) }
     before do
       allow(Bunny).to receive(:new).and_return(bunny_connection)
-    end
-
-    describe '#reset' do
-
-      it 'sets up returned message handling' do
-        expect(described_class).to receive(:handle_returned_message).with('return_info', 'content')
-        expect(bunny_exchange).to receive(:on_return).and_yield('return_info', 'properties', 'content')
-        subject.reset
-      end
     end
 
     describe '.handle_returned_message' do
@@ -22,16 +14,6 @@ module RabbitFeed
       it 'notifies Airbrake of the return' do
         expect(Airbrake).to receive(:notify_or_ignore).with(an_instance_of ReturnedMessageError)
         described_class.handle_returned_message 1, 2
-      end
-    end
-
-    describe '#close' do
-
-      it 'unsets the exchange' do
-        subject
-        subject.instance_variable_get(:@exchange).should_not be_nil
-        subject.close
-        subject.instance_variable_get(:@exchange).should be_nil
       end
     end
 

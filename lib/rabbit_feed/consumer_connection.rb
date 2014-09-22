@@ -1,5 +1,6 @@
 module RabbitFeed
-  class ConsumerConnection < Connection
+  class ConsumerConnection
+    include Connection
 
     SUBSCRIPTION_OPTIONS = {
       consumer_tag: Socket.gethostname, # Use the host name of the server
@@ -7,9 +8,31 @@ module RabbitFeed
       block:        true, # Block the thread whilst consuming from the queue
     }.freeze
 
+    SEVEN_DAYS_IN_MS = 7.days * 1000
+
+    QUEUE_OPTIONS = {
+      durable:     true,  # Persist across server restart
+      no_declare:  false, # Create the queue if it does not exist
+      arguments:   {
+        'x-ha-policy' => 'all', # Apply the queue on all mirrors
+        'x-expires'   => SEVEN_DAYS_IN_MS, # Auto-delete the queue after a period of inactivity (in ms)
+        },
+    }.freeze
+
+    attr_reader :queue
+
+    def initialize channel
+      channel.prefetch(1) # Fetch one message at a time to preserve order
+      queue_options = {
+        auto_delete: RabbitFeed.configuration.auto_delete_queue,
+      }
+      @queue = channel.queue RabbitFeed.configuration.queue, (queue_options.merge QUEUE_OPTIONS)
+      bind_on_accepted_routes
+    end
+
     def self.consume &block
-      open do |connection|
-        connection.consume(&block)
+      ConsumerConnection.open do |consumer_connection|
+        consumer_connection.consume(&block)
       end
     end
 
@@ -23,36 +46,18 @@ module RabbitFeed
           yield payload
         rescue => e
           handle_processing_exception delivery_info, e
-          raise
         end
         queue.channel.ack(delivery_info.delivery_tag)
 
         RabbitFeed.log.debug "Message acknowledged on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
       end
-    end
 
-    def reset
-      super
-      bind_on_accepted_routes
-      queue.channel.prefetch(1) # Fetch one message at a time to preserve order
+    rescue
+      sleep RabbitFeed.configuration.network_recovery_interval
+      retry
     end
 
     private
-
-    SEVEN_DAYS_IN_MS = 7.days * 1000
-
-    QUEUE_OPTIONS = {
-      durable:    true,  # Persist across server restart
-      no_declare: false, # Create the queue if it does not exist
-      arguments:  {
-        'x-ha-policy' => 'all', # Apply the queue on all mirrors
-        'x-expires'   => SEVEN_DAYS_IN_MS, # Auto-delete the queue after a period of inactivity (in ms)
-        },
-    }.freeze
-
-    def queue
-      connection.queue RabbitFeed.configuration.queue, QUEUE_OPTIONS
-    end
 
     def bind_on_accepted_routes
       if RabbitFeed::Consumer.event_routing.present?
@@ -67,7 +72,8 @@ module RabbitFeed
     def handle_processing_exception delivery_info, exception
       # Tell rabbit that we were unable to process the message
       # This will re-queue the message
-      queue.channel.nack(delivery_info.delivery_tag, false, true) if connection.open?
+      queue.channel.nack(delivery_info.delivery_tag, false, true)
+      RabbitFeed.log.debug "Message negatively acknowledged on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
 
       RabbitFeed.log.error "Exception encountered while consuming message on #{self.to_s} from queue #{RabbitFeed.configuration.queue}: #{exception.message} #{exception.backtrace}"
       RabbitFeed.exception_notify exception

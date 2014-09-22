@@ -1,142 +1,96 @@
 require 'spec_helper'
 
-step 'I create a connection' do
-  RabbitFeed::Connection.open { |connection| @connection = connection }
+step 'I am consuming' do
+  set_event_routing
+  initialize_queue
+  @consumer_thread = Thread.new{ RabbitFeed::Consumer.run }
 end
 
-step 'the connection is open' do
-  expect(@connection.open?).to be_true
+step 'I publish an event' do
+  set_event_definitions
+  publish 'test'
 end
 
-step 'I close the connection' do
-  @connection.close
+step 'I receive that event' do
+  event = wait_for_event
+  assert_event_presence event
 end
 
-step 'the connection is closed' do
-  expect(@connection.open?).to be_false
-end
-
-step 'I declare a new exchange' do
-  @exchange = 'rabbit_feed_'+SecureRandom.uuid
-  allow_any_instance_of(RabbitFeed::Configuration).to receive(:exchange).and_return(@exchange)
-end
-
-step 'the exchange is created' do
-  exchange_name.should eq @exchange
-  exchange_exists?.should be_true
-end
-
-step 'I can publish an event to the exchange' do
-  EventDefinitions do
-    define_event('test', version: '1.0.0') do
-      defined_as do
-        'The test event'
-      end
-      payload_contains do
-        field('field', type: 'string', definition: 'The field')
-      end
-    end
-  end
-  @event_text = 'test_event_'+Time.now.to_f.to_s
-  RabbitFeed::Producer.publish_event 'test', { 'field' => @event_text }
-end
-
-step 'I declare a new queue' do
-  @queue = 'rabbit_feed_'+SecureRandom.uuid
-  allow_any_instance_of(RabbitFeed::Configuration).to receive(:queue).and_return(@queue)
-
-  EventRouting do
-    accept_from('rabbit_feed') do
-      event('test') {|event|}
-    end
-  end
-end
-
-step 'the queue is created' do
-  queue_name.should eq @queue
-  queue_exists?.should be_true
-end
-
-step 'the queue is bound to the exchange' do; end
-
-step 'I can consume an event from the queue' do
-  event_count.should eq 0
-  send 'I can publish an event to the exchange'
-  consume_event.field.should eq @event_text
-  event_count.should eq 0
-end
-
-step 'I am unable to successfully process an event' do
-  send 'I declare a new queue'
-  event_count.should eq 0
-  send 'I can publish an event to the exchange'
-  event = consume_event do |event|
-    raise 'Could not process this event: '+event.field
-  end
-  event.field.should eq @event_text
+step 'I publish an event that cannot be processed by the consumer' do
+  set_event_definitions
+  publish 'test_failure'
 end
 
 step 'the event remains on the queue' do
-  RabbitFeed::ConsumerConnection.reconnect! # Don't let the existing connection keep a monopoly on the event
-  event_count.should eq 1
-  consume_event.field.should eq @event_text
+  event = nil
+  2.times { event = wait_for_event }
+  assert_event_presence event
 end
 
 module Turnip::Steps
 
-  def consume_event &block
-    handled_event = nil
-    EventRouting do
-      accept_from('rabbit_feed') do
-        event('test') do |event|
-          handled_event = event
-          (block.call event) if block.present?
-        end
-      end
-    end
+  def initialize_queue
+    RabbitFeed::ProducerConnection.open{|connection|}
+    RabbitFeed::ConsumerConnection.open{|connection|}
+  end
 
+  def publish event_name
+    @event_text = "#{event_name}_#{Time.now.iso8601(6)}"
+    RabbitFeed::Producer.publish_event event_name, { 'field' => @event_text }
+  end
+
+  def assert_event_presence event
+    expect(event).to_not be_nil
+    expect(event.field).to eq @event_text
+  end
+
+  def wait_for_event
     begin
-      Timeout::timeout(0.5) do
-        RabbitFeed::Consumer.start
+      Timeout::timeout(5.0) do
+        until @consumed_events.any? do
+          sleep 0.1
+        end
       end
     rescue Timeout::Error
     end
-    handled_event
+    @consumed_events.pop
   end
 
-  def event_count
-    RabbitFeed::ConsumerConnection.open do |connection|
-      return connection.send(:queue).message_count
+  def set_event_definitions
+    EventDefinitions do
+      define_event('test', version: '1.0.0') do
+        defined_as do
+          'The test event'
+        end
+        payload_contains do
+          field('field', type: 'string', definition: 'The field')
+        end
+      end
+      define_event('test_failure', version: '1.0.0') do
+        defined_as do
+          'The test failure event'
+        end
+        payload_contains do
+          field('field', type: 'string', definition: 'The field')
+        end
+      end
     end
   end
 
-  def queue_name
-    RabbitFeed::ConsumerConnection.open do |connection|
-      return connection.send(:queue).name
-    end
-  end
+  def set_event_routing
+    consumed_events  = []
+    @consumed_events = consumed_events
 
-  def exchange_name
-    RabbitFeed::ProducerConnection.open do |connection|
-      return connection.send(:exchange).name
-    end
-  end
-
-  def queue_exists?
-    RabbitFeed::Connection.open do |connection|
-      return connection.connection.queue_exists? @queue
-    end
-  end
-
-  def exchange_exists?
-    RabbitFeed::Connection.open do |connection|
-      return connection.connection.exchange_exists? @exchange
-    end
-  end
-
-  def last_event
-    RabbitFeed::ConsumerConnection.open do |connection|
-      return connection.send(:queue).pop.try(:last)
+    EventRouting do
+      accept_from('rabbit_feed') do
+        event('test') do |event|
+          consumed_events << event
+        end
+        event('test_failure') do |event|
+          consumed_events << event
+          raise 'event processing failure'
+        end
+      end
     end
   end
 end

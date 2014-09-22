@@ -18,10 +18,6 @@ module RabbitFeed
       ProducerConnection.stub(:publish)
     end
 
-    def reconnect!
-      ProducerConnection.reconnect!
-    end
-
     private
 
     def enriched_payload payload, version, name, timestamp

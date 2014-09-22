@@ -1,82 +1,62 @@
 module RabbitFeed
-  class Connection
+  module Connection
+    extend ActiveSupport::Concern
 
-    attr_reader :connection
+    module ClassMethods
 
-    def self.open &block
-      connection_pool.with do |connection|
-        begin
-          connection.reset unless connection.open?
-          yield connection
-        rescue
-          # If the operation failed, it was likely due to connectivity problems, so reset the connection
-          connection.reset
-          raise
+      def open &block
+        unset_connection if closed?
+        channel_pool.with do |channel|
+          yield channel
         end
       end
-    end
 
-    def self.reconnect!
-      RabbitFeed.log.debug 'Reconnecting...'
-      @connection_pool.shutdown{|connection| connection.close } unless @connection_pool.nil?
-      @connection_pool = nil
-    end
-
-    def initialize
-      reset
-    end
-
-    def reset
-      close
-      @connection = open
-    end
-
-    def open?
-      connection.open? unless connection.nil?
-    end
-
-    def close
-      RabbitFeed.log.debug "Closing connection: #{self.to_s}..."
-
-      connection.close unless connection.nil?
-    rescue => e
-      RabbitFeed.log.warn "Exception encountered whilst closing #{self.to_s}: #{e.message} #{e.backtrace}"
-    end
-
-    private
-
-    def self.retry_on_exception tries=3, &block
-      yield
-    rescue => e
-      RabbitFeed.log.warn "Exception encountered; #{tries - 1} tries remaining. #{self.to_s}: #{e.message} #{e.backtrace}"
-      retry unless (tries -= 1).zero?
-      raise
-    end
-
-    def self.connection_pool
-      @connection_pool ||= ConnectionPool.new(
-        size:    RabbitFeed.configuration.pool_size,
-        timeout: RabbitFeed.configuration.pool_timeout
-      ) do
-        new
+      def closed?
+        @connection.present? && @connection.closed?
       end
-    end
 
-    def open
-      RabbitFeed.log.debug "Opening connection: #{self.to_s}..."
+      def close
+        RabbitFeed.log.debug "Closing connection: #{self.to_s}..."
+        @connection.close unless closed?
+        unset_connection
+      rescue => e
+        RabbitFeed.log.warn "Exception encountered whilst closing #{self.to_s}: #{e.message} #{e.backtrace}"
+      end
 
-      Connection.retry_on_exception do
-        connection = Bunny.new({
-                heartbeat:       RabbitFeed.configuration.heartbeat,
-                connect_timeout: RabbitFeed.configuration.connect_timeout,
-                host:            RabbitFeed.configuration.host,
-                user:            RabbitFeed.configuration.user,
-                password:        RabbitFeed.configuration.password,
-                port:            RabbitFeed.configuration.port,
-                logger:          RabbitFeed.log,
-              })
-        connection.start
-        connection
+      def unset_connection
+        RabbitFeed.log.debug "Unsetting connection: #{self.to_s}..."
+        @channel_pool = nil
+        @connection   = nil
+      end
+
+      private
+
+      def channel_pool
+        @channel_pool ||= ConnectionPool.new(
+          size:    RabbitFeed.configuration.pool_size,
+          timeout: RabbitFeed.configuration.pool_timeout
+        ) do
+          new connection.create_channel
+        end
+      end
+
+      def connection
+        if @connection.nil?
+          RabbitFeed.log.debug "Opening connection: #{self.to_s}..."
+          @connection = Bunny.new({
+            heartbeat:                 RabbitFeed.configuration.heartbeat,
+            connect_timeout:           RabbitFeed.configuration.connect_timeout,
+            host:                      RabbitFeed.configuration.host,
+            user:                      RabbitFeed.configuration.user,
+            password:                  RabbitFeed.configuration.password,
+            port:                      RabbitFeed.configuration.port,
+            network_recovery_interval: RabbitFeed.configuration.network_recovery_interval,
+            logger:                    RabbitFeed.log,
+          })
+          @connection.start
+        end
+
+        @connection
       end
     end
   end

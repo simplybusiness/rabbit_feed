@@ -236,15 +236,6 @@ RabbitFeed::Producer.publish_event 'Event name', { 'payload_field' => 'payload f
 
 The event will be published to the `amq.topic` exchange on RabbitMQ with a routing key having the pattern of:  `[environment].[producer application name].[event name]`.
 
-If running with Unicorn, you must reconnect to RabbitMQ after the workers are forked due to how Unicorn forks its child processes. Add the following to your `config/unicorn.rb`:
-
-```ruby
-after_fork do |server, worker|
-  require 'rabbit_feed'
-  RabbitFeed::Producer.reconnect!
-end
-```
-
 To prevent RabbitFeed from firing events during tests, add the following to `spec_helper.rb`:
 
 ```ruby
