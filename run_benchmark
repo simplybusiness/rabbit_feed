@@ -7,8 +7,8 @@ echo 'Starting test of rails application...'
 echo 'Starting rails application...'
 pushd example/rails_app >/dev/null
 nodenv local v0.10 >/dev/null
-bundle exec rake db:reset RAILS_ENV=production
-SECRET_KEY_BASE=1234abc bundle exec unicorn -c config/unicorn.rb -E production -D
+bundle exec rake db:reset RAILS_ENV=development
+bundle exec unicorn -c config/unicorn.rb -E development -D
 sleep 1
 popd >/dev/null
 echo 'Rails application started'
