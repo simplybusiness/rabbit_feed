@@ -7,9 +7,12 @@ require_relative '../lib/non_rails_app'
 # Prevent deprecation warnings
 I18n.enforce_available_locales = true
 
-RabbitFeed.log                     = Logger.new('development.log')
-RabbitFeed.environment             = 'development'
-RabbitFeed.configuration_file_path = 'config/rabbit_feed.yml'
+RabbitFeed.instance_eval do
+  self.log                     = Logger.new 'log/rabbit_feed.log'
+  self.log.level               = Logger::DEBUG
+  self.environment             = 'development'
+  self.configuration_file_path = 'config/rabbit_feed.yml'
+end
 
 payload = 'abc'*5000
 number_of_events = 5000
