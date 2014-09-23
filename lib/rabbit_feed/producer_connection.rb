@@ -26,20 +26,23 @@ module RabbitFeed
       end
     end
 
-    def self.publish message, options
-      ProducerConnection.open do |producer_connection|
-        ProducerConnection.retry_on_exception do
-          producer_connection.publish message, options
+    def self.publish message, options, tries = 3
+      retry_on_closed_connection do
+        open do |producer_connection|
+          retry_on_exception do
+            producer_connection.publish message, options
+          end
         end
       end
     end
 
-    def publish message, options
-      options.merge! PUBLISH_OPTIONS
+    def publish message, options, tries = 3
+      # It's critical to dup the options for the sake of retries, as bunny modifies this hash
+      bunny_options = (options.merge PUBLISH_OPTIONS)
 
       RabbitFeed.log.debug "Publishing message on #{self.to_s} with options: #{options} to exchange: #{RabbitFeed.configuration.exchange}..."
 
-      exchange.publish message, options
+      exchange.publish message, bunny_options
     end
 
     def self.handle_returned_message return_info, content
@@ -49,15 +52,10 @@ module RabbitFeed
 
     private
 
-    def self.retry_on_exception tries=3, &block
-      yield
-    rescue => e
-      RabbitFeed.log.warn "Exception encountered; #{tries - 1} tries remaining. #{self.to_s}: #{e.message} #{e.backtrace}"
-      unless (tries -= 1).zero?
-        sleep RabbitFeed.configuration.network_recovery_interval
-        retry
-      end
-      raise
+    def self.connection_options
+      default_connection_options.merge({
+        threaded: false,
+      })
     end
   end
 end

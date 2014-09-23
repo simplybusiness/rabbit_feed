@@ -5,7 +5,7 @@ module RabbitFeed
     SUBSCRIPTION_OPTIONS = {
       consumer_tag: Socket.gethostname, # Use the host name of the server
       ack:          true, # Manually acknowledge messages once they've been processed
-      block:        true, # Block the thread whilst consuming from the queue
+      block:        false, # Don't block the thread whilst consuming from the queue, as this leads to some strange threading issues
     }.freeze
 
     SEVEN_DAYS_IN_MS = 7.days * 1000
@@ -31,7 +31,7 @@ module RabbitFeed
     end
 
     def self.consume &block
-      ConsumerConnection.open do |consumer_connection|
+      open do |consumer_connection|
         consumer_connection.consume(&block)
       end
     end
@@ -39,7 +39,7 @@ module RabbitFeed
     def consume &block
       RabbitFeed.log.info "Consuming messages on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
 
-      queue.subscribe(SUBSCRIPTION_OPTIONS) do |delivery_info, properties, payload|
+      consumer = queue.subscribe(SUBSCRIPTION_OPTIONS) do |delivery_info, properties, payload|
         RabbitFeed.log.debug "Message received on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
 
         begin
@@ -52,12 +52,20 @@ module RabbitFeed
         RabbitFeed.log.debug "Message acknowledged on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
       end
 
+      sleep
     rescue
-      sleep RabbitFeed.configuration.network_recovery_interval
-      retry
+      cancel_ok = consumer.cancel
+      RabbitFeed.log.debug "Consumer: #{cancel_ok.consumer_tag} cancelled on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
+      raise
     end
 
     private
+
+    def self.connection_options
+      default_connection_options.merge({
+        threaded: true,
+      })
+    end
 
     def bind_on_accepted_routes
       if RabbitFeed::Consumer.event_routing.present?

@@ -4,7 +4,7 @@ module RabbitFeed
   describe ProducerConnection do
     let(:bunny_exchange)   { double(:bunny_exchange, on_return: nil) }
     let(:bunny_channel)    { double(:bunny_channel, exchange: bunny_exchange) }
-    let(:bunny_connection) { double(:bunny_connection, start: nil, open?: true, close: nil, create_channel: bunny_channel) }
+    let(:bunny_connection) { double(:bunny_connection, start: nil, closed?: false, close: nil, create_channel: bunny_channel) }
     before do
       allow(Bunny).to receive(:new).and_return(bunny_connection)
     end

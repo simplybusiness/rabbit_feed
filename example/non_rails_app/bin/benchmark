@@ -39,7 +39,7 @@ EventRouting do
   accept_from('non_rails_app') do
     event('test_event') do |event|
       events_consumed += 1
-      raise Interrupt if events_consumed >= number_of_events
+      Thread.main.raise Interrupt if events_consumed >= number_of_events
     end
   end
   accept_from('rails_app') do
