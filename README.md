@@ -129,6 +129,20 @@ Results in this output:
        2.270000   0.570000   2.840000 (  3.339304)
     Benchmark complete
 
+### Connection Recovery Testing
+
+A critical piece of RabbitFeed is the ability to recover from network connectivity problems. This means...
+
+* When publishing, all events that are published make it to the queue
+* When consuming, the consumer re-establishes its connection to the queue automatically
+
+To simulate network connectivity problems, there is a recovery test script that can be run like this:
+
+    brew project
+    ./run_recovery_test
+
+The script will publish and then consume 5000 mesages with the network dropping out every half-second.
+
 ### Command Line Tools
 
 #### Event Publish
