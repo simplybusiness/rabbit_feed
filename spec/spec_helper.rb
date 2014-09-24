@@ -13,6 +13,9 @@ CodeClimate::TestReporter.start
 # Get rid of deprecation warnings
 I18n.enforce_available_locales = true
 
+# Loads the shared examples
+Dir['./spec/support/**/*.rb'].sort.each { |f| require f}
+
 # Loads the step definitions
 Dir.glob('spec/features/step_definitions/**/*_steps.rb') { |f| load f, true }
 
