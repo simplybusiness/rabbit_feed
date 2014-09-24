@@ -3,7 +3,7 @@ require 'spec_helper'
 module RabbitFeed
   describe ConsumerConnection do
     let(:bunny_queue)      { double(:bunny_queue, bind: nil, subscribe: nil)}
-    let(:bunny_channel)    { double(:bunny_channel, prefetch: nil, nack: nil, ack: nil, queue: bunny_queue)}
+    let(:bunny_channel)    { double(:bunny_channel, prefetch: nil, nack: nil, ack: nil, queue: bunny_queue, id: 1)}
     let(:bunny_connection) { double(:bunny_connection, start: nil, closed?: false, close: nil, create_channel: bunny_channel) }
     before do
       allow(Bunny).to receive(:new).and_return(bunny_connection)
@@ -25,9 +25,20 @@ module RabbitFeed
         subject
       end
 
+      it 'assigns the queue' do
+        expect(subject.queue).to eq bunny_queue
+      end
+
       it 'preserves message order' do
         expect(bunny_channel).to receive(:prefetch).with(1)
         subject
+      end
+    end
+
+    describe '#connection_options' do
+
+      it 'uses a threaded connection' do
+        expect(described_class.connection_options).to include(threaded: true)
       end
     end
 
@@ -41,12 +52,22 @@ module RabbitFeed
         subject.consume { |payload| payload.should eq 'payload'}
       end
 
+      it 'acknowledges the message' do
+        expect(bunny_channel).to receive(:ack)
+        subject.consume { }
+      end
+
       context 'when an exception is raised' do
 
         it 'notifies airbrake' do
           expect(Airbrake).to receive(:notify_or_ignore).with(an_instance_of RuntimeError)
 
           expect{ subject.consume { raise 'Consuming time' } }.not_to raise_error
+        end
+
+        it 'negatively acknowledges the message' do
+          expect(bunny_channel).to receive(:nack)
+          subject.consume { raise 'Consuming time' }
         end
       end
     end

@@ -5,7 +5,7 @@ module RabbitFeed
     SUBSCRIPTION_OPTIONS = {
       consumer_tag: Socket.gethostname, # Use the host name of the server
       ack:          true, # Manually acknowledge messages once they've been processed
-      block:        false, # Don't block the thread whilst consuming from the queue, as this leads to some strange threading issues
+      block:        false, # Don't block the thread whilst consuming from the queue, as this breaks during connection recovery
     }.freeze
 
     SEVEN_DAYS_IN_MS = 7.days * 1000
@@ -23,10 +23,8 @@ module RabbitFeed
 
     def initialize channel
       channel.prefetch(1) # Fetch one message at a time to preserve order
-      queue_options = {
-        auto_delete: RabbitFeed.configuration.auto_delete_queue,
-      }
-      @queue = channel.queue RabbitFeed.configuration.queue, (queue_options.merge QUEUE_OPTIONS)
+      RabbitFeed.log.debug "Declaring queue on #{self.to_s} (channel #{channel.id}) named: #{RabbitFeed.configuration.queue} with options: #{queue_options}..."
+      @queue = channel.queue RabbitFeed.configuration.queue, queue_options
       bind_on_accepted_routes
     end
 
@@ -40,26 +38,22 @@ module RabbitFeed
       RabbitFeed.log.info "Consuming messages on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
 
       consumer = queue.subscribe(SUBSCRIPTION_OPTIONS) do |delivery_info, properties, payload|
-        RabbitFeed.log.debug "Message received on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
-
-        begin
-          yield payload
-        rescue => e
-          handle_processing_exception delivery_info, e
-        end
-        queue.channel.ack(delivery_info.delivery_tag)
-
-        RabbitFeed.log.debug "Message acknowledged on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
+        handle_message delivery_info, payload, &block
       end
 
-      sleep
+      sleep # Sleep indefinitely, as the consumer runs in its own thread
     rescue
-      cancel_ok = consumer.cancel
-      RabbitFeed.log.debug "Consumer: #{cancel_ok.consumer_tag} cancelled on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
+      (cancel_consumer consumer) if consumer.present?
       raise
     end
 
     private
+
+    def queue_options
+      {
+        auto_delete: RabbitFeed.configuration.auto_delete_queue,
+      }.merge QUEUE_OPTIONS
+    end
 
     def self.connection_options
       default_connection_options.merge({
@@ -77,12 +71,36 @@ module RabbitFeed
       end
     end
 
-    def handle_processing_exception delivery_info, exception
+    def acknowledge delivery_info
+      queue.channel.ack(delivery_info.delivery_tag)
+      RabbitFeed.log.debug "Message acknowledged on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
+    end
+
+    def handle_message delivery_info, payload, &block
+      RabbitFeed.log.debug "Message received on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
+
+      begin
+        yield payload
+        acknowledge delivery_info
+      rescue => e
+        handle_processing_exception delivery_info, e
+      end
+    end
+
+    def cancel_consumer consumer
+      cancel_ok = consumer.cancel
+      RabbitFeed.log.debug "Consumer: #{cancel_ok.consumer_tag} cancelled on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
+    end
+
+    def negative_acknowledge delivery_info
       # Tell rabbit that we were unable to process the message
       # This will re-queue the message
       queue.channel.nack(delivery_info.delivery_tag, false, true)
       RabbitFeed.log.debug "Message negatively acknowledged on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
+    end
 
+    def handle_processing_exception delivery_info, exception
+      negative_acknowledge delivery_info
       RabbitFeed.log.error "Exception encountered while consuming message on #{self.to_s} from queue #{RabbitFeed.configuration.queue}: #{exception.message} #{exception.backtrace}"
       RabbitFeed.exception_notify exception
     end
