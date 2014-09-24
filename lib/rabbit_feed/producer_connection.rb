@@ -15,11 +15,14 @@ module RabbitFeed
 
     attr_reader :exchange
 
+    def self.handle_returned_message return_info, content
+      RabbitFeed.log.error "Handling returned message on #{self.to_s} details: #{return_info}..."
+      RabbitFeed.exception_notify (ReturnedMessageError.new return_info)
+    end
+
     def initialize channel
-      exchange_options = {
-        auto_delete: RabbitFeed.configuration.auto_delete_exchange,
-      }
-      @exchange = channel.exchange RabbitFeed.configuration.exchange, (exchange_options.merge EXCHANGE_OPTIONS)
+      RabbitFeed.log.debug "Declaring exchange on #{self.to_s} (channel #{channel.id}) named: #{RabbitFeed.configuration.exchange} with options: #{exchange_options}..."
+      @exchange = channel.exchange RabbitFeed.configuration.exchange, exchange_options
 
       exchange.on_return do |return_info, properties, content|
         RabbitFeed::ProducerConnection.handle_returned_message return_info, content
@@ -45,16 +48,17 @@ module RabbitFeed
       exchange.publish message, bunny_options
     end
 
-    def self.handle_returned_message return_info, content
-      RabbitFeed.log.error "Handling returned message on #{self.to_s} details: #{return_info}..."
-      RabbitFeed.exception_notify (ReturnedMessageError.new return_info)
-    end
-
     private
+
+    def exchange_options
+      {
+        auto_delete: RabbitFeed.configuration.auto_delete_exchange,
+      }.merge EXCHANGE_OPTIONS
+    end
 
     def self.connection_options
       default_connection_options.merge({
-        threaded: false,
+        threaded: false, # With threading enabled, there is a chance of losing an event during connection recovery
       })
     end
   end
