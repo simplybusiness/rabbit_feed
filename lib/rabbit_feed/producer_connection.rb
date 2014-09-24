@@ -29,7 +29,7 @@ module RabbitFeed
       end
     end
 
-    def self.publish message, options, tries = 3
+    def self.publish message, options
       retry_on_closed_connection do
         open do |producer_connection|
           retry_on_exception do
@@ -39,7 +39,7 @@ module RabbitFeed
       end
     end
 
-    def publish message, options, tries = 3
+    def publish message, options
       # It's critical to dup the options for the sake of retries, as bunny modifies this hash
       bunny_options = (options.merge PUBLISH_OPTIONS)
 
