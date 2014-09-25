@@ -129,8 +129,23 @@ module RabbitFeed
     end
 
     describe '.retry_on_closed_connection' do
+      before do
+        subject.connection
+        subject.channel_pool
+      end
+
       it_behaves_like 'an operation that retries on exception', :retry_on_closed_connection, Bunny::ConnectionClosedError
       it_behaves_like 'an operation that does not retry on exception', :retry_on_closed_connection, RuntimeError
+
+      it 'unsets the connection' do
+        expect { subject.retry_on_closed_connection { raise Bunny::ConnectionClosedError.new 'blah' } }.to raise_error
+        expect(subject.instance_variable_get(:@connection)).to be_nil
+      end
+
+      it 'unsets the channel pool' do
+        expect { subject.retry_on_closed_connection { raise Bunny::ConnectionClosedError.new 'blah' } }.to raise_error
+        expect(subject.instance_variable_get(:@channel_pool)).to be_nil
+      end
     end
   end
 end
