@@ -29,8 +29,8 @@ module RabbitFeed
         @connection
       end
 
-      def channel_pool
-        @channel_pool ||= ConnectionPool.new(
+      def connection_pool
+        @connection_pool ||= ConnectionPool.new(
           size:    RabbitFeed.configuration.pool_size,
           timeout: RabbitFeed.configuration.pool_timeout
         ) do
@@ -39,8 +39,8 @@ module RabbitFeed
       end
 
       def open &block
-        channel_pool.with do |channel|
-          yield channel
+        connection_pool.with do |connection|
+          yield connection
         end
       end
 
@@ -50,8 +50,8 @@ module RabbitFeed
 
       def unset_connection
         RabbitFeed.log.debug "Unsetting connection: #{self.to_s}..."
-        @channel_pool = nil
-        @connection   = nil
+        @connection_pool = nil
+        @connection      = nil
       end
 
       def close

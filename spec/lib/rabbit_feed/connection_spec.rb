@@ -9,7 +9,7 @@ module RabbitFeed
     before { allow(Bunny).to receive(:new).and_return(bunny_connection) }
     after do
       subject.instance_variable_set(:@connection, nil)
-      subject.instance_variable_set(:@channel_pool, nil)
+      subject.instance_variable_set(:@connection_pool, nil)
     end
     subject { RabbitFeed::ProducerConnection }
 
@@ -30,15 +30,15 @@ module RabbitFeed
       end
     end
 
-    describe '.channel_pool' do
+    describe '.connection_pool' do
 
-      it 'returns the channel pool' do
-        expect(subject.channel_pool).to be_a ConnectionPool
+      it 'returns the connection pool' do
+        expect(subject.connection_pool).to be_a ConnectionPool
       end
 
-      it 'assigns the channel pool' do
-        subject.channel_pool
-        expect(subject.instance_variable_get(:@channel_pool)).to be_a ConnectionPool
+      it 'assigns the connection pool' do
+        subject.connection_pool
+        expect(subject.instance_variable_get(:@connection_pool)).to be_a ConnectionPool
       end
     end
 
@@ -82,7 +82,7 @@ module RabbitFeed
       context 'when the connection is not nil' do
         before do
           subject.connection
-          subject.channel_pool
+          subject.connection_pool
         end
 
         context 'when the connection is closed' do
@@ -116,9 +116,9 @@ module RabbitFeed
           expect(subject.instance_variable_get(:@connection)).to be_nil
         end
 
-        it 'unsets the channel pool' do
+        it 'unsets the connection pool' do
           subject.close
-          expect(subject.instance_variable_get(:@channel_pool)).to be_nil
+          expect(subject.instance_variable_get(:@connection_pool)).to be_nil
         end
       end
     end
@@ -131,7 +131,7 @@ module RabbitFeed
     describe '.retry_on_closed_connection' do
       before do
         subject.connection
-        subject.channel_pool
+        subject.connection_pool
       end
 
       it_behaves_like 'an operation that retries on exception', :retry_on_closed_connection, Bunny::ConnectionClosedError
@@ -142,9 +142,9 @@ module RabbitFeed
         expect(subject.instance_variable_get(:@connection)).to be_nil
       end
 
-      it 'unsets the channel pool' do
+      it 'unsets the connection pool' do
         expect { subject.retry_on_closed_connection { raise Bunny::ConnectionClosedError.new 'blah' } }.to raise_error
-        expect(subject.instance_variable_get(:@channel_pool)).to be_nil
+        expect(subject.instance_variable_get(:@connection_pool)).to be_nil
       end
     end
   end
