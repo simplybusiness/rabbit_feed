@@ -23,7 +23,7 @@ RSpec.configure do |config|
     RabbitFeed::Producer.stub!
   end
 
-  config.include(RabbitFeed::RSpecMatchers)
+  config.include(RabbitFeed::TestingSupport::RSpecMatchers)
 end
 
 RabbitFeed.log = Logger.new('test.log')
