@@ -104,15 +104,15 @@ Results in this output:
 
     Transactions:            200 hits
     Availability:         100.00 %
-    Elapsed time:           0.65 secs
+    Elapsed time:           1.33 secs
     Data transferred:         0.16 MB
-    Response time:            0.03 secs
-    Transaction rate:       307.69 trans/sec
-    Throughput:           0.24 MB/sec
-    Concurrency:            9.62
+    Response time:            0.06 secs
+    Transaction rate:       150.38 trans/sec
+    Throughput:           0.12 MB/sec
+    Concurrency:            8.76
     Successful transactions:         100
     Failed transactions:             0
-    Longest transaction:          0.25
+    Longest transaction:          0.36
     Shortest transaction:         0.00
 
     Stopping rails application...
@@ -123,10 +123,10 @@ Results in this output:
     Starting standalone publishing and consuming benchmark...
     Publishing 5000 events...
            user     system      total        real
-       1.460000   0.230000   1.690000 (  1.692004)
+       2.460000   0.310000   2.770000 (  2.779719)
     Consuming 5000 events...
            user     system      total        real
-       2.270000   0.570000   2.840000 (  3.339304)
+       2.380000   0.590000   2.970000 (  3.500515)
     Benchmark complete
 
 ### Connection Recovery Testing
