@@ -295,7 +295,7 @@ If you want to test that your routes are behaving as expected without actually u
           EventRouting do
             accept_from('app') do
               event('ev') do |event|
-                accumulator << event
+                accumulator &lt;&lt; event
               end
             end
           end
