@@ -261,7 +261,7 @@ Add the following RSpec configuration to `spec_helper.rb`:
 
 ```ruby
 RSpec.configure do |config|
-  config.include(RabbitFeed::RSpecMatchers)
+  config.include(RabbitFeed::TestingSupport::RSpecMatchers)
 end
 ```
 
@@ -287,7 +287,7 @@ If you want to test that your routes are behaving as expected without actually u
 <pre>
     describe 'consuming events' do
 
-        <b>include TestingHelpers</b>
+        <b>include RabbitFeed::TestingSupport::TestingHelpers</b>
 
         accumulator = []
 
