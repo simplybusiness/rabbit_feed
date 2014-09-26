@@ -40,7 +40,7 @@ RSpec.configure do |config|
     RabbitFeed::Producer.event_definitions = nil
   end
 
-  config.include(RabbitFeed::RSpecMatchers)
+  config.include(RabbitFeed::TestingSupport::RSpecMatchers)
 end
 
 def delete_exchange
