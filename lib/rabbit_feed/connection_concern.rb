@@ -1,5 +1,5 @@
 module RabbitFeed
-  module Connection
+  module ConnectionConcern
     extend ActiveSupport::Concern
 
     module ClassMethods
@@ -17,49 +17,10 @@ module RabbitFeed
         }
       end
 
-      def connection
-        if @connection.nil?
-          retry_on_exception do
-            RabbitFeed.log.debug "Opening connection: #{self.to_s}..."
-            @connection = Bunny.new connection_options
-            @connection.start
-          end
-        end
-
-        @connection
-      end
-
-      def connection_pool
-        @connection_pool ||= ConnectionPool.new(
-          size:    RabbitFeed.configuration.pool_size,
-          timeout: RabbitFeed.configuration.pool_timeout
-        ) do
-          new connection.create_channel
-        end
-      end
-
-      def open &block
+      def with_connection &block
         connection_pool.with do |connection|
           yield connection
         end
-      end
-
-      def closed?
-        @connection.present? && @connection.closed?
-      end
-
-      def unset_connection
-        RabbitFeed.log.debug "Unsetting connection: #{self.to_s}..."
-        @connection_pool = nil
-        @connection      = nil
-      end
-
-      def close
-        RabbitFeed.log.debug "Closing connection: #{self.to_s}..."
-        @connection.close if @connection.present? && !closed?
-        unset_connection
-      rescue => e
-        RabbitFeed.log.warn "Exception encountered whilst closing #{self.to_s}: #{e.message} #{e.backtrace}"
       end
 
       def retry_on_exception tries=3, &block
@@ -85,6 +46,50 @@ module RabbitFeed
         end
         raise
       end
+
+      def close
+        RabbitFeed.log.debug "Closing connection: #{self.to_s}..."
+        @bunny_connection.close if @bunny_connection.present? && !closed?
+        unset_connection
+      rescue => e
+        RabbitFeed.log.warn "Exception encountered whilst closing #{self.to_s}: #{e.message} #{e.backtrace}"
+      end
+
+      def bunny_connection
+        if @bunny_connection.nil?
+          retry_on_exception do
+            RabbitFeed.log.debug "Opening connection: #{self.to_s}..."
+            @bunny_connection = Bunny.new connection_options
+            @bunny_connection.start
+          end
+        end
+
+        @bunny_connection
+      end
+      private :bunny_connection
+
+      def connection_pool
+        @connection_pool ||= ConnectionPool.new(
+          size:    RabbitFeed.configuration.pool_size,
+          timeout: RabbitFeed.configuration.pool_timeout
+        ) do
+          new bunny_connection.create_channel
+        end
+      end
+      private :connection_pool
+
+      def closed?
+        @bunny_connection.present? && @bunny_connection.closed?
+      end
+      private :closed?
+
+      def unset_connection
+        RabbitFeed.log.debug "Unsetting connection: #{self.to_s}..."
+        @connection_pool  = nil
+        @bunny_connection = nil
+      end
+      private :unset_connection
+
     end
   end
 end

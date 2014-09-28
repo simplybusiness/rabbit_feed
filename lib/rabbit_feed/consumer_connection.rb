@@ -1,6 +1,6 @@
 module RabbitFeed
   class ConsumerConnection
-    include Connection
+    include ConnectionConcern
 
     SUBSCRIPTION_OPTIONS = {
       consumer_tag: Socket.gethostname, # Use the host name of the server
@@ -29,7 +29,7 @@ module RabbitFeed
     end
 
     def self.consume &block
-      open do |consumer_connection|
+      with_connection do |consumer_connection|
         consumer_connection.consume(&block)
       end
     end

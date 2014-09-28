@@ -1,6 +1,6 @@
 module RabbitFeed
   class ProducerConnection
-    include Connection
+    include ConnectionConcern
 
     PUBLISH_OPTIONS = {
       persistent: true, # Persist the message to disk
@@ -31,7 +31,7 @@ module RabbitFeed
 
     def self.publish message, options
       retry_on_closed_connection do
-        open do |producer_connection|
+        with_connection do |producer_connection|
           retry_on_exception do
             producer_connection.publish message, options
           end

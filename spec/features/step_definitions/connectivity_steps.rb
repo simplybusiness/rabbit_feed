@@ -30,8 +30,8 @@ end
 module Turnip::Steps
 
   def initialize_queue
-    RabbitFeed::ProducerConnection.open{|connection|}
-    RabbitFeed::ConsumerConnection.open{|connection|}
+    RabbitFeed::ProducerConnection.with_connection{|connection|}
+    RabbitFeed::ConsumerConnection.with_connection{|connection|}
   end
 
   def publish event_name

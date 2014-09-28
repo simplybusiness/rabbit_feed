@@ -18,6 +18,9 @@ popd >/dev/null
 echo 'Benchmark complete'
 
 # Kill the process that was toggling lo0 and ensure lo0 is enabled
-sudo kill $disabling_pid
-sudo ifconfig lo0 up
-echo 'Restored lo0'
+function cleanup {
+  sudo kill $disabling_pid
+  sudo ifconfig lo0 up
+  echo 'Restored lo0'
+}
+trap cleanup EXIT
