@@ -84,7 +84,7 @@ To run the benchmarking script
     brew project
     ./run_benchmark
 
-As of 20140506, running the benchmark on this hardware:
+As of 20140925, running the benchmark on this hardware:
 
     MacBook Pro Retina, Mid 2012
     Processor  2.6 GHz Intel Core i7
