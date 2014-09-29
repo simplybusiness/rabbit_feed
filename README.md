@@ -290,32 +290,31 @@ end
 If you want to test that your routes are behaving as expected without actually using *Rabbit* infrastructure, you can include the module `TestHelpers` in your tests and then invoke `rabbit_feed_consumer.consume_event(event)`. Following is an example:
 
 ```ruby
-     describe 'consuming events' do
+describe 'consuming events' do
 
-        include RabbitFeed::TestingSupport::TestingHelpers
+  include RabbitFeed::TestingSupport::TestingHelpers
 
-        accumulator = []
+  accumulator = []
 
-        let(:define_route) do
-          EventRouting do
-            accept_from('app') do
-              event('ev') do |event|
-                accumulator &lt;&lt; event
-              end
-            end
-          end
-        end
-
-        let(:event) { {'application' => 'app', 'name' => 'ev', 'stuff' => 'some_stuff'} }
-
-        before { define_route }
-
-        it 'route to the correct service' do
-          rabbit_feed_consumer.consume_event(event)
-          expect(accumulator.size).to eq(1)
+  let(:define_route) do
+    EventRouting do
+      accept_from('app') do
+        event('ev') do |event|
+          accumulator << event
         end
       end
+    end
+  end
 
+  let(:event) { {'application' => 'app', 'name' => 'ev', 'stuff' => 'some_stuff'} }
+
+  before { define_route }
+
+  it 'route to the correct service' do
+    rabbit_feed_consumer.consume_event(event)
+    expect(accumulator.size).to eq(1)
+  end
+end
 ```
 
 ### Consuming events
