@@ -258,7 +258,7 @@ config.before :each do
 end
 ```
 
-#### RSpec Matcher
+#### Aiding testing and the RSpec Matcher
 
 To verify that your application publishes an event, use the custom RSpec matcher provided with this application.
 
@@ -266,7 +266,7 @@ Add the following RSpec configuration to `spec_helper.rb`:
 
 ```ruby
 RSpec.configure do |config|
-  config.include(RabbitFeed::RSpecMatchers)
+  config.include(RabbitFeed::TestingSupport::RSpecMatchers)
 end
 ```
 
@@ -285,6 +285,37 @@ describe BeaversController do
     end
   end
 end
+```
+
+If you want to test that your routes are behaving as expected without actually using *Rabbit* infrastructure, you can include the module `TestHelpers` in your tests and then invoke `rabbit_feed_consumer.consume_event(event)`. Following is an example:
+
+```ruby
+     describe 'consuming events' do
+
+        include RabbitFeed::TestingSupport::TestingHelpers
+
+        accumulator = []
+
+        let(:define_route) do
+          EventRouting do
+            accept_from('app') do
+              event('ev') do |event|
+                accumulator &lt;&lt; event
+              end
+            end
+          end
+        end
+
+        let(:event) { {'application' => 'app', 'name' => 'ev', 'stuff' => 'some_stuff'} }
+
+        before { define_route }
+
+        it 'route to the correct service' do
+          rabbit_feed_consumer.consume_event(event)
+          expect(accumulator.size).to eq(1)
+        end
+      end
+
 ```
 
 ### Consuming events

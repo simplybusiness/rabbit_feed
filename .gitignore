@@ -6,3 +6,6 @@ pkg
 .DS_Store
 # Log files
 *.log
+*.iml
+.idea/
+*.gem
