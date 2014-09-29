@@ -77,7 +77,7 @@ The producer defines the events and their payloads using the Event Definitions D
 To produce an event:
 
 ```ruby
-require 'rabbit_feed_producer'
+require 'rabbit_feed'
 RabbitFeed::Producer.publish_event 'Event name', { 'payload_field' => 'payload field value' }
 ```
 
