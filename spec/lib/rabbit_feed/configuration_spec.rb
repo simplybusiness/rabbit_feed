@@ -30,17 +30,20 @@ module RabbitFeed
 
       context 'with configuration' do
 
-        its(:host)            { should eq 'localhost' }
-        its(:port)            { should eq 5672 }
-        its(:user)            { should eq 'guest' }
-        its(:password)        { should eq 'guest' }
-        its(:application)     { should eq 'rabbit_feed' }
-        its(:environment)     { should eq 'test' }
-        its(:exchange)        { should eq 'amq.topic' }
-        its(:pool_size)       { should eq 1 }
-        its(:pool_timeout)    { should eq 1 }
-        its(:heartbeat)       { should eq 60 }
-        its(:connect_timeout) { should eq 1 }
+        its(:host)                      { should eq 'localhost' }
+        its(:port)                      { should eq 5672 }
+        its(:user)                      { should eq 'guest' }
+        its(:password)                  { should eq 'guest' }
+        its(:application)               { should eq 'rabbit_feed' }
+        its(:environment)               { should eq 'test' }
+        its(:exchange)                  { should eq 'rabbit_feed_exchange' }
+        its(:pool_size)                 { should eq 1 }
+        its(:pool_timeout)              { should eq 1 }
+        its(:heartbeat)                 { should eq 60 }
+        its(:connect_timeout)           { should eq 1 }
+        its(:network_recovery_interval) { should eq 0.1 }
+        its(:auto_delete_queue)         { should be_true }
+        its(:auto_delete_exchange)      { should be_true }
       end
 
     end
@@ -57,45 +60,54 @@ module RabbitFeed
           }
         end
 
-        its(:host)            { should eq 'localhost' }
-        its(:port)            { should eq 5672 }
-        its(:user)            { should eq 'guest' }
-        its(:password)        { should eq 'guest' }
-        its(:exchange)        { should eq 'amq.topic' }
-        its(:pool_size)       { should eq 1 }
-        its(:pool_timeout)    { should eq 5 }
-        its(:heartbeat)       { should eq 5 }
-        its(:connect_timeout) { should eq 10 }
+        its(:host)                      { should eq 'localhost' }
+        its(:port)                      { should eq 5672 }
+        its(:user)                      { should eq 'guest' }
+        its(:password)                  { should eq 'guest' }
+        its(:exchange)                  { should eq 'amq.topic' }
+        its(:pool_size)                 { should eq 1 }
+        its(:pool_timeout)              { should eq 5 }
+        its(:heartbeat)                 { should eq 5 }
+        its(:connect_timeout)           { should eq 10 }
+        its(:network_recovery_interval) { should eq 1 }
+        its(:auto_delete_queue)         { should be_false }
+        its(:auto_delete_exchange)      { should be_false }
       end
 
       context 'with provided options' do
         let(:options) do
           {
-            host:            'host_name',
-            port:            12345,
-            user:            'user_name',
-            password:        'password',
-            application:     'rabbit_feed',
-            environment:     'test',
-            exchange:        'exchange_name',
-            pool_size:       2,
-            pool_timeout:    6,
-            heartbeat:       3,
-            connect_timeout: 4,
+            host:                      'host_name',
+            port:                      12345,
+            user:                      'user_name',
+            password:                  'password',
+            application:               'rabbit_feed',
+            environment:               'test',
+            exchange:                  'exchange_name',
+            pool_size:                 2,
+            pool_timeout:              6,
+            heartbeat:                 3,
+            connect_timeout:           4,
+            network_recovery_interval: 2,
+            auto_delete_queue:         'true',
+            auto_delete_exchange:      'false',
           }
         end
 
-        its(:host)            { should eq 'host_name' }
-        its(:port)            { should eq 12345 }
-        its(:user)            { should eq 'user_name' }
-        its(:password)        { should eq 'password' }
-        its(:application)     { should eq 'rabbit_feed' }
-        its(:environment)     { should eq 'test' }
-        its(:exchange)        { should eq 'exchange_name' }
-        its(:pool_size)       { should eq 2 }
-        its(:pool_timeout)    { should eq 6 }
-        its(:heartbeat)       { should eq 3 }
-        its(:connect_timeout) { should eq 4 }
+        its(:host)                      { should eq 'host_name' }
+        its(:port)                      { should eq 12345 }
+        its(:user)                      { should eq 'user_name' }
+        its(:password)                  { should eq 'password' }
+        its(:application)               { should eq 'rabbit_feed' }
+        its(:environment)               { should eq 'test' }
+        its(:exchange)                  { should eq 'exchange_name' }
+        its(:pool_size)                 { should eq 2 }
+        its(:pool_timeout)              { should eq 6 }
+        its(:heartbeat)                 { should eq 3 }
+        its(:connect_timeout)           { should eq 4 }
+        its(:network_recovery_interval) { should eq 2 }
+        its(:auto_delete_queue)         { should be_true }
+        its(:auto_delete_exchange)      { should be_true }
       end
 
       context 'with empty options' do

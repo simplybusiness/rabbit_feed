@@ -9,7 +9,7 @@ require 'dsl'
 require 'rabbit_feed/version'
 require 'rabbit_feed/client'
 require 'rabbit_feed/configuration'
-require 'rabbit_feed/connection'
+require 'rabbit_feed/connection_concern'
 require 'rabbit_feed/event'
 require 'rabbit_feed/consumer_connection'
 require 'rabbit_feed/consumer'
@@ -35,6 +35,6 @@ module RabbitFeed
   end
 
   def exception_notify exception
-    (Airbrake.notify exception) if Airbrake.configuration.public?
+    (Airbrake.notify_or_ignore exception) if Airbrake.configuration.public?
   end
 end

@@ -12,155 +12,6 @@ A gem providing asynchronous event publish and subscribe capabilities with Rabbi
 * Multiple subscribers: Multiple applications can subscribe to the same events.
 * Event versioning: Consumers can customize event handling based on the event version.
 
-## Developing
-
-### Requirements
-
-1. RabbitMQ running locally
-
-        brew project
-        rabbitmq-server
-
-The management interface can be found [here](http://localhost:15672/). The default login is `guest/guest`. You can view exchanges [here](http://localhost:15672/#/exchanges) and queues [here](http://localhost:15672/#/queues).
-
-### Running Tests
-
-This will run the specs and the features:
-
-    bundle exec rake
-
-### Running the example project
-
-After doing any dev work, it is good practice to verify you haven't broken the examples. Run the examples like this:
-
-    ./run_example
-
-You should see something similar to the following output:
-
-    Starting non rails application consumer...
-    /opt/boxen/rbenv/versions/2.0.0-p451/bin/ruby -S rspec ./spec/lib/non_rails_app/event_handler_spec.rb
-    NonRailsApp::EventHandler - Consumed event: user_updates_beaver with payload: {"beaver_name"=>"beaver"}
-    .
-
-    Finished in 0.00349 seconds
-    1 example, 0 failures
-
-    Randomized with seed 59391
-
-    Non rails application consumer started
-    Starting rails application consumer...
-    /opt/boxen/rbenv/versions/2.0.0-p451/bin/ruby -S rspec ./spec/controllers/beavers_controller_spec.rb
-    ...
-
-    Finished in 0.04397 seconds
-    3 examples, 0 failures
-
-    Randomized with seed 18883
-
-    Rails application consumer started
-    Starting rails application...
-    Rails application started
-    Triggering event...
-    NonRailsApp::EventHandler - Consumed event: user_creates_beaver with payload: {"application"=>"rails_app", "host"=>"macjfleck.home", "environment"=>"development", "version"=>"1.0.0", "name"=>"user_creates_beaver", "created_at_utc"=>"2014-05-05T14:16:44.045395Z", "beaver_name"=>"05/05/14 15:16:43"}
-    Event triggered
-    RailsApp::EventHandler - Consumed event: application_acknowledges_event with payload: {"application"=>"non_rails_app", "host"=>"macjfleck.home", "environment"=>"development", "version"=>"1.0.0", "name"=>"application_acknowledges_event", "created_at_utc"=>"2014-05-05T14:16:44.057279Z", "beaver_name"=>"05/05/14 15:16:43", "event_name"=>"user_creates_beaver"}
-    Stopping non rails application consumer...
-    Non rails application consumer stopped
-    Stopping rails application consumer...
-    Rails application consumer stopped
-    Stopping rails application...
-    Rails application stopped
-
-### Performance Benchmarking
-
-There is a script that can be run to benchmark the tool. It benchmarks three areas:
-
-1. Producing events during HTTP requests within a rails application (using [siege](http://www.joedog.org/siege-home/))
-2. Producing events directly
-3. Consuming events
-
-To run the benchmarking script
-
-    brew project
-    ./run_benchmark
-
-As of 20140506, running the benchmark on this hardware:
-
-    MacBook Pro Retina, Mid 2012
-    Processor  2.6 GHz Intel Core i7
-    Memory  8 GB 1600 MHz DDR3
-    Software  OS X 10.8.5 (12F45)
-
-Results in this output:
-
-    Starting test of rails application...
-    Starting rails application...
-    -- create_table("beavers", {:force=>true})
-       -> 0.0140s
-    -- initialize_schema_migrations_table()
-       -> 0.0196s
-    Rails application started
-          done.
-
-    Transactions:            200 hits
-    Availability:         100.00 %
-    Elapsed time:           0.65 secs
-    Data transferred:         0.16 MB
-    Response time:            0.03 secs
-    Transaction rate:       307.69 trans/sec
-    Throughput:           0.24 MB/sec
-    Concurrency:            9.62
-    Successful transactions:         100
-    Failed transactions:             0
-    Longest transaction:          0.25
-    Shortest transaction:         0.00
-
-    Stopping rails application...
-    Rails application stopped
-    Rails application test complete
-
-
-    Starting standalone publishing and consuming benchmark...
-    Publishing 5000 events...
-           user     system      total        real
-       1.460000   0.230000   1.690000 (  1.692004)
-    Consuming 5000 events...
-           user     system      total        real
-       2.270000   0.570000   2.840000 (  3.339304)
-    Benchmark complete
-
-### Command Line Tools
-
-#### Event Publish
-
-    bundle exec bin/rabbit_feed produce --payload 'Event payload' --name 'Event name' --environment test --config spec/fixtures/configuration.yml --logfile test.log --require rabbit_feed.rb --verbose
-
-Publishes an event. Note: until you've specified the event definitions, this will not publish any events. Options are as follows:
-
-    --payload The payload of the event
-    --name The name of the event
-    --environment The environment to run in
-    --config The location of the rabbit_feed configuration file
-    --logfile The location of the log file
-    --require The project file containing the dependancies
-    --verbose Turns on DEBUG logging
-    --help Print the available options
-
-#### Consumer
-
-    bundle exec bin/rabbit_feed consume --environment test --config spec/fixtures/configuration.yml --logfile test.log --require rabbit_feed.rb --pidfile rabbit_feed.pid --verbose --daemon
-
-Starts a consumer. Note: until you've specified the event routing, this will not receive any events. Options are as follows:
-
-    --environment The environment to run in
-    --config The location of the rabbit_feed configuration file
-    --logfile The location of the log file
-    --require The project file containing the dependancies (only necessary if running with non-rails application)
-    --pidfile The location at which to write a pid file
-    --verbose Turns on DEBUG logging
-    --daemon Run the consumer as a daemon
-    --help Print the available options
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -194,7 +45,6 @@ If installing in a rails application, the following should be defined in `config
 ```ruby
 RabbitFeed.instance_eval do
   self.log                     = Logger.new (Rails.root.join 'log', 'rabbit_feed.log')
-  self.log.level               = Logger::INFO
   self.environment             = Rails.env
   self.configuration_file_path = Rails.root.join 'config', 'rabbit_feed.yml'
 end
@@ -219,14 +69,14 @@ EventRouting do
 end
 ```
 
-### Producing events
+## Producing events
 
 The producer defines the events and their payloads using the Event Definitions DSL (see below for example). In a rails app, this can be defined in the initialiser.
 
 To produce an event:
 
 ```ruby
-require 'rabbit_feed_producer'
+require 'rabbit_feed'
 RabbitFeed::Producer.publish_event 'Event name', { 'payload_field' => 'payload field value' }
 ```
 
@@ -236,15 +86,6 @@ RabbitFeed::Producer.publish_event 'Event name', { 'payload_field' => 'payload f
 
 The event will be published to the `amq.topic` exchange on RabbitMQ with a routing key having the pattern of:  `[environment].[producer application name].[event name]`.
 
-If running with Unicorn, you must reconnect to RabbitMQ after the workers are forked due to how Unicorn forks its child processes. Add the following to your `config/unicorn.rb`:
-
-```ruby
-after_fork do |server, worker|
-  require 'rabbit_feed'
-  RabbitFeed::Producer.reconnect!
-end
-```
-
 To prevent RabbitFeed from firing events during tests, add the following to `spec_helper.rb`:
 
 ```ruby
@@ -253,7 +94,7 @@ config.before :each do
 end
 ```
 
-#### Aiding testing and the RSpec Matcher
+### Aiding testing and the RSpec Matcher
 
 To verify that your application publishes an event, use the custom RSpec matcher provided with this application.
 
@@ -285,35 +126,34 @@ end
 If you want to test that your routes are behaving as expected without actually using *Rabbit* infrastructure, you can include the module `TestHelpers` in your tests and then invoke `rabbit_feed_consumer.consume_event(event)`. Following is an example:
 
 ```ruby
-     describe 'consuming events' do
+describe 'consuming events' do
 
-        include RabbitFeed::TestingSupport::TestingHelpers
+  include RabbitFeed::TestingSupport::TestingHelpers
 
-        accumulator = []
+  accumulator = []
 
-        let(:define_route) do
-          EventRouting do
-            accept_from('app') do
-              event('ev') do |event|
-                accumulator &lt;&lt; event
-              end
-            end
-          end
-        end
-
-        let(:event) { {'application' => 'app', 'name' => 'ev', 'stuff' => 'some_stuff'} }
-
-        before { define_route }
-
-        it 'route to the correct service' do
-          rabbit_feed_consumer.consume_event(event)
-          expect(accumulator.size).to eq(1)
+  let(:define_route) do
+    EventRouting do
+      accept_from('app') do
+        event('ev') do |event|
+          accumulator << event
         end
       end
+    end
+  end
 
+  let(:event) { {'application' => 'app', 'name' => 'ev', 'stuff' => 'some_stuff'} }
+
+  before { define_route }
+
+  it 'route to the correct service' do
+    rabbit_feed_consumer.consume_event(event)
+    expect(accumulator.size).to eq(1)
+  end
+end
 ```
 
-### Consuming events
+## Consuming events
 
 The consumer defines to which events it will subscribe as well as how it handles events using the Event Routing DSL (see below for example). In a rails app, this can be defined in the initialiser.
 
@@ -327,11 +167,43 @@ An `Event` contains the following information:
     `created_at_utc` The time (in UTC) that the event was created
     `payload` The payload of the event
 
-#### Running the consumer
+### Running the consumer
 
     bundle exec rabbit_feed consume --environment development
 
 See the `Consumer` section for a description of the arguments
+
+## Command Line Tools
+
+### Event Publish
+
+    bundle exec bin/rabbit_feed produce --payload 'Event payload' --name 'Event name' --environment test --config spec/fixtures/configuration.yml --logfile test.log --require rabbit_feed.rb --verbose
+
+Publishes an event. Note: until you've specified the event definitions, this will not publish any events. Options are as follows:
+
+    --payload The payload of the event
+    --name The name of the event
+    --environment The environment to run in
+    --config The location of the rabbit_feed configuration file
+    --logfile The location of the log file
+    --require The project file containing the dependancies
+    --verbose Turns on DEBUG logging
+    --help Print the available options
+
+### Consumer
+
+    bundle exec bin/rabbit_feed consume --environment test --config spec/fixtures/configuration.yml --logfile test.log --require rabbit_feed.rb --pidfile rabbit_feed.pid --verbose --daemon
+
+Starts a consumer. Note: until you've specified the event routing, this will not receive any events. Options are as follows:
+
+    --environment The environment to run in
+    --config The location of the rabbit_feed configuration file
+    --logfile The location of the log file
+    --require The project file containing the dependancies (only necessary if running with non-rails application)
+    --pidfile The location at which to write a pid file
+    --verbose Turns on DEBUG logging
+    --daemon Run the consumer as a daemon
+    --help Print the available options
 
 ## Event Definitions DSL
 
@@ -407,3 +279,7 @@ When the consumer is started, it will create its queue named using this pattern:
     environment.beavers.user_updated_beaver
 
 _Note: The consumer queues will automatically expire (delete) after 7 days without any consumer connections. This is to prevent unused queues from hanging around once their associated consumer has been terminated._
+
+## Developing
+
+_See [./DEVELOPING.md](./DEVELOPING.md) for instructions on how to develop RabbitFeed_

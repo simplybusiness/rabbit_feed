@@ -4,11 +4,12 @@ source 'https://rubygems.org'
 gemspec
 
 group :development, :test do
-  gem 'rake'
   gem 'pry-plus'
+  gem 'rake'
 end
 
 group :test do
-  gem 'rutabaga'
   gem 'codeclimate-test-reporter'
+  gem 'rutabaga'
+  gem 'timecop'
 end

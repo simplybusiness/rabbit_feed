@@ -7,9 +7,12 @@ require_relative '../lib/non_rails_app'
 # Prevent deprecation warnings
 I18n.enforce_available_locales = true
 
-RabbitFeed.log                     = Logger.new('development.log')
-RabbitFeed.environment             = 'development'
-RabbitFeed.configuration_file_path = 'config/rabbit_feed.yml'
+RabbitFeed.instance_eval do
+  self.log                     = Logger.new 'log/rabbit_feed.log'
+  self.log.level               = Logger::DEBUG
+  self.environment             = 'development'
+  self.configuration_file_path = 'config/rabbit_feed.yml'
+end
 
 payload = 'abc'*5000
 number_of_events = 5000
@@ -36,7 +39,7 @@ EventRouting do
   accept_from('non_rails_app') do
     event('test_event') do |event|
       events_consumed += 1
-      raise Interrupt if events_consumed >= number_of_events
+      Thread.main.raise Interrupt if events_consumed >= number_of_events
     end
   end
   accept_from('rails_app') do
@@ -53,7 +56,7 @@ puts "Consuming #{number_of_events} events..."
 Benchmark.bm do |x|
   x.report do
     begin
-      RabbitFeed::Consumer.start
+      RabbitFeed::Consumer.run
     rescue Interrupt
     end
   end

@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -e
+
+# Grant the session sudo access
+sudo date
+
+# In a separate process enable/disable the loopback interface
+echo 'Starting process that will periodically disable lo0...'
+sudo sh -c "while true; do ifconfig lo0 down; sleep 0.1; ifconfig lo0 up; sleep 0.5; done" &
+disabling_pid=$!
+
+# Test standalone publishing and consuming
+echo 'Starting standalone publishing and consuming benchmark...'
+pushd example/non_rails_app >/dev/null
+bin/benchmark
+popd >/dev/null
+echo 'Benchmark complete'
+
+# Kill the process that was toggling lo0 and ensure lo0 is enabled
+function cleanup {
+  sudo kill $disabling_pid
+  sudo ifconfig lo0 up
+  echo 'Restored lo0'
+}
+trap cleanup EXIT
