@@ -59,10 +59,20 @@ module RabbitFeed
 
       context 'when an exception is raised' do
 
-        it 'notifies airbrake' do
-          expect(Airbrake).to receive(:notify_or_ignore).with(an_instance_of RuntimeError)
+        context 'when Airbrake is defined' do
+          before do
+            stub_const('Airbrake', double(:airbrake, configuration: airbrake_configuration))
+          end
 
-          expect{ subject.consume { raise 'Consuming time' } }.not_to raise_error
+          context 'and the Airbrake configuration is public' do
+            let(:airbrake_configuration) { double(:airbrake_configuration, public?: true) }
+
+            it 'notifies airbrake' do
+              expect(Airbrake).to receive(:notify_or_ignore).with(an_instance_of RuntimeError)
+
+              expect{ subject.consume { raise 'Consuming time' } }.not_to raise_error
+            end
+          end
         end
 
         it 'negatively acknowledges the message' do

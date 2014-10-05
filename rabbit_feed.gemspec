@@ -26,8 +26,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'activemodel'
   # Provides connection pooling for the producer connections
   spec.add_dependency 'connection_pool'
-  # Error reporting mechanism (used by producer and consumer)
-  spec.add_dependency 'airbrake'
   # Manages process pidfile
   spec.add_dependency 'pidfile'
   # Schema definitions and serialization for events

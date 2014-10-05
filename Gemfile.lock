@@ -1,10 +1,9 @@
 PATH
   remote: .
   specs:
-    rabbit_feed (0.2.0)
+    rabbit_feed (0.3.0)
       activemodel
       activesupport
-      airbrake
       avro
       bunny
       connection_pool
@@ -13,18 +12,15 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (4.1.5)
-      activesupport (= 4.1.5)
+    activemodel (4.1.6)
+      activesupport (= 4.1.6)
       builder (~> 3.1)
-    activesupport (4.1.5)
+    activesupport (4.1.6)
       i18n (~> 0.6, >= 0.6.9)
       json (~> 1.7, >= 1.7.7)
       minitest (~> 5.1)
       thread_safe (~> 0.1)
       tzinfo (~> 1.1)
-    airbrake (4.0.0)
-      builder
-      multi_json
     amq-protocol (1.9.2)
     avro (1.7.7)
       multi_json
@@ -32,7 +28,7 @@ GEM
       debug_inspector (>= 0.0.1)
     bond (0.4.3)
     builder (3.2.2)
-    bunny (1.4.0)
+    bunny (1.4.1)
       amq-protocol (>= 1.9.2)
     codeclimate-test-reporter (0.2.0)
       simplecov (>= 0.7.1, < 1.0.0)
@@ -56,7 +52,7 @@ GEM
       json
     json (1.8.1)
     method_source (0.8.2)
-    minitest (5.4.1)
+    minitest (5.4.2)
     multi_json (1.9.2)
     pidfile (0.3.0)
     pry (0.9.12.4)

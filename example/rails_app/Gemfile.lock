@@ -1,10 +1,9 @@
 PATH
   remote: ../../
   specs:
-    rabbit_feed (0.2.0)
+    rabbit_feed (0.3.0)
       activemodel
       activesupport
-      airbrake
       avro
       bunny
       connection_pool
@@ -39,15 +38,12 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.1)
       tzinfo (~> 1.1)
-    airbrake (4.0.0)
-      builder
-      multi_json
     amq-protocol (1.9.2)
     arel (5.0.1.20140414130214)
     avro (1.7.7)
       multi_json
     builder (3.2.2)
-    bunny (1.4.0)
+    bunny (1.4.1)
       amq-protocol (>= 1.9.2)
     coffee-rails (4.0.1)
       coffee-script (>= 2.2.0)

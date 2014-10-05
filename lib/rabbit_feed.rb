@@ -1,6 +1,5 @@
 require 'active_support/all'
 require 'active_model'
-require 'airbrake'
 require 'avro'
 require 'bunny'
 require 'connection_pool'
@@ -35,6 +34,8 @@ module RabbitFeed
   end
 
   def exception_notify exception
-    (Airbrake.notify_or_ignore exception) if Airbrake.configuration.public?
+    if defined? Airbrake
+      (Airbrake.notify_or_ignore exception) if Airbrake.configuration.public?
+    end
   end
 end
