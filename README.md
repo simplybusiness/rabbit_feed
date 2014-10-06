@@ -278,6 +278,15 @@ When the consumer is started, it will create its queue named using this pattern:
 
 _Note: The consumer queues will automatically expire (delete) after 7 days without any consumer connections. This is to prevent unused queues from hanging around once their associated consumer has been terminated._
 
+## Delivery Semantics
+
+RabbitFeed provides 'at least once' delivery semantics. There are two use-cases where an event may be delivered more than once:
+
+1. If the subscriber raises an exception whilst processing an event, RabbitFeed will re-deliver the event to the subscriber until the event is processed without error.
+1. If an event is pushed to the subscriber, and the subscriber loses connectivity with RabbitMQ before it can send an acknowledgement back to RabbitMQ, RabbitMQ will push the event again once connectivity has been restored.
+
+It is advisable to run RabbitFeed in a [clustered](https://www.rabbitmq.com/clustering.html) RabbitMQ environment to prevent the loss of messages in the case that a RabbitMQ node is lost. By default, RabbitFeed will declare queues to be mirrored across all nodes of the cluster.
+
 ## Developing
 
 _See [./DEVELOPING.md](./DEVELOPING.md) for instructions on how to develop RabbitFeed_
