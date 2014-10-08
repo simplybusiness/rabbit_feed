@@ -1,10 +1,6 @@
 require 'rabbit_feed'
 require_relative 'non_rails_app/event_handler'
 
-Airbrake.configure do |config|
-  config.api_key = 'blah'
-end
-
 EventRouting do
   accept_from('rails_app') do
     event('user_creates_beaver') do |event|

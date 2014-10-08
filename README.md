@@ -36,8 +36,6 @@ Sample:
       password: guest
       application: beavers
 
-Note that this gem uses Airbrake for exception notifications, so your project will need to have Airbrake configured.
-
 ### Initialisation
 
 If installing in a rails application, the following should be defined in `config/initializers/rabbit_feed.rb`:
@@ -71,7 +69,7 @@ end
 
 ## Producing events
 
-The producer defines the events and their payloads using the Event Definitions DSL (see below for example). In a rails app, this can be defined in the initialiser.
+The producer defines the events and their payloads using the [Event Definitions DSL](https://github.com/simplybusiness/rabbit_feed#event-definitions-dsl). In a rails app, this can be defined in the [initialiser](https://github.com/simplybusiness/rabbit_feed#initialisation).
 
 To produce an event:
 
@@ -84,7 +82,13 @@ RabbitFeed::Producer.publish_event 'Event name', { 'payload_field' => 'payload f
 
 **Event payload:** This is the data about the event. This should be a hash.
 
-The event will be published to the `amq.topic` exchange on RabbitMQ with a routing key having the pattern of:  `[environment].[producer application name].[event name]`.
+The event will be published to the configured exchange on RabbitMQ (`amq.topic` by default) with a routing key having the pattern of:  `[environment].[producer application name].[event name]`.
+
+### Returned Events
+
+In the case that there are no consumers configured to subscribe to an event, the event will be returned to the producer. The returned event will be logged, and if your project uses [Airbrake](https://airbrake.io), an error will be reported there.
+
+### Testing the Producer
 
 To prevent RabbitFeed from firing events during tests, add the following to `spec_helper.rb`:
 
@@ -94,7 +98,7 @@ config.before :each do
 end
 ```
 
-### Aiding testing and the RSpec Matcher
+#### RSpec
 
 To verify that your application publishes an event, use the custom RSpec matcher provided with this application.
 
@@ -123,7 +127,33 @@ describe BeaversController do
 end
 ```
 
-If you want to test that your routes are behaving as expected without actually using *Rabbit* infrastructure, you can include the module `TestHelpers` in your tests and then invoke `rabbit_feed_consumer.consume_event(event)`. Following is an example:
+## Consuming events
+
+The consumer defines to which events it will subscribe as well as how it handles events using the [Event Routing DSL](https://github.com/simplybusiness/rabbit_feed#event-routing-dsl). In a rails app, this can be defined in the [initialiser](https://github.com/simplybusiness/rabbit_feed#initialisation).
+
+An `Event` contains the following information:
+
+    `environment` The environment in which the event was created (e.g. development, test, production)
+    `application` The name of the application that generated the event (as specified in rabbit_feed.yml)
+    `version` The version of the event
+    `name` The name of the event
+    `host` The hostname of the server on which the event was generated
+    `created_at_utc` The time (in UTC) that the event was created
+    `payload` The payload of the event
+
+### Running the consumer
+
+    bundle exec rabbit_feed consume --environment development
+
+More information about the consumer command line options can be found [here](https://github.com/simplybusiness/rabbit_feed#consumer).
+
+### Event Processing Errors
+
+In the case that your consumer raises an error whilst processing an event, the error will be logged. If your project uses [Airbrake](https://airbrake.io), the error will also be reported there. The event that was being processed will remain on the RabbitMQ queue, and will be redelivered to the consumer until it is processed without error.
+
+### Testing the Consumer
+
+If you want to test that your routes are behaving as expected without actually using RabbitMQ, you can include the module `TestHelpers` in your tests and then invoke `rabbit_feed_consumer.consume_event(event)`. Following is an example:
 
 ```ruby
 describe 'consuming events' do
@@ -153,33 +183,13 @@ describe 'consuming events' do
 end
 ```
 
-## Consuming events
-
-The consumer defines to which events it will subscribe as well as how it handles events using the Event Routing DSL (see below for example). In a rails app, this can be defined in the initialiser.
-
-An `Event` contains the following information:
-
-    `environment` The environment in which the event was created (e.g. development, test, production)
-    `application` The name of the application that generated the event (as specified in rabbit_feed.yml)
-    `version` The version of the event
-    `name` The name of the event
-    `host` The hostname of the server on which the event was generated
-    `created_at_utc` The time (in UTC) that the event was created
-    `payload` The payload of the event
-
-### Running the consumer
-
-    bundle exec rabbit_feed consume --environment development
-
-See the `Consumer` section for a description of the arguments
-
 ## Command Line Tools
 
 ### Event Publish
 
     bundle exec bin/rabbit_feed produce --payload 'Event payload' --name 'Event name' --environment test --config spec/fixtures/configuration.yml --logfile test.log --require rabbit_feed.rb --verbose
 
-Publishes an event. Note: until you've specified the event definitions, this will not publish any events. Options are as follows:
+Publishes an event. Note: until you've specified the [event definitions](https://github.com/simplybusiness/rabbit_feed#event-definitions-dsl), this will not publish any events. Options are as follows:
 
     --payload The payload of the event
     --name The name of the event
@@ -194,7 +204,7 @@ Publishes an event. Note: until you've specified the event definitions, this wil
 
     bundle exec bin/rabbit_feed consume --environment test --config spec/fixtures/configuration.yml --logfile test.log --require rabbit_feed.rb --pidfile rabbit_feed.pid --verbose --daemon
 
-Starts a consumer. Note: until you've specified the event routing, this will not receive any events. Options are as follows:
+Starts a consumer. Note: until you've specified the [event routing](https://github.com/simplybusiness/rabbit_feed#event-routing-dsl), this will not receive any events. Options are as follows:
 
     --environment The environment to run in
     --config The location of the rabbit_feed configuration file
@@ -279,6 +289,15 @@ When the consumer is started, it will create its queue named using this pattern:
     environment.beavers.user_updated_beaver
 
 _Note: The consumer queues will automatically expire (delete) after 7 days without any consumer connections. This is to prevent unused queues from hanging around once their associated consumer has been terminated._
+
+## Delivery Semantics
+
+RabbitFeed provides 'at least once' delivery semantics. There are two use-cases where an event may be delivered more than once:
+
+1. If the subscriber raises an exception whilst processing an event, RabbitFeed will re-deliver the event to the subscriber until the event is processed without error.
+1. If an event is pushed to the subscriber, and the subscriber loses connectivity with RabbitMQ before it can send an acknowledgement back to RabbitMQ, RabbitMQ will push the event again once connectivity has been restored.
+
+It is advisable to run RabbitFeed in a [clustered](https://www.rabbitmq.com/clustering.html) RabbitMQ environment to prevent the loss of messages in the case that a RabbitMQ node is lost. By default, RabbitFeed will declare queues to be mirrored across all nodes of the cluster.
 
 ## Developing
 

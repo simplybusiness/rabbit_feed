@@ -26,9 +26,19 @@ module RabbitFeed
 
     describe '#handle_returned_message' do
 
-      it 'notifies Airbrake of the return' do
-        expect(Airbrake).to receive(:notify_or_ignore).with(an_instance_of ReturnedMessageError)
-        described_class.handle_returned_message 1, 2
+      context 'when Airbrake is defined' do
+        before do
+          stub_const('Airbrake', double(:airbrake, configuration: airbrake_configuration))
+        end
+
+        context 'and the Airbrake configuration is public' do
+          let(:airbrake_configuration) { double(:airbrake_configuration, public?: true) }
+
+          it 'notifies Airbrake of the return' do
+            expect(Airbrake).to receive(:notify_or_ignore).with(an_instance_of ReturnedMessageError)
+            described_class.handle_returned_message 1, 2
+          end
+        end
       end
     end
 
