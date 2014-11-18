@@ -57,6 +57,10 @@ module RabbitFeed
           "publish_event #{expected_event}"
         end
 
+        def supports_block_expectations?
+          true
+        end
+
         private
 
         def strip_defaults_from payload

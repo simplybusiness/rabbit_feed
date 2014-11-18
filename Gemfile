@@ -10,6 +10,7 @@ end
 
 group :test do
   gem 'codeclimate-test-reporter'
+  gem 'rspec-its'
   gem 'rutabaga'
   gem 'timecop'
 end

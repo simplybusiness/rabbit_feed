@@ -46,13 +46,13 @@ module RabbitFeed
         it 'validates the event name' do
           matcher = described_class.new(event_name, {})
           block   = Proc.new { RabbitFeed::Producer.publish_event 'different name', {} }
-          (matcher.matches? block).should be_false
+          (matcher.matches? block).should be_falsey
         end
 
         it 'validates the event payload' do
           matcher = described_class.new(event_name, event_payload)
           block   = Proc.new { RabbitFeed::Producer.publish_event event_name, {'field' => 'different value'} }
-          (matcher.matches? block).should be_false
+          (matcher.matches? block).should be_falsey
         end
       end
     end

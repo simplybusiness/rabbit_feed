@@ -42,8 +42,8 @@ module RabbitFeed
         its(:heartbeat)                 { should eq 60 }
         its(:connect_timeout)           { should eq 1 }
         its(:network_recovery_interval) { should eq 0.1 }
-        its(:auto_delete_queue)         { should be_true }
-        its(:auto_delete_exchange)      { should be_true }
+        its(:auto_delete_queue)         { should be_truthy }
+        its(:auto_delete_exchange)      { should be_truthy }
       end
 
     end
@@ -70,8 +70,8 @@ module RabbitFeed
         its(:heartbeat)                 { should eq 5 }
         its(:connect_timeout)           { should eq 10 }
         its(:network_recovery_interval) { should eq 1 }
-        its(:auto_delete_queue)         { should be_false }
-        its(:auto_delete_exchange)      { should be_false }
+        its(:auto_delete_queue)         { should be_falsey }
+        its(:auto_delete_exchange)      { should be_falsey }
       end
 
       context 'with provided options' do
@@ -106,8 +106,8 @@ module RabbitFeed
         its(:heartbeat)                 { should eq 3 }
         its(:connect_timeout)           { should eq 4 }
         its(:network_recovery_interval) { should eq 2 }
-        its(:auto_delete_queue)         { should be_true }
-        its(:auto_delete_exchange)      { should be_true }
+        its(:auto_delete_queue)         { should be_truthy }
+        its(:auto_delete_exchange)      { should be_truthy }
       end
 
       context 'with empty options' do

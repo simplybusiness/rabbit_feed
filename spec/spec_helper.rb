@@ -1,5 +1,6 @@
 require 'codeclimate-test-reporter'
 require 'rabbit_feed'
+require 'rspec/its'
 require 'timecop'
 require 'timeout'
 
@@ -20,6 +21,14 @@ Dir['./spec/support/**/*.rb'].sort.each { |f| require f}
 Dir.glob('spec/features/step_definitions/**/*_steps.rb') { |f| load f, true }
 
 RSpec.configure do |config|
+
+  config.mock_with :rspec do |mocks|
+    mocks.syntax = [:should, :expect]
+  end
+
+  config.expect_with :rspec do |expects|
+    expects.syntax = [:should, :expect]
+  end
 
   config.before do
     reset_environment
