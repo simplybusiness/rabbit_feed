@@ -14,10 +14,6 @@ module RabbitFeed
       event
     end
 
-    def stub!
-      ProducerConnection.stub(:publish)
-    end
-
     private
 
     def enriched_payload payload, version, name, timestamp

@@ -16,8 +16,7 @@ require 'rabbit_feed/event_routing'
 require 'rabbit_feed/producer_connection'
 require 'rabbit_feed/producer'
 require 'rabbit_feed/event_definitions'
-require 'rabbit_feed/testing_support/rspec_matchers/publish_event'
-require 'rabbit_feed/testing_support/testing_helpers'
+require 'rabbit_feed/testing_support'
 
 module RabbitFeed
   extend self

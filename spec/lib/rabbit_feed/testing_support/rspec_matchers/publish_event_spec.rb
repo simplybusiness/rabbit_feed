@@ -6,6 +6,7 @@ module RabbitFeed
       describe PublishEvent do
         let(:event_name) { 'test_event' }
         let(:event_payload) { {'field' => 'value'} }
+        TestingSupport.capture_published_events self
         before do
           EventDefinitions do
             define_event('test_event', version: '1.0.0') do

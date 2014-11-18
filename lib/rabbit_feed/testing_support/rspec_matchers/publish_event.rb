@@ -2,13 +2,11 @@ module RabbitFeed
   module TestingSupport
     module RSpecMatchers
       class PublishEvent
-        attr_reader :expected_event, :expected_payload, :received_events
+        attr_reader :expected_event, :expected_payload
 
         def initialize(expected_event, expected_payload)
           @expected_event   = expected_event
           @expected_payload = expected_payload
-          @received_events  = []
-          stub_publish
         end
 
         def matches?(given_proc, negative_expectation = false)
@@ -22,7 +20,7 @@ module RabbitFeed
           rescue
           end
 
-          actual_event = received_events.detect do |event|
+          actual_event = TestingSupport.published_events.detect do |event|
             event.name == expected_event
           end
 
@@ -70,18 +68,12 @@ module RabbitFeed
         end
 
         def received_events_message
-          if received_events.any?
-            received_events.map do |received_event|
+          if TestingSupport.published_events.any?
+            TestingSupport.published_events.map do |received_event|
               "#{received_event.name} with #{strip_defaults_from received_event.payload}"
             end
           else
             'no events'
-          end
-        end
-
-        def stub_publish
-          ProducerConnection.stub(:publish) do |serialized_event, routing_key|
-            @received_events << (Event.deserialize serialized_event)
           end
         end
       end

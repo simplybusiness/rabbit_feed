@@ -46,7 +46,7 @@ RSpec.configure do |config|
     RabbitFeed::Producer.event_definitions = nil
   end
 
-  config.include(RabbitFeed::TestingSupport::RSpecMatchers)
+  RabbitFeed::TestingSupport.include_support config
 end
 
 def kill_consumer_thread

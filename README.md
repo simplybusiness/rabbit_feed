@@ -90,11 +90,11 @@ In the case that there are no consumers configured to subscribe to an event, the
 
 ### Testing the Producer
 
-To prevent RabbitFeed from firing events during tests, add the following to `spec_helper.rb`:
+To prevent RabbitFeed from publishing events to RabbitMQ during tests, add the following to `spec_helper.rb`:
 
 ```ruby
-config.before :each do
-  RabbitFeed::Producer.stub!
+RSpec.configure do |config|
+  RabbitFeed::TestingSupport.capture_published_events(config)
 end
 ```
 
@@ -102,11 +102,11 @@ end
 
 To verify that your application publishes an event, use the custom RSpec matcher provided with this application.
 
-Add the following RSpec configuration to `spec_helper.rb`:
+To make the custom RSpec matcher available to your tests, add the following to `spec_helper.rb`:
 
 ```ruby
 RSpec.configure do |config|
-  config.include(RabbitFeed::TestingSupport::RSpecMatchers)
+  RabbitFeed::TestingSupport.setup(config)
 end
 ```
 
@@ -153,13 +153,10 @@ In the case that your consumer raises an error whilst processing an event, the e
 
 ### Testing the Consumer
 
-If you want to test that your routes are behaving as expected without actually using RabbitMQ, you can include the module `TestHelpers` in your tests and then invoke `rabbit_feed_consumer.consume_event(event)`. Following is an example:
+If you want to test that your routes are behaving as expected without actually using RabbitMQ, you can invoke `rabbit_feed_consumer.consume_event(event)`. The following is an example:
 
 ```ruby
 describe 'consuming events' do
-
-  include RabbitFeed::TestingSupport::TestingHelpers
-
   accumulator = []
 
   let(:define_route) do
@@ -180,6 +177,14 @@ describe 'consuming events' do
     rabbit_feed_consumer.consume_event(event)
     expect(accumulator.size).to eq(1)
   end
+end
+```
+
+To make the `rabbit_feed_consumer` method available to your tests, add the following to `spec_helper.rb`:
+
+```ruby
+RSpec.configure do |config|
+  RabbitFeed::TestingSupport.setup(config)
 end
 ```
 
