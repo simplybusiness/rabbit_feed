@@ -2,8 +2,8 @@ PATH
   remote: .
   specs:
     rabbit_feed (0.3.1)
-      activemodel
-      activesupport
+      activemodel (>= 3.2.0, < 4.2.0)
+      activesupport (>= 3.2.0, < 4.2.0)
       avro
       bunny (>= 1.1.9, < 1.7.0)
       connection_pool
