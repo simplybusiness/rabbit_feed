@@ -100,15 +100,15 @@ Results in this output:
 
     Transactions:            200 hits
     Availability:         100.00 %
-    Elapsed time:           1.33 secs
+    Elapsed time:           1.11 secs
     Data transferred:         0.16 MB
-    Response time:            0.06 secs
-    Transaction rate:       150.38 trans/sec
-    Throughput:           0.12 MB/sec
-    Concurrency:            8.76
+    Response time:            0.05 secs
+    Transaction rate:       180.18 trans/sec
+    Throughput:           0.14 MB/sec
+    Concurrency:            9.37
     Successful transactions:         100
     Failed transactions:             0
-    Longest transaction:          0.36
+    Longest transaction:          0.57
     Shortest transaction:         0.00
 
     Stopping rails application...
