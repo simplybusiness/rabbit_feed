@@ -31,5 +31,5 @@ Gem::Specification.new do |spec|
   # Schema definitions and serialization for events
   spec.add_dependency 'avro', '>= 1.5.4', '< 1.8.0'
   # For stubbing and custom matchers
-  spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'rspec', '>=2.14.0', '< 3.2.0'
 end
