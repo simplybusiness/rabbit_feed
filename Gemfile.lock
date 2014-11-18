@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    rabbit_feed (0.3.0)
+    rabbit_feed (0.3.1)
       activemodel
       activesupport
       avro
@@ -28,7 +28,7 @@ GEM
       debug_inspector (>= 0.0.1)
     bond (0.4.3)
     builder (3.2.2)
-    bunny (1.4.1)
+    bunny (1.6.3)
       amq-protocol (>= 1.9.2)
     codeclimate-test-reporter (0.2.0)
       simplecov (>= 0.7.1, < 1.0.0)
