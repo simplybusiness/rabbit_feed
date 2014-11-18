@@ -5,17 +5,17 @@ PATH
       activemodel
       activesupport
       avro
-      bunny
+      bunny (>= 1.1.9, < 1.7.0)
       connection_pool
       pidfile
 
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (4.1.6)
-      activesupport (= 4.1.6)
+    activemodel (4.1.8)
+      activesupport (= 4.1.8)
       builder (~> 3.1)
-    activesupport (4.1.6)
+    activesupport (4.1.8)
       i18n (~> 0.6, >= 0.6.9)
       json (~> 1.7, >= 1.7.7)
       minitest (~> 5.1)
@@ -27,11 +27,11 @@ GEM
     builder (3.2.2)
     bunny (1.6.3)
       amq-protocol (>= 1.9.2)
-    connection_pool (2.0.0)
+    connection_pool (2.1.0)
     diff-lcs (1.2.5)
     i18n (0.6.11)
     json (1.8.1)
-    minitest (5.4.2)
+    minitest (5.4.3)
     multi_json (1.10.1)
     pidfile (0.3.0)
     rake (10.3.1)
