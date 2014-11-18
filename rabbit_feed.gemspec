@@ -29,7 +29,7 @@ Gem::Specification.new do |spec|
   # Manages process pidfile
   spec.add_dependency 'pidfile'
   # Schema definitions and serialization for events
-  spec.add_dependency 'avro'
+  spec.add_dependency 'avro', '>= 1.5.4', '< 1.8.0'
   # For stubbing and custom matchers
   spec.add_development_dependency 'rspec'
 end
