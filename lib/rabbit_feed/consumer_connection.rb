@@ -4,7 +4,7 @@ module RabbitFeed
 
     SUBSCRIPTION_OPTIONS = {
       consumer_tag: Socket.gethostname, # Use the host name of the server
-      ack:          true, # Manually acknowledge messages once they've been processed
+      manual_ack:   true, # Manually acknowledge messages once they've been processed
       block:        false, # Don't block the thread whilst consuming from the queue, as this breaks during connection recovery
     }.freeze
 

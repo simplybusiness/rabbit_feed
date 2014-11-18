@@ -25,7 +25,7 @@ GEM
     avro (1.7.7)
       multi_json
     builder (3.2.2)
-    bunny (1.4.1)
+    bunny (1.6.3)
       amq-protocol (>= 1.9.2)
     connection_pool (2.0.0)
     diff-lcs (1.2.5)
