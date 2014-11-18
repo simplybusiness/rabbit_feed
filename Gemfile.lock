@@ -6,7 +6,7 @@ PATH
       activesupport (>= 3.2.0, < 4.2.0)
       avro
       bunny (>= 1.1.9, < 1.7.0)
-      connection_pool
+      connection_pool (< 2.2.0)
       pidfile
 
 GEM

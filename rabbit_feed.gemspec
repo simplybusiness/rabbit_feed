@@ -25,7 +25,7 @@ Gem::Specification.new do |spec|
   # We use validations from ActiveModel
   spec.add_dependency 'activemodel', '>= 3.2.0', '< 4.2.0'
   # Provides connection pooling for the producer connections
-  spec.add_dependency 'connection_pool'
+  spec.add_dependency 'connection_pool', '< 2.2.0'
   # Manages process pidfile
   spec.add_dependency 'pidfile'
   # Schema definitions and serialization for events
