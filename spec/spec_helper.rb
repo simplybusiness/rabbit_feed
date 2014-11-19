@@ -22,10 +22,6 @@ Dir.glob('spec/features/step_definitions/**/*_steps.rb') { |f| load f, true }
 
 RSpec.configure do |config|
 
-  config.mock_with :rspec do |mocks|
-    mocks.syntax = [:should, :expect]
-  end
-
   config.expect_with :rspec do |expects|
     expects.syntax = [:should, :expect]
   end
