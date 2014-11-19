@@ -18,6 +18,6 @@ RSpec.configure do |config|
   RabbitFeed::TestingSupport.setup(config)
 end
 
-RabbitFeed.log = Logger.new('test.log')
+RabbitFeed.log = Logger.new('log/rabbit_feed.log')
 RabbitFeed.environment = 'test'
 RabbitFeed.configuration_file_path = 'config/rabbit_feed.yml'

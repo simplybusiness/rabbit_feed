@@ -28,7 +28,7 @@ module RabbitFeed
   attr_accessor :log, :environment, :configuration_file_path
 
   def configuration
-    raise ConfigurationError.new 'rabbit feed log is not set' unless log.present?
+    RabbitFeed.log ||= (Logger.new STDOUT)
     @configuration ||= (Configuration.load RabbitFeed.configuration_file_path, RabbitFeed.environment)
   end
 
