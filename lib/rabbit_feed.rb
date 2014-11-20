@@ -28,8 +28,10 @@ module RabbitFeed
   attr_accessor :log, :environment, :configuration_file_path
 
   def configuration
-    RabbitFeed.log ||= (Logger.new STDOUT)
-    @configuration ||= (Configuration.load RabbitFeed.configuration_file_path, RabbitFeed.environment)
+    RabbitFeed.log                     ||= (Logger.new STDOUT)
+    RabbitFeed.configuration_file_path ||= 'config/rabbit_feed.yml'
+    RabbitFeed.environment             ||= ENV['RAILS_ENV'] || ENV['RACK_ENV']
+    @configuration                     ||= (Configuration.load RabbitFeed.configuration_file_path, RabbitFeed.environment)
   end
 
   def exception_notify exception

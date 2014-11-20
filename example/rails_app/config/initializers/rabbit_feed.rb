@@ -1,10 +1,3 @@
-RabbitFeed.instance_eval do
-  self.log                     = Logger.new (Rails.root.join 'log', 'rabbit_feed.log')
-  self.log.level               = Logger::DEBUG
-  self.environment             = Rails.env
-  self.configuration_file_path = Rails.root.join 'config', 'rabbit_feed.yml'
-end
-
 EventDefinitions do
   define_event('user_creates_beaver', version: '1.0.0') do
     defined_as do

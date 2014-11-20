@@ -23,7 +23,15 @@ module RabbitFeed
       context 'with missing configuration' do
         let(:environment) { 'production' }
 
-        it 'should raise an error' do
+        it 'raises an error' do
+          expect{ subject }.to raise_error ConfigurationError
+        end
+      end
+
+      context 'with missing configuration file' do
+        let(:file_path) { 'I do not exist' }
+
+        it 'raises an error' do
           expect{ subject }.to raise_error ConfigurationError
         end
       end

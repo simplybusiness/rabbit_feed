@@ -41,11 +41,6 @@ Sample:
 If installing in a rails application, the following should be defined in `config/initializers/rabbit_feed.rb`:
 
 ```ruby
-RabbitFeed.instance_eval do
-  self.log                     = Logger.new (Rails.root.join 'log', 'rabbit_feed.log')
-  self.environment             = Rails.env
-  self.configuration_file_path = Rails.root.join 'config', 'rabbit_feed.yml'
-end
 # Define the events (if producing)
 EventDefinitions do
   define_event('user_creates_beaver', version: '1.0.0') do
@@ -64,6 +59,16 @@ EventRouting do
       # Do something...
     end
   end
+end
+```
+
+You may also override the log location (defaults to `STDOUT`), the environment (defaults to the `RAILS_ENV`), and the path to the RabbitFeed config file (defaults to `config/rabbit_feed.yml`) in the initializer, like this:
+
+```ruby
+RabbitFeed.instance_eval do
+  self.log                     = Logger.new (Rails.root.join 'log', 'rabbit_feed.log')
+  self.environment             = Rails.env
+  self.configuration_file_path = Rails.root.join 'config', 'rabbit_feed.yml'
 end
 ```
 
