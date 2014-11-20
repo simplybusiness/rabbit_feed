@@ -42,6 +42,20 @@ module RabbitFeed
               raise 'this hurts me more than it hurts you'
             }.to_not publish_event(event_name, {})
           end
+
+          context 'when not validating the payload' do
+            it 'validates' do
+              expect {
+                RabbitFeed::Producer.publish_event event_name, event_payload
+              }.to publish_event(event_name)
+            end
+
+            it 'validates the negation' do
+              expect {
+                RabbitFeed::Producer.publish_event 'different name', {}
+              }.to_not publish_event(event_name)
+            end
+          end
         end
 
         it 'validates the event name' do

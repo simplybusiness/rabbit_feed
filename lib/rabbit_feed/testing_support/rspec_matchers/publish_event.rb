@@ -29,7 +29,7 @@ module RabbitFeed
           with_expected_payload = negative_expectation
           if received_expected_event && !with_expected_payload
             actual_payload        = (strip_defaults_from actual_event.payload)
-            with_expected_payload = actual_payload == expected_payload
+            with_expected_payload = expected_payload.nil? || actual_payload == expected_payload
           end
 
           return received_expected_event && with_expected_payload
@@ -42,7 +42,7 @@ module RabbitFeed
         end
 
         def failure_message
-          "expected #{expected_event} with #{expected_payload} but instead received #{received_events_message}"
+          "expected #{expected_event} with #{expected_payload || 'some payload'} but instead received #{received_events_message}"
         end
 
         def negative_failure_message
@@ -78,7 +78,7 @@ module RabbitFeed
         end
       end
 
-      def publish_event(expected_event, expected_payload)
+      def publish_event(expected_event, expected_payload = nil)
         PublishEvent.new(expected_event, expected_payload)
       end
     end
