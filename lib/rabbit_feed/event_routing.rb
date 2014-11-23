@@ -65,26 +65,50 @@ module RabbitFeed
       end
     end
 
-    attr_reader :applications
+    attr_reader :named_applications, :catch_all_application
 
     def initialize
-      @applications = {}
+      @named_applications = {}
     end
 
     def accept_from name, &block
-      application = Application.new name
-      application.instance_eval(&block)
-      applications[application.name] = application
+      if name == :any
+        accept_from_any_application &block
+      else
+        accept_from_named_application name, &block
+      end
     end
 
     def accepted_routes
-      applications.values.map{|application| application.accepted_routes }.flatten
+      routes = named_applications.values.map{|application| application.accepted_routes }.flatten
+      routes += catch_all_application.accepted_routes if catch_all_application.present?
+      routes
     end
 
     def handle_event event
-      application = applications[event.application]
+      application = find_application event.application
       raise RoutingError.new "No routing defined for application with name: #{event.application}" unless application.present?
       application.handle_event event
+    end
+
+    private
+
+    def accept_from_named_application name, &block
+      raise ConfigurationError.new "Routing has already been defined for the application with name: #{name}" if (named_applications.has_key? name)
+      application = Application.new name
+      application.instance_eval(&block)
+      named_applications[application.name] = application
+    end
+
+    def accept_from_any_application &block
+      raise ConfigurationError.new "Routing has already been defined for the application catch-all: :any" if catch_all_application.present?
+      application = Application.new '*'
+      application.instance_eval(&block)
+      @catch_all_application = application
+    end
+
+    def find_application name
+      named_applications[name] || catch_all_application
     end
   end
 end
