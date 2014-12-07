@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = RabbitFeed::VERSION
   spec.authors       = ['Simply Business']
   spec.email         = ['tech@simplybusiness.co.uk']
-  spec.description   = %q{A gem allowing your application to publish messages to RabbitMQ}
-  spec.summary       = %q{This will enable your application to publish messages to a bus to be processed by other services}
+  spec.description   = %q{A gem providing asynchronous event publish and subscribe capabilities with RabbitMQ.}
+  spec.summary       = %q{Enables your Ruby applications to perform centralized event logging with RabbitMq}
   spec.homepage      = 'https://github.com/simplybusiness/rabbit_feed'
   spec.license       = 'MIT'
 
