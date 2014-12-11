@@ -16,7 +16,7 @@ module RabbitFeed
 
     attr_reader :command, :options
     validates_presence_of :command, :options
-    validates :command, inclusion: { in: %w(consume produce), message: "%{value} is not a valid command" }
+    validates :command, inclusion: { in: %w(consume produce shutdown), message: "%{value} is not a valid command" }
     validate :log_file_path_exists
     validate :config_file_exists
     validate :require_path_valid
@@ -26,11 +26,14 @@ module RabbitFeed
     def initialize arguments=ARGV
       @command = arguments[0]
       @options = parse_options arguments
-      validate!
 
-      set_logging
-      set_configuration
-      load_dependancies
+      unless shutdown?
+        validate!
+
+        set_logging
+        set_configuration
+        load_dependancies
+      end
     end
 
     def run
@@ -70,6 +73,14 @@ module RabbitFeed
       RabbitFeed::Consumer.run
     end
 
+    def shutdown
+      `kill -TERM #{pid}`
+    end
+
+    def pid
+      File.read(options[:pidfile]).to_i
+    end
+
     def produce
       RabbitFeed::Producer.publish_event options[:name], options[:payload]
     end
@@ -107,6 +118,10 @@ module RabbitFeed
       else
         ENV['RACK_ENV'] || ENV['RAILS_ENV']
       end
+    end
+
+    def shutdown?
+      command == 'shutdown'
     end
 
     def daemonize?

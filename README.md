@@ -225,6 +225,12 @@ Starts a consumer. Note: until you've specified the [event routing](https://gith
     --daemon Run the consumer as a daemon
     --help Print the available options
 
+### Stopping the consumer
+
+    bundle exec bin/rabbit_feed shutdown
+
+_This only applies if you've started the consumer with the `--daemon` option._
+
 ## Event Definitions DSL
 
 Provides a means to define all events that are published by an application. Defines the event names and the payload associated with each event. The DSL is converted into a schema that is serialized along with the event payload, meaning the events are self-describing. This is accomplished using Apache [Avro](http://avro.apache.org/docs/current/). This also validates the event payload against its schema before it is published.
