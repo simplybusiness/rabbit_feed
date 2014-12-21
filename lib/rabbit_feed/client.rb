@@ -93,7 +93,8 @@ module RabbitFeed
     def set_configuration
       RabbitFeed.environment             = environment
       RabbitFeed.configuration_file_path = options[:config_file]
-      ENV['RACK_ENV'] = ENV['RAILS_ENV'] = RabbitFeed.environment
+      ENV['RACK_ENV']  ||= RabbitFeed.environment
+      ENV['RAILS_ENV'] ||= RabbitFeed.environment
     end
 
     def load_dependancies
@@ -113,11 +114,7 @@ module RabbitFeed
     end
 
     def environment
-      if options[:environment].present?
-        options[:environment]
-      else
-        ENV['RACK_ENV'] || ENV['RAILS_ENV']
-      end
+      [options[:environment], ENV['RACK_ENV'], ENV['RAILS_ENV']].detect(&:present?)
     end
 
     def shutdown?
