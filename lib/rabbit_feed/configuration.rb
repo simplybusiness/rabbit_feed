@@ -28,6 +28,8 @@ module RabbitFeed
     def self.load file_path, environment
       RabbitFeed.log.debug "Reading configurations from #{file_path} in #{environment}..."
 
+      raise ConfigurationError.new "The RabbitFeed configuration file path specified does not exist: #{file_path}" unless (File.exist? file_path)
+
       options = read_configuration_file file_path, environment
       new options.merge(environment: environment)
     end

@@ -41,11 +41,6 @@ Sample:
 If installing in a rails application, the following should be defined in `config/initializers/rabbit_feed.rb`:
 
 ```ruby
-RabbitFeed.instance_eval do
-  self.log                     = Logger.new (Rails.root.join 'log', 'rabbit_feed.log')
-  self.environment             = Rails.env
-  self.configuration_file_path = Rails.root.join 'config', 'rabbit_feed.yml'
-end
 # Define the events (if producing)
 EventDefinitions do
   define_event('user_creates_beaver', version: '1.0.0') do
@@ -64,6 +59,16 @@ EventRouting do
       # Do something...
     end
   end
+end
+```
+
+You may also override the log location (defaults to `STDOUT`), the environment (defaults to the `RAILS_ENV`), and the path to the RabbitFeed config file (defaults to `config/rabbit_feed.yml`) in the initializer, like this:
+
+```ruby
+RabbitFeed.instance_eval do
+  self.log                     = Logger.new (Rails.root.join 'log', 'rabbit_feed.log')
+  self.environment             = Rails.env
+  self.configuration_file_path = Rails.root.join 'config', 'rabbit_feed.yml'
 end
 ```
 
@@ -90,11 +95,11 @@ In the case that there are no consumers configured to subscribe to an event, the
 
 ### Testing the Producer
 
-To prevent RabbitFeed from firing events during tests, add the following to `spec_helper.rb`:
+To prevent RabbitFeed from publishing events to RabbitMQ during tests, add the following to `spec_helper.rb`:
 
 ```ruby
-config.before :each do
-  RabbitFeed::Producer.stub!
+RSpec.configure do |config|
+  RabbitFeed::TestingSupport.capture_published_events(config)
 end
 ```
 
@@ -102,11 +107,11 @@ end
 
 To verify that your application publishes an event, use the custom RSpec matcher provided with this application.
 
-Add the following RSpec configuration to `spec_helper.rb`:
+To make the custom RSpec matcher available to your tests, add the following to `spec_helper.rb`:
 
 ```ruby
 RSpec.configure do |config|
-  config.include(RabbitFeed::TestingSupport::RSpecMatchers)
+  RabbitFeed::TestingSupport.setup(config)
 end
 ```
 
@@ -153,13 +158,10 @@ In the case that your consumer raises an error whilst processing an event, the e
 
 ### Testing the Consumer
 
-If you want to test that your routes are behaving as expected without actually using RabbitMQ, you can include the module `TestHelpers` in your tests and then invoke `rabbit_feed_consumer.consume_event(event)`. Following is an example:
+If you want to test that your routes are behaving as expected without actually using RabbitMQ, you can invoke `rabbit_feed_consumer.consume_event(event)`. The following is an example:
 
 ```ruby
 describe 'consuming events' do
-
-  include RabbitFeed::TestingSupport::TestingHelpers
-
   accumulator = []
 
   let(:define_route) do
@@ -180,6 +182,14 @@ describe 'consuming events' do
     rabbit_feed_consumer.consume_event(event)
     expect(accumulator.size).to eq(1)
   end
+end
+```
+
+To make the `rabbit_feed_consumer` method available to your tests, add the following to `spec_helper.rb`:
+
+```ruby
+RSpec.configure do |config|
+  RabbitFeed::TestingSupport.setup(config)
 end
 ```
 
@@ -214,6 +224,12 @@ Starts a consumer. Note: until you've specified the [event routing](https://gith
     --verbose Turns on DEBUG logging
     --daemon Run the consumer as a daemon
     --help Print the available options
+
+### Stopping the consumer
+
+    bundle exec bin/rabbit_feed shutdown
+
+_This only applies if you've started the consumer with the `--daemon` option._
 
 ## Event Definitions DSL
 

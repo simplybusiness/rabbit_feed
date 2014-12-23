@@ -2,16 +2,14 @@
 
 require 'benchmark'
 require 'bundler/setup'
-require_relative '../lib/non_rails_app'
+require 'rabbit_feed'
 
 # Prevent deprecation warnings
 I18n.enforce_available_locales = true
 
 RabbitFeed.instance_eval do
-  self.log                     = Logger.new 'log/rabbit_feed.log'
-  self.log.level               = Logger::DEBUG
-  self.environment             = 'development'
-  self.configuration_file_path = 'config/rabbit_feed.yml'
+  self.log         = Logger.new 'log/rabbit_feed.log'
+  self.environment = 'development'
 end
 
 payload = 'abc'*5000

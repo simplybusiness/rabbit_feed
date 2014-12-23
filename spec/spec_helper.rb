@@ -1,5 +1,6 @@
 require 'codeclimate-test-reporter'
 require 'rabbit_feed'
+require 'rspec/its'
 require 'timecop'
 require 'timeout'
 
@@ -21,6 +22,10 @@ Dir.glob('spec/features/step_definitions/**/*_steps.rb') { |f| load f, true }
 
 RSpec.configure do |config|
 
+  config.expect_with :rspec do |expects|
+    expects.syntax = [:should, :expect]
+  end
+
   config.before do
     reset_environment
   end
@@ -37,7 +42,7 @@ RSpec.configure do |config|
     RabbitFeed::Producer.event_definitions = nil
   end
 
-  config.include(RabbitFeed::TestingSupport::RSpecMatchers)
+  RabbitFeed::TestingSupport.include_support config
 end
 
 def kill_consumer_thread

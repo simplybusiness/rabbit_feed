@@ -16,8 +16,7 @@ require 'rabbit_feed/event_routing'
 require 'rabbit_feed/producer_connection'
 require 'rabbit_feed/producer'
 require 'rabbit_feed/event_definitions'
-require 'rabbit_feed/testing_support/rspec_matchers/publish_event'
-require 'rabbit_feed/testing_support/testing_helpers'
+require 'rabbit_feed/testing_support'
 
 module RabbitFeed
   extend self
@@ -29,8 +28,10 @@ module RabbitFeed
   attr_accessor :log, :environment, :configuration_file_path
 
   def configuration
-    raise ConfigurationError.new 'rabbit feed log is not set' unless log.present?
-    @configuration ||= (Configuration.load RabbitFeed.configuration_file_path, RabbitFeed.environment)
+    RabbitFeed.log                     ||= (Logger.new STDOUT)
+    RabbitFeed.configuration_file_path ||= 'config/rabbit_feed.yml'
+    RabbitFeed.environment             ||= ENV['RAILS_ENV'] || ENV['RACK_ENV']
+    @configuration                     ||= (Configuration.load RabbitFeed.configuration_file_path, RabbitFeed.environment)
   end
 
   def exception_notify exception

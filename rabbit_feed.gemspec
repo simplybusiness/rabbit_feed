@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = RabbitFeed::VERSION
   spec.authors       = ['Simply Business']
   spec.email         = ['tech@simplybusiness.co.uk']
-  spec.description   = %q{A gem allowing your application to publish messages to RabbitMQ}
-  spec.summary       = %q{This will enable your application to publish messages to a bus to be processed by other services}
+  spec.description   = %q{A gem providing asynchronous event publish and subscribe capabilities with RabbitMQ.}
+  spec.summary       = %q{Enables your Ruby applications to perform centralized event logging with RabbitMq}
   spec.homepage      = 'https://github.com/simplybusiness/rabbit_feed'
   spec.license       = 'MIT'
 
@@ -19,17 +19,17 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   # Gem for interfacing with RabbitMq
-  spec.add_dependency 'bunny'
+  spec.add_dependency 'bunny', '>= 1.1.9', '< 1.7.0'
   # We use some helpers from ActiveSupport
-  spec.add_dependency 'activesupport'
+  spec.add_dependency 'activesupport', '>= 3.2.0', '< 5.0.0'
   # We use validations from ActiveModel
-  spec.add_dependency 'activemodel'
+  spec.add_dependency 'activemodel', '>= 3.2.0', '< 5.0.0'
   # Provides connection pooling for the producer connections
-  spec.add_dependency 'connection_pool'
+  spec.add_dependency 'connection_pool', '< 2.2.0'
   # Manages process pidfile
   spec.add_dependency 'pidfile'
   # Schema definitions and serialization for events
-  spec.add_dependency 'avro'
+  spec.add_dependency 'avro', '>= 1.5.4', '< 1.8.0'
   # For stubbing and custom matchers
-  spec.add_development_dependency 'rspec'
+  spec.add_development_dependency 'rspec', '>=2.14.0', '< 3.2.0'
 end

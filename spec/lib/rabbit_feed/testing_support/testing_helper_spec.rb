@@ -4,9 +4,6 @@ module RabbitFeed
   module TestingSupport
     describe TestingHelpers do
       describe 'consuming events' do
-
-        include TestingHelpers
-
         accumulator = []
 
         let(:define_route) do
