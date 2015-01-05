@@ -111,8 +111,10 @@ module RabbitFeed
     end
 
     def find_application event
-      name = event.application
-      [named_applications[name], catch_all_application].compact.detect{|application| application.handles_event? event }
+      candidate_applications = [named_applications[event.application], catch_all_application].compact
+      candidate_applications.detect do |application|
+        application.handles_event? event
+      end
     end
   end
 end
