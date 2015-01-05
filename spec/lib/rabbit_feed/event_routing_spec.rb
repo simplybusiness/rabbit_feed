@@ -43,6 +43,7 @@ module RabbitFeed
       events = [
         double(:event, application: 'dummy_1', name: 'event_1', payload: 1),
         double(:event, application: 'dummy_1', name: 'event_2', payload: 2),
+        double(:event, application: 'dummy_1', name: 'event_4', payload: 4),
         double(:event, application: 'dummy_2', name: 'event_3', payload: 3),
         double(:event, application: 'none',    name: 'event_4', payload: 4),
       ]

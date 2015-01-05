@@ -55,9 +55,13 @@ module RabbitFeed
       end
 
       def handle_event event
+        (raise_routing_error event) unless (handles_event? event)
         event_rule = events[event.name]
-        raise RoutingError.new "No routing defined for application with name: #{event.application} for events named: #{event.name}" unless event_rule.present?
         event_rule.handle_event event
+      end
+
+      def handles_event? event
+        events.has_key? event.name
       end
 
       def validate!
@@ -86,8 +90,8 @@ module RabbitFeed
     end
 
     def handle_event event
-      application = find_application event.application
-      raise RoutingError.new "No routing defined for application with name: #{event.application}" unless application.present?
+      application = find_application event
+      (raise_routing_error event) unless application.present?
       application.handle_event event
     end
 
@@ -107,8 +111,13 @@ module RabbitFeed
       @catch_all_application = application
     end
 
-    def find_application name
-      named_applications[name] || catch_all_application
+    def find_application event
+      name = event.application
+      [named_applications[name], catch_all_application].compact.detect{|application| application.handles_event? event }
+    end
+
+    def raise_routing_error event
+      raise RoutingError.new "No routing defined for application with name: #{event.application} for events named: #{event.name}"
     end
   end
 end
