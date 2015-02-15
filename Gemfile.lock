@@ -5,7 +5,7 @@ PATH
       activemodel (>= 3.2.0, < 5.0.0)
       activesupport (>= 3.2.0, < 5.0.0)
       avro (>= 1.5.4, < 1.8.0)
-      bunny (>= 1.1.9, < 1.7.0)
+      bunny (>= 1.1.9, < 1.8.0)
       connection_pool (< 2.2.0)
       pidfile
 
@@ -28,13 +28,13 @@ GEM
       debug_inspector (>= 0.0.1)
     bond (0.5.1)
     builder (3.2.2)
-    bunny (1.6.3)
+    bunny (1.7.0)
       amq-protocol (>= 1.9.2)
     codeclimate-test-reporter (0.4.3)
       simplecov (>= 0.7.1, < 1.0.0)
     coderay (1.1.0)
     columnize (0.9.0)
-    connection_pool (2.1.0)
+    connection_pool (2.1.1)
     debug_inspector (0.0.2)
     debugger (1.6.8)
       columnize (>= 0.3.1)
@@ -52,7 +52,7 @@ GEM
       json
     json (1.8.1)
     method_source (0.8.2)
-    minitest (5.5.0)
+    minitest (5.5.1)
     multi_json (1.10.1)
     pidfile (0.3.0)
     pry (0.10.1)

@@ -5,7 +5,7 @@ PATH
       activemodel (>= 3.2.0, < 5.0.0)
       activesupport (>= 3.2.0, < 5.0.0)
       avro (>= 1.5.4, < 1.8.0)
-      bunny (>= 1.1.9, < 1.7.0)
+      bunny (>= 1.1.9, < 1.8.0)
       connection_pool (< 2.2.0)
       pidfile
 
@@ -25,13 +25,13 @@ GEM
     avro (1.7.7)
       multi_json
     builder (3.2.2)
-    bunny (1.6.3)
+    bunny (1.7.0)
       amq-protocol (>= 1.9.2)
-    connection_pool (2.1.0)
+    connection_pool (2.1.1)
     diff-lcs (1.2.5)
     i18n (0.7.0)
-    json (1.8.1)
-    minitest (5.5.0)
+    json (1.8.2)
+    minitest (5.5.1)
     multi_json (1.10.1)
     pidfile (0.3.0)
     rake (10.4.2)
