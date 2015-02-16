@@ -52,14 +52,7 @@ module RabbitFeed
       end
 
       def payload
-        ([
-          (Field.new 'application',    'string', 'The name of the application that created the event'),
-          (Field.new 'host',           'string', 'The hostname of the server on which the event was created'),
-          (Field.new 'environment',    'string', 'The environment in which the event was created'),
-          (Field.new 'version',        'string', 'The version of the event'),
-          (Field.new 'name',           'string', 'The name of the event'),
-          (Field.new 'created_at_utc', 'string', 'The UTC time that the event was created')
-        ] + fields).map(&:schema)
+        fields.map(&:schema)
       end
 
       def schema
