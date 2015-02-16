@@ -41,7 +41,7 @@ module Turnip::Steps
 
   def assert_event_presence event
     expect(event).to_not be_nil
-    expect(event.field).to eq @event_text
+    expect(event.payload[:field]).to eq @event_text
   end
 
   def wait_for_event

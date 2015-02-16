@@ -44,7 +44,7 @@ module RabbitFeed
 
     describe '#consume' do
       before do
-        allow(bunny_queue).to receive(:subscribe).and_yield(double(:delivery_info, delivery_tag: :tag), 'properties', 'payload')
+        allow(bunny_queue).to receive(:subscribe).and_yield(double(:delivery_info, delivery_tag: :tag), {headers: {}}, 'payload')
         allow_any_instance_of(described_class).to receive(:sleep)
       end
 

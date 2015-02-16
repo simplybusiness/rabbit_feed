@@ -40,16 +40,7 @@ module RabbitFeed
       it { should be_valid }
       its(:fields) { should_not be_empty }
       its(:schema) { should be_a Avro::Schema }
-      its(:payload){ should =~ [
-        {name: 'application', type: 'string', doc: 'The name of the application that created the event'},
-        {name: 'host', type: 'string', doc: 'The hostname of the server on which the event was created'},
-        {name: 'environment', type: 'string', doc: 'The environment in which the event was created'},
-        {name: 'version', type: 'string', doc: 'The version of the event'},
-        {name: 'created_at_utc', type: 'string', doc: 'The UTC time that the event was created'},
-        {name: 'field', type: 'string', doc: 'field definition'},
-        {name: 'name', type: 'string', doc: 'The name of the event'}
-        ]
-      }
+      its(:payload){ should =~ [{name: 'field', type: 'string', doc: 'field definition'}]}
 
       context 'when the name is nil' do
         let(:name) {}

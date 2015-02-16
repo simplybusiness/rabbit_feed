@@ -38,7 +38,7 @@ module RabbitFeed
       RabbitFeed.log.info "Consuming messages on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
 
       consumer = queue.subscribe(SUBSCRIPTION_OPTIONS) do |delivery_info, properties, payload|
-        handle_message delivery_info, payload, &block
+        handle_message delivery_info, payload, properties, &block
       end
 
       sleep # Sleep indefinitely, as the consumer runs in its own thread
@@ -76,11 +76,11 @@ module RabbitFeed
       RabbitFeed.log.debug "Message acknowledged on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
     end
 
-    def handle_message delivery_info, payload, &block
+    def handle_message delivery_info, payload, properties, &block
       RabbitFeed.log.debug "Message received on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
 
       begin
-        yield payload
+        yield payload, properties[:headers]
         acknowledge delivery_info
       rescue => e
         handle_processing_exception delivery_info, e

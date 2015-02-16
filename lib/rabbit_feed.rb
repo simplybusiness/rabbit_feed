@@ -15,6 +15,7 @@ require 'rabbit_feed/consumer'
 require 'rabbit_feed/event_routing'
 require 'rabbit_feed/producer_connection'
 require 'rabbit_feed/producer'
+require 'rabbit_feed/publishing_options'
 require 'rabbit_feed/event_definitions'
 require 'rabbit_feed/testing_support'
 
