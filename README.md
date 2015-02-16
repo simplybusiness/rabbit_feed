@@ -166,20 +166,20 @@ describe 'consuming events' do
 
   let(:define_route) do
     EventRouting do
-      accept_from('app') do
-        event('ev') do |event|
+      accept_from('application_name') do
+        event('event_name') do |event|
           accumulator << event
         end
       end
     end
   end
 
-  let(:event) { {'application' => 'app', 'name' => 'ev', 'stuff' => 'some_stuff'} }
+  let(:payload) { {'stuff' => 'some_stuff'} }
 
   before { define_route }
 
   it 'route to the correct service' do
-    rabbit_feed_consumer.consume_event(event)
+    rabbit_feed_consumer.consume_event('event_name', 'application_name', payload)
     expect(accumulator.size).to eq(1)
   end
 end
