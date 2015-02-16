@@ -48,6 +48,14 @@ module RabbitFeed
               type:        'event_name',
               app_id:      'rabbit_feed',
               timestamp:   Time.now.utc.to_i,
+              headers:     {
+                'application'    => 'rabbit_feed',
+                'host'           => an_instance_of(String),
+                'environment'    => 'test',
+                'created_at_utc' => Time.now.utc.iso8601(6),
+                'version'        => '1.0.0',
+                'name'           => 'event_name',
+              }
             })
           subject
         end

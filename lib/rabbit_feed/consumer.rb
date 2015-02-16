@@ -5,8 +5,8 @@ module RabbitFeed
     attr_accessor :event_routing
 
     def run
-      ConsumerConnection.consume do |raw_event|
-        event = Event.deserialize raw_event
+      ConsumerConnection.consume do |payload, metadata|
+        event = Event.deserialize payload, metadata
         event_routing.handle_event event
       end
     end
