@@ -138,13 +138,15 @@ The consumer defines to which events it will subscribe as well as how it handles
 
 An `Event` contains the following information:
 
-    `environment` The environment in which the event was created (e.g. development, test, production)
-    `application` The name of the application that generated the event (as specified in rabbit_feed.yml)
-    `version` The version of the event
-    `name` The name of the event
-    `host` The hostname of the server on which the event was generated
-    `created_at_utc` The time (in UTC) that the event was created
-    `payload` The payload of the event
+- `metadata` Information about the event, including:
+  - `environment` The environment in which the event was created (e.g. development, test, production)
+  - `application` The name of the application that generated the event (as specified in rabbit_feed.yml)
+  - `version` The version of the event payload (as specified in the event definition)
+  - `name` The name of the event
+  - `host` The hostname of the server on which the event was generated
+  - `created_at_utc` The time (in UTC) that the event was created
+  - `gem_version` The version of RabbitFeed by which the event was created
+- `payload` The payload of the event
 
 ### Running the consumer
 
@@ -166,15 +168,15 @@ describe 'consuming events' do
 
   let(:define_route) do
     EventRouting do
-      accept_from('app') do
-        event('ev') do |event|
+      accept_from('application_name') do
+        event('event_name') do |event|
           accumulator << event
         end
       end
     end
   end
 
-  let(:event) { {'application' => 'app', 'name' => 'ev', 'stuff' => 'some_stuff'} }
+  let(:event) { RabbitFeed::Event.new({'application' => 'application_name', 'name' => 'event_name'}, {'stuff' => 'some_stuff'}) }
 
   before { define_route }
 
