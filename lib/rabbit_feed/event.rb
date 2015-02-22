@@ -3,27 +3,28 @@ module RabbitFeed
     include ActiveModel::Validations
 
     attr_reader :schema, :payload, :metadata
-    validates :schema, :payload, :metadata, presence: true
+    validates :metadata, presence: true
+    validates :payload, length: { minimum: 0, allow_nil: false, message: 'can\'t be nil' }
 
-    def initialize schema, payload, metadata
+    def initialize metadata, payload={}, schema=nil
       @schema   = schema
-      @payload  = payload
-      @metadata = metadata
+      @payload  = payload.with_indifferent_access if payload
+      @metadata = metadata.with_indifferent_access if metadata
       validate!
     end
 
-    def self.from_pre_2_0 schema, payload_and_metadata
+    def self.from_pre_2_0 metadata_and_payload, schema
       metadata = {}
-      %w( application name host version environment created_at_utc ).each do |field|
-        metadata[field] = payload_and_metadata.delete field
+      %w(application name host version environment created_at_utc).each do |field|
+        metadata[field] = metadata_and_payload.delete field
       end
-      new schema, payload_and_metadata, metadata
+      new metadata, metadata_and_payload, schema
     end
 
     def serialize
       buffer = StringIO.new
       writer = Avro::DataFile::Writer.new buffer, (Avro::IO::DatumWriter.new schema), schema
-      writer << { 'gem_version' => RabbitFeed::VERSION, 'metadata' => metadata, 'payload' => payload }
+      writer << { 'metadata' => metadata, 'payload' => payload }
       writer.close
       buffer.string
     end
@@ -36,17 +37,17 @@ module RabbitFeed
         event_hash = datum
       end
       reader.close
-      if event_hash.has_key? 'gem_version'
-        new datum_reader.readers_schema, event_hash[:payload], event_hash[:metadata]
+      if %w(metadata payload).all?{|key| event_hash.has_key? key}
+        new event_hash['metadata'], event_hash['payload'], datum_reader.readers_schema
       else
-        from_pre_2_0 datum_reader.readers_schema, event_hash
+        from_pre_2_0 event_hash, datum_reader.readers_schema
       end
     end
 
     private
 
     def validate!
-      raise Error.new errors.messages if invalid?
+      raise Error.new "Invalid event: #{errors.messages}" if invalid?
     end
   end
 end

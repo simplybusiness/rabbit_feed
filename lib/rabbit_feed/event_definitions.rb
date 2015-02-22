@@ -61,16 +61,16 @@ module RabbitFeed
           (Field.new 'host',           'string', 'The hostname of the server on which the event was created'),
           (Field.new 'environment',    'string', 'The environment in which the event was created'),
           (Field.new 'version',        'string', 'The version of the event payload'),
+          (Field.new 'gem_version',    'string', 'The version of rabbit_feed by which the event was created'),
           (Field.new 'name',           'string', 'The name of the event'),
-          (Field.new 'created_at_utc', 'string', 'The UTC time that the event was created')
+          (Field.new 'created_at_utc', 'string', 'The UTC time that the event was created'),
         ].map(&:schema) }
       end
 
       def event_schema
         [
-          (Field.new 'gem_version',  'string', 'The version of rabbit feed when the event was generated').schema,
           { name: 'payload', type: payload_schema, doc: 'The event payload (defined by the source system)' },
-          { name: 'metadata', type: metadata_schema, doc: 'The event metadata (defined by rabbit feed)' }
+          { name: 'metadata', type: metadata_schema, doc: 'The event metadata (defined by rabbit feed)' },
         ]
       end
 

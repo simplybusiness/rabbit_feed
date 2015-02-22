@@ -55,12 +55,12 @@ module RabbitFeed
       end
 
       def handle_event event
-        event_rule = events[event.name]
+        event_rule = events[event.metadata[:name]]
         event_rule.handle_event event
       end
 
       def handles_event? event
-        events.has_key? event.name
+        events.has_key? event.metadata[:name]
       end
 
       def validate!
@@ -90,7 +90,7 @@ module RabbitFeed
 
     def handle_event event
       application = find_application event
-      raise RoutingError.new "No routing defined for application with name: #{event.application} for events named: #{event.name}" unless application.present?
+      raise RoutingError.new "No routing defined for application with name: #{event.metadata[:application]} for events named: #{event.metadata[:name]}" unless application.present?
       application.handle_event event
     end
 
@@ -111,7 +111,7 @@ module RabbitFeed
     end
 
     def find_application event
-      candidate_applications = [named_applications[event.application], catch_all_application].compact
+      candidate_applications = [named_applications[event.metadata[:application]], catch_all_application].compact
       candidate_applications.detect do |application|
         application.handles_event? event
       end

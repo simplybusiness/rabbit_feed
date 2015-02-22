@@ -1,3 +1,4 @@
 -r rutabaga
 --order rand
 --color
+--format doc

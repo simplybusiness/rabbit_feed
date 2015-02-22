@@ -21,14 +21,14 @@ module RabbitFeed
           end
 
           actual_event = TestingSupport.published_events.detect do |event|
-            event.name == expected_event
+            event.metadata[:name] == expected_event
           end
 
           received_expected_event = actual_event.present?
 
           with_expected_payload = negative_expectation
           if received_expected_event && !with_expected_payload
-            actual_payload        = (strip_defaults_from actual_event.payload)
+            actual_payload        = actual_event.payload
             with_expected_payload = expected_payload.nil? || actual_payload == expected_payload
           end
 
@@ -61,16 +61,10 @@ module RabbitFeed
 
         private
 
-        def strip_defaults_from payload
-          payload.reject do |key, value|
-            ['application', 'host', 'environment', 'created_at_utc', 'version', 'name'].include? key
-          end
-        end
-
         def received_events_message
           if TestingSupport.published_events.any?
             TestingSupport.published_events.map do |received_event|
-              "#{received_event.name} with #{strip_defaults_from received_event.payload}"
+              "#{received_event.metadata[:name]} with #{received_event.payload}"
             end
           else
             'no events'

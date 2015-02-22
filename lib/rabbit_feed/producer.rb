@@ -8,7 +8,8 @@ module RabbitFeed
       raise (Error.new 'Unable to publish event. No event definitions set.') unless event_definitions.present?
       event_definition = event_definitions[name] or raise (Error.new "definition for event: #{name} not found")
       timestamp        = Time.now.utc
-      event            = Event.new event_definition.schema, payload, (metadata event_definition.version, name, timestamp)
+      metadata         = (metadata event_definition.version, name, timestamp)
+      event            = Event.new metadata, payload, event_definition.schema
       ProducerConnection.publish event.serialize, (options name, timestamp)
       event
     end
@@ -23,6 +24,7 @@ module RabbitFeed
         'created_at_utc' => timestamp.iso8601(6),
         'version'        => version,
         'name'           => name,
+        'gem_version'    => RabbitFeed::VERSION,
       }
     end
 
