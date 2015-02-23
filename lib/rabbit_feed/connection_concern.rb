@@ -41,7 +41,7 @@ module RabbitFeed
         RabbitFeed.log.warn "Closed connection exception encountered; #{tries - 1} tries remaining. #{self.to_s}: #{e.message} #{e.backtrace}"
         unless (tries -= 1).zero?
           unset_connection
-          sleep RabbitFeed.configuration.network_recovery_interval
+          sleep 1
           retry
         end
         raise
