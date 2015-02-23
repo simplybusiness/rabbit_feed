@@ -87,7 +87,7 @@ RabbitFeed::Producer.publish_event 'Event name', { 'payload_field' => 'payload f
 
 **Event payload:** This is the data about the event. This should be a hash.
 
-The event will be published to the configured exchange on RabbitMQ (`amq.topic` by default) with a routing key having the pattern of:  `[environment].[producer application name].[event name]`.
+The event will be published to the configured exchange on RabbitMQ (`amq.topic` by default) with a routing key having the pattern of: `[environment].[producer application name].[event name]`.
 
 ### Returned Events
 
