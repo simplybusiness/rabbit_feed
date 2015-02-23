@@ -14,11 +14,11 @@ module RabbitFeed
       @password                  = options[:password]                  || 'guest'
       @exchange                  = options[:exchange]                  || 'amq.topic'
       @pool_size                 = options[:pool_size]                 || 1
-      @pool_timeout              = options[:pool_timeout]              || 5
       @heartbeat                 = options[:heartbeat]                 || 5
       @connect_timeout           = options[:connect_timeout]           || 10
       @network_recovery_interval = options[:network_recovery_interval] || 1
       @pool_size                 = 1
+      @pool_timeout              = options[:pool_timeout]              || 120
       @auto_delete_queue         = !!(options[:auto_delete_queue] || false)
       @auto_delete_exchange      = !!(options[:auto_delete_exchange] || false)
       @application               = options[:application]
