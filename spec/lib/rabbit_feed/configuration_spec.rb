@@ -109,7 +109,7 @@ module RabbitFeed
         its(:application)               { should eq 'rabbit_feed' }
         its(:environment)               { should eq 'test' }
         its(:exchange)                  { should eq 'exchange_name' }
-        its(:pool_size)                 { should eq 2 }
+        its(:pool_size)                 { should eq 1 }
         its(:pool_timeout)              { should eq 6 }
         its(:heartbeat)                 { should eq 3 }
         its(:connect_timeout)           { should eq 4 }

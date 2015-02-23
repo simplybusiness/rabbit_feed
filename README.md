@@ -315,6 +315,10 @@ RabbitFeed provides 'at least once' delivery semantics. There are two use-cases 
 
 It is advisable to run RabbitFeed in a [clustered](https://www.rabbitmq.com/clustering.html) RabbitMQ environment to prevent the loss of messages in the case that a RabbitMQ node is lost. By default, RabbitFeed will declare queues to be mirrored across all nodes of the cluster.
 
+## Thread Safety
+
+RabbitFeed event publishing is thread-safe. This is achieved by only allowing one thread to publish an event at any given time.
+
 ## Developing
 
 _See [./DEVELOPING.md](./DEVELOPING.md) for instructions on how to develop RabbitFeed_
