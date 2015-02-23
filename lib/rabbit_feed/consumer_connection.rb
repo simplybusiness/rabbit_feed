@@ -55,12 +55,6 @@ module RabbitFeed
       }.merge QUEUE_OPTIONS
     end
 
-    def self.connection_options
-      default_connection_options.merge({
-        threaded: true,
-      })
-    end
-
     def bind_on_accepted_routes
       if RabbitFeed::Consumer.event_routing.present?
         RabbitFeed::Consumer.event_routing.accepted_routes.each do |accepted_route|

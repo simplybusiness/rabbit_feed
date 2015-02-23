@@ -4,17 +4,8 @@ module RabbitFeed
 
     module ClassMethods
 
-      def default_connection_options
-        {
-          heartbeat:                 RabbitFeed.configuration.heartbeat,
-          connect_timeout:           RabbitFeed.configuration.connect_timeout,
-          host:                      RabbitFeed.configuration.host,
-          user:                      RabbitFeed.configuration.user,
-          password:                  RabbitFeed.configuration.password,
-          port:                      RabbitFeed.configuration.port,
-          network_recovery_interval: RabbitFeed.configuration.network_recovery_interval,
-          logger:                    RabbitFeed.log,
-        }
+      def connection_options
+        RabbitFeed.configuration.connection_options
       end
 
       def with_connection &block
