@@ -145,7 +145,7 @@ An `Event` contains the following information:
   - `name` The name of the event
   - `host` The hostname of the server on which the event was generated
   - `created_at_utc` The time (in UTC) that the event was created
-  - `gem_version` The version of RabbitFeed by which the event was created
+  - `schema_version` The version of the event schema
 - `payload` The payload of the event
 
 ### Running the consumer
