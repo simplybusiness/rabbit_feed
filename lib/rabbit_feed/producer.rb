@@ -24,7 +24,7 @@ module RabbitFeed
         'created_at_utc' => timestamp.iso8601(6),
         'version'        => version,
         'name'           => name,
-        'gem_version'    => RabbitFeed::VERSION,
+        'schema_version' => Event::SCHEMA_VERSION,
       }
     end
 

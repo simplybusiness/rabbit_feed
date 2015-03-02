@@ -48,7 +48,7 @@ module RabbitFeed
             {name: 'host', type: 'string', doc: 'The hostname of the server on which the event was created'},
             {name: 'environment', type: 'string', doc: 'The environment in which the event was created'},
             {name: 'version', type: 'string', doc: 'The version of the event payload'},
-            {name: 'gem_version', type: 'string', doc: 'The version of rabbit_feed by which the event was created'},
+            {name: 'schema_version', type: 'string', doc: 'The version of the event schema'},
             {name: 'name', type: 'string', doc: 'The name of the event'},
             {name: 'created_at_utc', type: 'string', doc: 'The UTC time that the event was created'},
         ]})

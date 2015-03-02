@@ -2,6 +2,8 @@ module RabbitFeed
   class Event
     include ActiveModel::Validations
 
+    SCHEMA_VERSION = '2.0.0'
+
     attr_reader :schema, :payload, :metadata
     validates :metadata, presence: true
     validates :payload, length: { minimum: 0, allow_nil: false, message: 'can\'t be nil' }
