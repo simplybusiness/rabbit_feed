@@ -40,6 +40,33 @@ module RabbitFeed
       end
     end
 
+    describe '#name' do
+      let(:metadata) { { 'name' => 'test_event' } }
+
+      its(:name) { should eq('test_event') }
+    end
+
+    describe '#application' do
+      let(:metadata) { { 'name' => 'test_event', 'application' => 'test_application' } }
+
+      its(:application) { should eq('test_application') }
+    end
+
+    describe '#created_at_utc' do
+
+      context 'when the created_at_utc is in the metadata' do
+        let(:metadata) { { 'name' => 'test_event', 'created_at_utc' => '2015-03-02T15:55:19.411299Z' } }
+
+        its(:created_at_utc) { should eq(Time.iso8601('2015-03-02T15:55:19.411299Z')) }
+      end
+
+      context 'when the created_at_utc is not in the metadata' do
+        let(:metadata) { { 'name' => 'test_event', 'created_at_utc' => '' } }
+
+        its(:created_at_utc) { should be_nil }
+      end
+    end
+
     describe '.deserialize' do
       subject { described_class.deserialize serialized_event }
 

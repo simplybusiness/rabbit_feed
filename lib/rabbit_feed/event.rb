@@ -22,6 +22,18 @@ module RabbitFeed
       buffer.string
     end
 
+    def application
+      metadata[:application]
+    end
+
+    def name
+      metadata[:name]
+    end
+
+    def created_at_utc
+      (Time.iso8601 metadata[:created_at_utc]) if metadata[:created_at_utc].present?
+    end
+
     class << self
 
       def deserialize serialized_event
