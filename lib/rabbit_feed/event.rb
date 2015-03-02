@@ -13,14 +13,6 @@ module RabbitFeed
       validate!
     end
 
-    def self.from_pre_2_0 metadata_and_payload, schema
-      metadata = {}
-      %w(application name host version environment created_at_utc).each do |field|
-        metadata[field] = metadata_and_payload.delete field
-      end
-      new metadata, metadata_and_payload, schema
-    end
-
     def serialize
       buffer = StringIO.new
       writer = Avro::DataFile::Writer.new buffer, (Avro::IO::DatumWriter.new schema), schema
@@ -29,18 +21,35 @@ module RabbitFeed
       buffer.string
     end
 
-    def self.deserialize serialized_event
-      datum_reader = Avro::IO::DatumReader.new
-      reader       = Avro::DataFile::Reader.new (StringIO.new serialized_event), datum_reader
-      event_hash   = nil
-      reader.each do |datum|
-        event_hash = datum
+    class << self
+
+      def deserialize serialized_event
+        datum_reader = Avro::IO::DatumReader.new
+        reader       = Avro::DataFile::Reader.new (StringIO.new serialized_event), datum_reader
+        event_hash   = nil
+        reader.each do |datum|
+          event_hash = datum
+        end
+        reader.close
+        if (version_1? event_hash)
+          new_from_version_1 event_hash, datum_reader.readers_schema
+        else
+          new event_hash['metadata'], event_hash['payload'], datum_reader.readers_schema
+        end
       end
-      reader.close
-      if %w(metadata payload).all?{|key| event_hash.has_key? key}
-        new event_hash['metadata'], event_hash['payload'], datum_reader.readers_schema
-      else
-        from_pre_2_0 event_hash, datum_reader.readers_schema
+
+      private
+
+      def version_1? event_hash
+        %w(metadata payload).none?{|key| event_hash.has_key? key}
+      end
+
+      def new_from_version_1 metadata_and_payload, schema
+        metadata = {}
+        %w(application name host version environment created_at_utc).each do |field|
+          metadata[field] = metadata_and_payload.delete field
+        end
+        new metadata, metadata_and_payload, schema
       end
     end
 
