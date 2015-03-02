@@ -96,7 +96,6 @@ module RabbitFeed
         its(:application)               { should eq 'rabbit_feed' }
         its(:environment)               { should eq 'test' }
         its(:exchange)                  { should eq 'rabbit_feed_exchange' }
-        its(:pool_size)                 { should eq 1 }
         its(:pool_timeout)              { should eq 1 }
         its(:heartbeat)                 { should eq 60 }
         its(:connect_timeout)           { should eq 1 }
@@ -126,7 +125,6 @@ module RabbitFeed
         its(:heartbeat)                 { should be_nil }
         its(:network_recovery_interval) { should be_nil }
         its(:exchange)                  { should eq 'amq.topic' }
-        its(:pool_size)                 { should eq 1 }
         its(:pool_timeout)              { should eq 120 }
         its(:connect_timeout)           { should be_nil }
         its(:auto_delete_queue)         { should be_falsey }
@@ -143,7 +141,6 @@ module RabbitFeed
             application:               'rabbit_feed',
             environment:               'test',
             exchange:                  'exchange_name',
-            pool_size:                 2,
             pool_timeout:              6,
             heartbeat:                 3,
             connect_timeout:           4,
@@ -160,7 +157,6 @@ module RabbitFeed
         its(:application)               { should eq 'rabbit_feed' }
         its(:environment)               { should eq 'test' }
         its(:exchange)                  { should eq 'exchange_name' }
-        its(:pool_size)                 { should eq 1 }
         its(:pool_timeout)              { should eq 6 }
         its(:heartbeat)                 { should eq 3 }
         its(:connect_timeout)           { should eq 4 }

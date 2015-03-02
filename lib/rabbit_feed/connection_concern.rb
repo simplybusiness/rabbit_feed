@@ -61,7 +61,7 @@ module RabbitFeed
 
       def connection_pool
         @connection_pool ||= ConnectionPool.new(
-          size:    RabbitFeed.configuration.pool_size,
+          size:    1,
           timeout: RabbitFeed.configuration.pool_timeout
         ) do
           new bunny_connection.create_channel

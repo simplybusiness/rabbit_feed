@@ -3,7 +3,7 @@ module RabbitFeed
     include ActiveModel::Validations
 
     attr_reader :host, :port, :user, :password, :application, :environment, :exchange, :pool_size, :pool_timeout, :heartbeat, :connect_timeout, :network_recovery_interval, :auto_delete_queue, :auto_delete_exchange
-    validates_presence_of :application, :environment, :exchange, :pool_size, :pool_timeout
+    validates_presence_of :application, :environment, :exchange, :pool_timeout
 
     def initialize options
       RabbitFeed.log.debug "RabbitFeed initialising with options: #{options}..."
@@ -12,9 +12,8 @@ module RabbitFeed
       @port                      = options[:port]
       @user                      = options[:user]
       @password                  = options[:password]
-      @exchange                  = options[:exchange]                  || 'amq.topic'
-      @pool_size                 = 1
-      @pool_timeout              = options[:pool_timeout]              || 120
+      @exchange                  = options[:exchange]     || 'amq.topic'
+      @pool_timeout              = options[:pool_timeout] || 120
       @heartbeat                 = options[:heartbeat]
       @connect_timeout           = options[:connect_timeout]
       @network_recovery_interval = options[:network_recovery_interval]

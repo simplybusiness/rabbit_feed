@@ -30,6 +30,11 @@ module RabbitFeed
         expect(subject.instance_variable_get(:@connection_pool)).to be_a ConnectionPool
       end
 
+      it 'creates a connection pool of one connection' do
+        expect(ConnectionPool).to receive(:new).with(hash_including({size: 1})).and_call_original
+        subject.with_connection{|connection| connection }
+      end
+
       it 'provides an instance of the class' do
         actual = subject.with_connection{|connection| connection }
         expect(actual).to be_a subject
