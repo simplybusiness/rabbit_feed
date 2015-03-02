@@ -21,7 +21,7 @@ module RabbitFeed
           end
 
           actual_event = TestingSupport.published_events.detect do |event|
-            event.metadata[:name] == expected_event
+            event.name == expected_event
           end
 
           received_expected_event = actual_event.present?
@@ -64,7 +64,7 @@ module RabbitFeed
         def received_events_message
           if TestingSupport.published_events.any?
             TestingSupport.published_events.map do |received_event|
-              "#{received_event.metadata[:name]} with #{received_event.payload}"
+              "#{received_event.name} with #{received_event.payload}"
             end
           else
             'no events'
