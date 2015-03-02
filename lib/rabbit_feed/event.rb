@@ -5,6 +5,7 @@ module RabbitFeed
     attr_reader :schema, :payload, :metadata
     validates :metadata, presence: true
     validates :payload, length: { minimum: 0, allow_nil: false, message: 'can\'t be nil' }
+    validate  :required_metadata
 
     def initialize metadata, payload={}, schema=nil
       @schema   = schema
@@ -57,6 +58,12 @@ module RabbitFeed
 
     def validate!
       raise Error.new "Invalid event: #{errors.messages}" if invalid?
+    end
+
+    def required_metadata
+      if metadata
+        errors.add(:metadata, 'name field is required') if metadata[:name].blank?
+      end
     end
   end
 end

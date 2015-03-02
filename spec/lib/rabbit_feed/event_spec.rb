@@ -30,6 +30,14 @@ module RabbitFeed
           expect{ subject }.to raise_error 'Invalid event: {:metadata=>["can\'t be blank"]}'
         end
       end
+
+      context 'when name is blank' do
+        let(:metadata) {{ 'name' => '' }}
+
+        it 'should raise an error' do
+          expect{ subject }.to raise_error 'Invalid event: {:metadata=>["name field is required"]}'
+        end
+      end
     end
 
     describe '.deserialize' do
