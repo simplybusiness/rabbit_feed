@@ -39,6 +39,20 @@ module RabbitFeed
         expect(subject).to be_a Event
       end
 
+      it 'sets the event metadata' do
+        Timecop.freeze(Time.local(1990)) do
+          expect(subject.metadata).to match({
+           'application'    => 'rabbit_feed',
+           'created_at_utc' => '1990-01-01T00:00:00.000000Z',
+           'environment'    => 'test',
+           'host'           => an_instance_of(String),
+           'name'           => 'event_name',
+           'schema_version' => Event::SCHEMA_VERSION,
+           'version'        => '1.0.0',
+           })
+        end
+      end
+
       it 'serializes the event and provides message metadata' do
         Timecop.freeze do
           expect(ProducerConnection).to receive(:publish).with(

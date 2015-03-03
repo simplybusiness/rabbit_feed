@@ -41,11 +41,11 @@ module RabbitFeed
 
     it 'routes the event to the correct action, preferring named applications' do
       events = [
-        double(:event, application: 'dummy_1', name: 'event_1', payload: 1),
-        double(:event, application: 'dummy_1', name: 'event_2', payload: 2),
-        double(:event, application: 'dummy_1', name: 'event_4', payload: 4),
-        double(:event, application: 'dummy_2', name: 'event_3', payload: 3),
-        double(:event, application: 'none',    name: 'event_4', payload: 4),
+        Event.new({application: 'dummy_1', name: 'event_1'}, {payload: 1}),
+        Event.new({application: 'dummy_1', name: 'event_2'}, {payload: 2}),
+        Event.new({application: 'dummy_1', name: 'event_4'}, {payload: 4}),
+        Event.new({application: 'dummy_2', name: 'event_3'}, {payload: 3}),
+        Event.new({application: 'none',    name: 'event_4'}, {payload: 4}),
       ]
       events.each do |event|
         (RabbitFeed::Consumer.event_routing.handle_event event).should eq event.payload
@@ -54,8 +54,8 @@ module RabbitFeed
 
     it 'raises a routing error when the event cannot be routed' do
       events = [
-        double(:event, application: 'dummy_9', name: 'event_1', payload: 1),
-        double(:event, application: 'dummy_1', name: 'event_9', payload: 3),
+        Event.new({application: 'dummy_9', name: 'event_1'}, {payload: 1}),
+        Event.new({application: 'dummy_1', name: 'event_9'}, {payload: 3}),
       ]
       events.each do |event|
         expect{ RabbitFeed::Consumer.event_routing.handle_event event }.to raise_error RoutingError

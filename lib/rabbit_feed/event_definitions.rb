@@ -51,19 +51,31 @@ module RabbitFeed
         @definition = block.call if block.present?
       end
 
-      def payload
-        ([
+      def payload_schema
+        { name: "#{name}_payload", type: 'record', fields: fields.map(&:schema) }
+      end
+
+      def metadata_schema
+        { name: 'event_metadata', type: 'record', fields: [
           (Field.new 'application',    'string', 'The name of the application that created the event'),
           (Field.new 'host',           'string', 'The hostname of the server on which the event was created'),
           (Field.new 'environment',    'string', 'The environment in which the event was created'),
-          (Field.new 'version',        'string', 'The version of the event'),
+          (Field.new 'version',        'string', 'The version of the event payload'),
+          (Field.new 'schema_version', 'string', 'The version of the event schema'),
           (Field.new 'name',           'string', 'The name of the event'),
-          (Field.new 'created_at_utc', 'string', 'The UTC time that the event was created')
-        ] + fields).map(&:schema)
+          (Field.new 'created_at_utc', 'string', 'The UTC time that the event was created'),
+        ].map(&:schema) }
+      end
+
+      def event_schema
+        [
+          { name: 'payload', type: payload_schema, doc: 'The event payload (defined by the source system)' },
+          { name: 'metadata', type: metadata_schema, doc: 'The event metadata (defined by rabbit feed)' },
+        ]
       end
 
       def schema
-        @schema ||= (Avro::Schema.parse ({ name: name, type: 'record', doc: definition, fields: payload }.to_json))
+        @schema ||= (Avro::Schema.parse ({ name: name, type: 'record', doc: definition, fields: event_schema }.to_json))
       end
 
       def validate!
