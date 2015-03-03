@@ -57,9 +57,9 @@ You should see something similar to the following output:
     Starting rails application...
     Rails application started
     Triggering event...
-    NonRailsApp::EventHandler - Consumed event: user_creates_beaver with payload: {"application"=>"rails_app", "host"=>"macjfleck.home", "environment"=>"development", "version"=>"1.0.0", "name"=>"user_creates_beaver", "created_at_utc"=>"2014-05-05T14:16:44.045395Z", "beaver_name"=>"05/05/14 15:16:43"}
+    NonRailsApp::EventHandler - Consumed event: user_creates_beaver with payload: {"beaver_name"=>"02/16/15 12:31:41"}
     Event triggered
-    RailsApp::EventHandler - Consumed event: application_acknowledges_event with payload: {"application"=>"non_rails_app", "host"=>"macjfleck.home", "environment"=>"development", "version"=>"1.0.0", "name"=>"application_acknowledges_event", "created_at_utc"=>"2014-05-05T14:16:44.057279Z", "beaver_name"=>"05/05/14 15:16:43", "event_name"=>"user_creates_beaver"}
+    RailsApp::EventHandler - Consumed event: application_acknowledges_event with payload: {"beaver_name"=>"02/16/15 12:31:41", "event_name"=>"user_creates_beaver"}
     Stopping non rails application consumer...
     Non rails application consumer stopped
     Stopping rails application consumer...
@@ -138,3 +138,15 @@ To simulate network connectivity problems, there is a recovery test script that 
     ./run_recovery_test
 
 The script will publish and then consume 5000 mesages with the network dropping out every half-second.
+
+## Changing the event schema
+
+Events are serialized when published and deserialized when consumed. In the case that the schema of the serialized event needs to change, backwards compatibility with the previous schema should be maintained for the susequent major version of the gem. To aid with this, the event schema is versioned. To modify the event structure, perform the following steps:
+
+1. Define the new Avro schema in [`event_definitions.rb`](https://github.com/simplybusiness/rabbit_feed/blob/master/lib/rabbit_feed/event_definitions.rb)
+1. Modify the serialization in [`event.rb`](https://github.com/simplybusiness/rabbit_feed/blob/master/lib/rabbit_feed/event.rb) to match the new schema
+1. Modify the deserialization in [`event.rb`](https://github.com/simplybusiness/rabbit_feed/blob/master/lib/rabbit_feed/event.rb) to
+  1. match the new schema
+  1. maintain backwards compatibility to the previous schema if necessary
+1. Increment the `SCHEMA_VERSION` variable in [`event.rb`](https://github.com/simplybusiness/rabbit_feed/blob/master/lib/rabbit_feed/event.rb) per [semantic versioning principles](http://semver.org/)
+1. Remove backwards compatibility after the next major version release
