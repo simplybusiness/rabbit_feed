@@ -4,17 +4,8 @@ module RabbitFeed
 
     module ClassMethods
 
-      def default_connection_options
-        {
-          heartbeat:                 RabbitFeed.configuration.heartbeat,
-          connect_timeout:           RabbitFeed.configuration.connect_timeout,
-          host:                      RabbitFeed.configuration.host,
-          user:                      RabbitFeed.configuration.user,
-          password:                  RabbitFeed.configuration.password,
-          port:                      RabbitFeed.configuration.port,
-          network_recovery_interval: RabbitFeed.configuration.network_recovery_interval,
-          logger:                    RabbitFeed.log,
-        }
+      def connection_options
+        RabbitFeed.configuration.connection_options
       end
 
       def with_connection &block
@@ -41,7 +32,7 @@ module RabbitFeed
         RabbitFeed.log.warn "Closed connection exception encountered; #{tries - 1} tries remaining. #{self.to_s}: #{e.message} #{e.backtrace}"
         unless (tries -= 1).zero?
           unset_connection
-          sleep RabbitFeed.configuration.network_recovery_interval
+          sleep 1
           retry
         end
         raise
@@ -70,7 +61,7 @@ module RabbitFeed
 
       def connection_pool
         @connection_pool ||= ConnectionPool.new(
-          size:    RabbitFeed.configuration.pool_size,
+          size:    1,
           timeout: RabbitFeed.configuration.pool_timeout
         ) do
           new bunny_connection.create_channel

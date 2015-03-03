@@ -3,21 +3,20 @@ module RabbitFeed
     include ActiveModel::Validations
 
     attr_reader :host, :port, :user, :password, :application, :environment, :exchange, :pool_size, :pool_timeout, :heartbeat, :connect_timeout, :network_recovery_interval, :auto_delete_queue, :auto_delete_exchange
-    validates_presence_of :host, :port, :user, :password, :application, :environment, :exchange, :pool_size, :pool_timeout, :heartbeat, :connect_timeout, :network_recovery_interval
+    validates_presence_of :application, :environment, :exchange, :pool_timeout
 
     def initialize options
       RabbitFeed.log.debug "RabbitFeed initialising with options: #{options}..."
 
-      @host                      = options[:host]                      || 'localhost'
-      @port                      = options[:port]                      || 5672
-      @user                      = options[:user]                      || 'guest'
-      @password                  = options[:password]                  || 'guest'
-      @exchange                  = options[:exchange]                  || 'amq.topic'
-      @pool_size                 = options[:pool_size]                 || 1
-      @pool_timeout              = options[:pool_timeout]              || 5
-      @heartbeat                 = options[:heartbeat]                 || 5
-      @connect_timeout           = options[:connect_timeout]           || 10
-      @network_recovery_interval = options[:network_recovery_interval] || 1
+      @host                      = options[:host]
+      @port                      = options[:port]
+      @user                      = options[:user]
+      @password                  = options[:password]
+      @exchange                  = options[:exchange]     || 'amq.topic'
+      @pool_timeout              = options[:pool_timeout] || 120
+      @heartbeat                 = options[:heartbeat]
+      @connect_timeout           = options[:connect_timeout]
+      @network_recovery_interval = options[:network_recovery_interval]
       @auto_delete_queue         = !!(options[:auto_delete_queue] || false)
       @auto_delete_exchange      = !!(options[:auto_delete_exchange] || false)
       @application               = options[:application]
@@ -36,6 +35,21 @@ module RabbitFeed
 
     def queue
       "#{environment}.#{application}"
+    end
+
+    def connection_options
+      Hash.new.tap do |options|
+        options[:heartbeat] = heartbeat if heartbeat
+        options[:connect_timeout] = connect_timeout if connect_timeout
+        options[:host] = host if host
+        options[:user] = user if user
+        options[:password] = password if password
+        options[:port] = port if port
+        options[:network_recovery_interval] = network_recovery_interval if network_recovery_interval
+        options[:logger] = RabbitFeed.log
+        options[:recover_from_connection_close] = true
+        options[:threaded] = true
+      end
     end
 
     private

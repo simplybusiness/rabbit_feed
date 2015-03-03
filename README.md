@@ -87,7 +87,7 @@ RabbitFeed::Producer.publish_event 'Event name', { 'payload_field' => 'payload f
 
 **Event payload:** This is the data about the event. This should be a hash.
 
-The event will be published to the configured exchange on RabbitMQ (`amq.topic` by default) with a routing key having the pattern of:  `[environment].[producer application name].[event name]`.
+The event will be published to the configured exchange on RabbitMQ (`amq.topic` by default) with a routing key having the pattern of: `[environment].[producer application name].[event name]`.
 
 ### Returned Events
 
@@ -316,6 +316,10 @@ RabbitFeed provides 'at least once' delivery semantics. There are two use-cases 
 1. If an event is pushed to the subscriber, and the subscriber loses connectivity with RabbitMQ before it can send an acknowledgement back to RabbitMQ, RabbitMQ will push the event again once connectivity has been restored.
 
 It is advisable to run RabbitFeed in a [clustered](https://www.rabbitmq.com/clustering.html) RabbitMQ environment to prevent the loss of messages in the case that a RabbitMQ node is lost. By default, RabbitFeed will declare queues to be mirrored across all nodes of the cluster.
+
+## Thread Safety
+
+RabbitFeed event publishing is thread-safe. This is achieved by only allowing one thread to publish an event at any given time.
 
 ## Developing
 

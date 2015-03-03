@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   # Gem for interfacing with RabbitMq
-  spec.add_dependency 'bunny', '>= 1.1.9', '< 1.7.0'
+  spec.add_dependency 'bunny', '>= 1.1.9', '< 1.8.0'
   # We use some helpers from ActiveSupport
   spec.add_dependency 'activesupport', '>= 3.2.0', '< 5.0.0'
   # We use validations from ActiveModel
@@ -31,5 +31,5 @@ Gem::Specification.new do |spec|
   # Schema definitions and serialization for events
   spec.add_dependency 'avro', '>= 1.5.4', '< 1.8.0'
   # For stubbing and custom matchers
-  spec.add_development_dependency 'rspec', '>=2.14.0', '< 3.2.0'
+  spec.add_development_dependency 'rspec', '>=2.14.0', '< 3.3.0'
 end

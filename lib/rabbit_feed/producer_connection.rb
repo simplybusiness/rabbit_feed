@@ -57,7 +57,7 @@ module RabbitFeed
     end
 
     def self.connection_options
-      default_connection_options.merge({
+      super.merge({
         threaded: false, # With threading enabled, there is a chance of losing an event during connection recovery
       })
     end

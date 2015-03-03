@@ -5,7 +5,6 @@ test:
   password: guest
   application: rabbit_feed
   exchange: rabbit_feed_exchange
-  pool_size: 1
   pool_timeout: 1
   heartbeat: 60
   connect_timeout: 1
