@@ -33,38 +33,65 @@ module RabbitFeed
     class Application
       include ActiveModel::Validations
 
-      attr_reader :events, :name
+      attr_reader :named_events, :catch_all_event, :name
       validates_presence_of :name
 
       def initialize name
-        @name    = name
-        @events  = {}
+        @name         = name
+        @named_events = {}
 
         validate!
       end
 
       def event name, &block
-        event = (Event.new name, block)
-        events[event.name] = event
+        if name == :any
+          accept_any_event &block
+        else
+          accept_named_event name, &block
+        end
       end
 
       def accepted_routes
-        events.values.map do |event|
+        all_events.map do |event|
           "#{RabbitFeed.environment}.#{name}.#{event.name}"
         end
       end
 
       def handle_event event
-        event_rule = events[event.name]
+        event_rule = find_event event
         event_rule.handle_event event
       end
 
       def handles_event? event
-        events.has_key? event.name
+        (find_event event).present?
       end
+
+      private
 
       def validate!
         raise ConfigurationError.new "Bad application specification for #{name}: #{errors.messages}" if invalid?
+      end
+
+      def accept_named_event name, &block
+        raise ConfigurationError.new "Routing has already been defined for the event with name: #{name} in application: #{self.name}" if (named_events.has_key? name)
+        event = (Event.new name, block)
+        named_events[event.name] = event
+      end
+
+      def accept_any_event &block
+        raise ConfigurationError.new "Routing has already been defined for the event catch-all: :any in application: #{name}" if catch_all_event.present?
+        event = (Event.new '*', block)
+        @catch_all_event = event
+      end
+
+      def find_event event
+        [named_events[event.name], catch_all_event].compact.first
+      end
+
+      def all_events
+        events = named_events.values
+        events << catch_all_event if catch_all_event.present?
+        events
       end
     end
 

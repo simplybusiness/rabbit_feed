@@ -25,6 +25,11 @@ module RabbitFeed
             event.payload
           end
         end
+        accept_from('dummy_3') do
+          event(:any) do |event|
+            event.payload
+          end
+        end
       end
     end
 
@@ -36,6 +41,7 @@ module RabbitFeed
         test.dummy_2.event_3
         test.*.event_3
         test.*.event_4
+        test.dummy_3.*
       }
     end
 
@@ -46,6 +52,8 @@ module RabbitFeed
         Event.new({application: 'dummy_1', name: 'event_4'}, {payload: 4}),
         Event.new({application: 'dummy_2', name: 'event_3'}, {payload: 3}),
         Event.new({application: 'none',    name: 'event_4'}, {payload: 4}),
+        Event.new({application: 'dummy_3', name: 'event_1'}, {payload: 1}),
+        Event.new({application: 'dummy_3', name: 'event_2'}, {payload: 2}),
       ]
       events.each do |event|
         (RabbitFeed::Consumer.event_routing.handle_event event).should eq event.payload
@@ -112,7 +120,7 @@ module RabbitFeed
     context 'testing cumulative routing definitions' do
       before do
         EventRouting do
-          accept_from('dummy_3') do
+          accept_from('dummy_4') do
             event('event_4') do |event|
               event.payload
             end
@@ -125,9 +133,10 @@ module RabbitFeed
           test.dummy_1.event_1
           test.dummy_1.event_2
           test.dummy_2.event_3
-          test.dummy_3.event_4
+          test.dummy_4.event_4
           test.*.event_3
           test.*.event_4
+          test.dummy_3.*
         }
       end
     end
@@ -143,7 +152,7 @@ module RabbitFeed
               end
             end
           end
-        end.to raise_error ConfigurationError
+        end.to raise_error 'Routing has already been defined for the application with name: dummy_2'
       end
 
       it 'raises an exception for the catch-all application' do
@@ -155,7 +164,40 @@ module RabbitFeed
               end
             end
           end
-        end.to raise_error ConfigurationError
+        end.to raise_error 'Routing has already been defined for the application catch-all: :any'
+      end
+    end
+
+    context 'defining the same event twice' do
+
+      it 'raises an exception for a named event' do
+        expect do
+          EventRouting do
+            accept_from('dummy_5') do
+              event('event_3') do |event|
+                event.payload
+              end
+              event('event_3') do |event|
+                event.payload
+              end
+            end
+          end
+        end.to raise_error 'Routing has already been defined for the event with name: event_3 in application: dummy_5'
+      end
+
+      it 'raises an exception for the catch-all event' do
+        expect do
+          EventRouting do
+            accept_from('dummy_5') do
+              event(:any) do |event|
+                event.payload
+              end
+              event(:any) do |event|
+                event.payload
+              end
+            end
+          end
+        end.to raise_error 'Routing has already been defined for the event catch-all: :any in application: dummy_5'
       end
     end
   end
