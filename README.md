@@ -308,6 +308,26 @@ When the consumer is started, it will create its queue named using this pattern:
 
 _Note: The consumer queues will automatically expire (delete) after 7 days without any consumer connections. This is to prevent unused queues from hanging around once their associated consumer has been terminated._
 
+### Wildcards
+
+Applications that wish to handle events from any application or wish to handle any event can achieve this using the `:any` key.
+
+For example, the following would consume any event published by RabbitFeed:
+
+```ruby
+EventRouting do
+  accept_from(:any) do
+    event(:any) do |event|
+      puts event.payload
+    end
+  end
+end
+```
+
+In this example, the consumer queue will bind to the specified exchange on the following routing keys:
+
+    environment.*.*
+
 ## Delivery Semantics
 
 RabbitFeed provides 'at least once' delivery semantics. There are two use-cases where an event may be delivered more than once:
