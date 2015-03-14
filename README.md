@@ -289,22 +289,22 @@ Here is an example DSL:
 ```ruby
 EventRouting do
   accept_from('beavers') do
-    event('user_created_beaver') do |event|
+    event('user_creates_beaver') do |event|
       puts event.payload
     end
-    event('user_updated_beaver') do |event|
+    event('user_updates_beaver') do |event|
       puts event.payload
     end
   end
 end
 ```
 
-This will subscribe to specified events originating from the `beavers` application. We have specified that we would like to subcribe to `user_created_beaver` and `user_updated_beaver` events. If either event type is received, we have specified that its payload will be printed to the screen.
+This will subscribe to specified events originating from the `beavers` application. We have specified that we would like to subcribe to `user_creates_beaver` and `user_updates_beaver` events. If either event type is received, we have specified that its payload will be printed to the screen.
 
 When the consumer is started, it will create its queue named using this pattern: `[environment].[consumer application name]`. It will bind the queue to the `amq.topic` exchange on the routing keys as defined in the event routing. In this example, it will bind on:
 
-    environment.beavers.user_created_beaver
-    environment.beavers.user_updated_beaver
+    environment.beavers.user_creates_beaver
+    environment.beavers.user_updates_beaver
 
 _Note: The consumer queues will automatically expire (delete) after 7 days without any consumer connections. This is to prevent unused queues from hanging around once their associated consumer has been terminated._
 
