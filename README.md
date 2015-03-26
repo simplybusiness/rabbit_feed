@@ -16,7 +16,7 @@ A gem providing asynchronous event publish and subscribe capabilities with Rabbi
 
 Add this line to your application's Gemfile:
 
-    gem 'rabbit_feed', git: 'git@github.com:simplybusiness/rabbit_feed.git'
+    gem 'rabbit_feed'
 
 ### Configuration
 
