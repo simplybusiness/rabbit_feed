@@ -4,15 +4,16 @@ module RabbitFeed
 
     SCHEMA_VERSION = '2.0.0'
 
-    attr_reader :schema, :payload, :metadata
+    attr_reader :schema, :payload, :metadata, :sensitive_fields
     validates :metadata, presence: true
     validates :payload, length: { minimum: 0, allow_nil: false, message: 'can\'t be nil' }
     validate  :required_metadata
 
-    def initialize metadata, payload={}, schema=nil
+    def initialize metadata, payload={}, schema=nil, sensitive_fields=[]
       @schema   = schema
       @payload  = payload.with_indifferent_access if payload
       @metadata = metadata.with_indifferent_access if metadata
+      @sensitive_fields = Array(sensitive_fields).map(&:to_s).flatten
       validate!
     end
 
@@ -22,6 +23,8 @@ module RabbitFeed
       writer << { 'metadata' => metadata, 'payload' => payload }
       writer.close
       buffer.string
+    rescue Avro::IO::AvroTypeError
+      raise Avro::IO::AvroTypeError.new(schema, sensitive_proof_payload)
     end
 
     def application
@@ -69,6 +72,12 @@ module RabbitFeed
     end
 
     private
+
+    def sensitive_proof_payload
+      sensitive_fields.each_with_object(payload.dup) do |field, clean_payload|
+        clean_payload[field] = "[REMOVED]" if clean_payload.key?(field)
+      end
+    end
 
     def validate!
       raise Error.new "Invalid event: #{errors.messages}" if invalid?

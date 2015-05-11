@@ -9,7 +9,7 @@ module RabbitFeed
       event_definition = event_definitions[name] or raise (Error.new "definition for event: #{name} not found")
       timestamp        = Time.now.utc
       metadata         = (metadata event_definition.version, name, timestamp)
-      event            = Event.new metadata, payload, event_definition.schema
+      event            = Event.new metadata, payload, event_definition.schema, event_definition.sensitive_fields
       ProducerConnection.publish event.serialize, (options name, timestamp)
       event
     end

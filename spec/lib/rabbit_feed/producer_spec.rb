@@ -12,7 +12,7 @@ module RabbitFeed
               'The definition of the event'
             end
             payload_contains do
-              field('field', type: 'string', definition: 'The definition of the field')
+              field('field', type: 'string', definition: 'The definition of the field', sensitive: true)
             end
           end
         end
@@ -37,6 +37,10 @@ module RabbitFeed
 
       it 'returns the event' do
         expect(subject).to be_a Event
+      end
+
+      it 'sets the sensitive fields for the event' do
+        expect(subject.sensitive_fields).to match_array(['field'])
       end
 
       it 'sets the event metadata' do
