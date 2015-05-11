@@ -75,7 +75,7 @@ module RabbitFeed
 
     def sensitive_proof_payload
       clean_payload = payload.dup
-      @sensitive_fields.each do |field|
+      sensitive_fields.each do |field|
         clean_payload[field] = "[REMOVED]" if clean_payload.key?(field)
       end
       clean_payload

@@ -45,7 +45,7 @@ module RabbitFeed
       end
 
       def field name, options
-        @sensitive_fields << name.to_s if options.delete(:sensitive)
+        sensitive_fields << name.to_s if options.delete(:sensitive)
         fields << (Field.new name, options[:type], options[:definition])
       end
 
