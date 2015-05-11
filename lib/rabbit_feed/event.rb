@@ -23,7 +23,7 @@ module RabbitFeed
       writer << { 'metadata' => metadata, 'payload' => payload }
       writer.close
       buffer.string
-    rescue Avro::IO::AvroTypeError => e
+    rescue Avro::IO::AvroTypeError
       raise Avro::IO::AvroTypeError.new(schema, sensitive_proof_payload)
     end
 
