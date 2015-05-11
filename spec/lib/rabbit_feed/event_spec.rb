@@ -79,7 +79,10 @@ module RabbitFeed
                 type: {
                   name: 'event_payload',
                   type: 'record',
-                  fields: [{ name: 'event_field', type: 'int' }],
+                  fields: [
+                    { name: 'event_integer', type: 'int' },
+                    { name: 'event_string',  type: 'string' },
+                  ],
                 },
               },
               {
@@ -96,7 +99,11 @@ module RabbitFeed
       end
 
       context 'with invalid payload' do
-        let(:payload)  { { 'event_field' => 'INCORRECT' } }
+        let(:payload)  { {
+          'event_string'  => 'HIGHLY SENSITIVE',
+          'event_integer' => 'incorrect',
+        } }
+
         it 'raises an Exception' do
           expect {
             subject.serialize
@@ -104,7 +111,7 @@ module RabbitFeed
         end
 
         it 'can remove values from exception' do
-          event = described_class.new(metadata, payload, schema, ['event_field'])
+          event = described_class.new(metadata, payload, schema, ['event_string'])
           exception_msg = nil
           begin
             event.serialize
@@ -113,7 +120,8 @@ module RabbitFeed
           end
           expect(exception_msg).to_not be_nil
           expect(exception_msg).to_not include("INCORRECT")
-          expect(exception_msg).to include('{"event_field"=>"[REMOVED]"}')
+          expect(exception_msg).to include('"event_string"=>"[REMOVED]"')
+          expect(exception_msg).to include('"event_integer"=>"incorrect"')
         end
       end
     end
