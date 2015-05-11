@@ -10,8 +10,8 @@ module RabbitFeed
           end
           payload_contains do
             field('customer_id', type: 'string', definition: 'The definition of the customer id')
-            field('policy_id', type: 'string', definition: 'The definition of the policy id')
-            field('price', type: 'string', definition: 'The definition of the price')
+            field('policy_id', type: 'string', definition: 'The definition of the policy id', sensitive: true)
+            field('price', type: 'string', definition: 'The definition of the price', sensitive: true)
           end
         end
       end
@@ -21,6 +21,7 @@ module RabbitFeed
     it { should_not be_nil }
     it { should be_valid }
     its(:name) { should eq 'customer_purchases_policy' }
+    its(:sensitive_fields) { should match_array(['price', 'policy_id']) }
 
     describe EventDefinitions::Event do
       let(:name)       { 'event_name' }

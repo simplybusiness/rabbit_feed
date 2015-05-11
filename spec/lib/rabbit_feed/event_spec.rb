@@ -67,6 +67,57 @@ module RabbitFeed
       end
     end
 
+    describe '#serialize' do
+      let(:schema) do
+        Avro::Schema.parse(
+          {
+            name:   'example-1.0',
+            type:   'record',
+            fields: [
+              {
+                name: 'payload',
+                type: {
+                  name: 'event_payload',
+                  type: 'record',
+                  fields: [{ name: 'event_field', type: 'int' }],
+                },
+              },
+              {
+                name: 'metadata',
+                type: {
+                  name: 'event_metadata',
+                  type: 'record',
+                  fields: [{ name: 'name', type: 'string' }],
+                },
+              },
+            ],
+          }.to_json
+        )
+      end
+
+      context 'with invalid payload' do
+        let(:payload)  { { 'event_field' => 'INCORRECT' } }
+        it 'raises an Exception' do
+          expect {
+            subject.serialize
+          }.to raise_error(Avro::IO::AvroTypeError)
+        end
+
+        it 'can remove values from exception' do
+          event = described_class.new(metadata, payload, schema, ['event_field'])
+          exception_msg = nil
+          begin
+            event.serialize
+          rescue Avro::IO::AvroTypeError => e
+            exception_msg = e.message
+          end
+          expect(exception_msg).to_not be_nil
+          expect(exception_msg).to_not include("INCORRECT")
+          expect(exception_msg).to include('{"event_field"=>"[REMOVED]"}')
+        end
+      end
+    end
+
     describe '.deserialize' do
       subject { described_class.deserialize serialized_event }
 
