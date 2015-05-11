@@ -28,7 +28,7 @@ module RabbitFeed
     class Event
       include ActiveModel::Validations
 
-      attr_reader :name, :definition, :version, :fields
+      attr_reader :name, :definition, :version, :fields, :sensitive_fields
       validates_presence_of :name, :definition, :version
       validate :schema_parseable
       validates :version, format: { with: /\A\d+\.\d+\.\d+\z/, message: 'must be in *.*.* format' }
@@ -37,6 +37,7 @@ module RabbitFeed
         @name    = name
         @version = version
         @fields  = []
+        @sensitive_fields = []
       end
 
       def payload_contains &block
@@ -44,6 +45,7 @@ module RabbitFeed
       end
 
       def field name, options
+        @sensitive_fields << name.to_s if options.delete(:sensitive)
         fields << (Field.new name, options[:type], options[:definition])
       end
 
