@@ -119,7 +119,7 @@ module RabbitFeed
             exception_msg = e.message
           end
           expect(exception_msg).to_not be_nil
-          expect(exception_msg).to_not include("INCORRECT")
+          expect(exception_msg).to_not include("HIGHLY SENSITIVE")
           expect(exception_msg).to include('"event_string"=>"[REMOVED]"')
           expect(exception_msg).to include('"event_integer"=>"incorrect"')
         end
