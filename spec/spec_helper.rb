@@ -58,6 +58,7 @@ end
 
 def reset_environment
   RabbitFeed.log                     = Logger.new('test.log')
+  RabbitFeed.log.formatter           = RabbitFeed::JsonLogFormatter
   RabbitFeed.environment             = 'test'
   RabbitFeed.configuration_file_path = 'spec/fixtures/configuration.yml'
 end

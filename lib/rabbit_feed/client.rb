@@ -86,8 +86,9 @@ module RabbitFeed
     end
 
     def set_logging
-      RabbitFeed.log       = Logger.new(options[:logfile])
-      RabbitFeed.log.level = verbose? ? Logger::DEBUG : Logger::INFO
+      RabbitFeed.log           = Logger.new(options[:logfile], shift_age: 'daily')
+      RabbitFeed.log.level     = verbose? ? Logger::DEBUG : Logger::INFO
+      RabbitFeed.log.formatter = RabbitFeed::JsonLogFormatter
     end
 
     def set_configuration
