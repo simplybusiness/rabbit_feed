@@ -119,6 +119,7 @@ module RabbitFeed
         end
 
         its(:host)                      { should be_nil }
+        its(:hosts)                     { should be_nil }
         its(:port)                      { should be_nil }
         its(:user)                      { should be_nil }
         its(:password)                  { should be_nil }
@@ -135,6 +136,7 @@ module RabbitFeed
         let(:options) do
           {
             host:                      'host_name',
+            hosts:                     ['host_name0', 'host_name1'],
             port:                      12345,
             user:                      'user_name',
             password:                  'password',
@@ -151,6 +153,7 @@ module RabbitFeed
         end
 
         its(:host)                      { should eq 'host_name' }
+        its(:hosts)                     { should eq ['host_name0', 'host_name1'] }
         its(:port)                      { should eq 12345 }
         its(:user)                      { should eq 'user_name' }
         its(:password)                  { should eq 'password' }
