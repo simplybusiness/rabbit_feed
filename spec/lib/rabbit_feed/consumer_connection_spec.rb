@@ -46,6 +46,7 @@ module RabbitFeed
       before do
         allow(bunny_queue).to receive(:subscribe).and_yield(double(:delivery_info, delivery_tag: :tag), 'properties', 'payload')
         allow_any_instance_of(described_class).to receive(:sleep)
+        allow_any_instance_of(described_class).to receive(:cancel_consumer)
       end
 
       it 'yields the payload' do
@@ -54,6 +55,11 @@ module RabbitFeed
 
       it 'acknowledges the message' do
         expect(bunny_channel).to receive(:ack)
+        subject.consume { }
+      end
+
+      it 'cancels the consumer' do
+        expect_any_instance_of(described_class).to receive(:cancel_consumer)
         subject.consume { }
       end
 

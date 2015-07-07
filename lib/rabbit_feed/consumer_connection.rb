@@ -42,9 +42,10 @@ module RabbitFeed
       end
 
       sleep # Sleep indefinitely, as the consumer runs in its own thread
-    rescue
+    rescue SystemExit, Interrupt
+      RabbitFeed.log.info "Consumer #{self.to_s} received exit request, exiting..."
+    ensure
       (cancel_consumer consumer) if consumer.present?
-      raise
     end
 
     private
