@@ -237,6 +237,7 @@ Publishes an event. Note: until you've specified the [event definitions](https:/
 Starts a consumer. Note: until you've specified the [event routing](https://github.com/simplybusiness/rabbit_feed#event-routing-dsl), this will not receive any events. Options are as follows:
 
     --environment The environment to run in
+    --application The name of the application (used for routing events)
     --config The location of the rabbit_feed configuration file
     --logfile The location of the log file
     --require The project file containing the dependancies (only necessary if running with non-rails application)
