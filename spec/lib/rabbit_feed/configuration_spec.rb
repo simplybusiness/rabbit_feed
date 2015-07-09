@@ -69,7 +69,8 @@ module RabbitFeed
     describe '.load' do
       let(:file_path)   { 'spec/fixtures/configuration.yml' }
       let(:environment) { 'test' }
-      subject { described_class.load file_path, environment }
+      let(:application) { }
+      subject { described_class.load file_path, environment, application }
 
       context 'with missing configuration' do
         let(:environment) { 'production' }
@@ -104,6 +105,21 @@ module RabbitFeed
         its(:auto_delete_exchange)      { should be_truthy }
       end
 
+      context 'with application provided' do
+        let(:application) { 'new_application' }
+
+        it 'prefers the application specified in the config file' do
+          expect(subject.application).to eq 'rabbit_feed'
+        end
+
+        context 'with an empty config file' do
+          let(:environment) { 'test_blank' }
+
+          it 'prefers the application provided' do
+            expect(subject.application).to eq 'new_application'
+          end
+        end
+      end
     end
 
     describe '.new' do

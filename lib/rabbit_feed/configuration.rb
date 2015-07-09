@@ -25,13 +25,15 @@ module RabbitFeed
       validate!
     end
 
-    def self.load file_path, environment
-      RabbitFeed.log.debug "Reading configurations from #{file_path} in #{environment}..."
+    def self.load file_path, environment, application
+      RabbitFeed.log.debug "Reading configurations from #{file_path} in #{environment} for application #{application}..."
 
       raise ConfigurationError.new "The RabbitFeed configuration file path specified does not exist: #{file_path}" unless (File.exist? file_path)
 
       options = read_configuration_file file_path, environment
-      new options.merge(environment: environment)
+      options[:environment]   = environment
+      options[:application] ||= application
+      new options
     end
 
     def queue
