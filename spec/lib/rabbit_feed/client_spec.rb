@@ -8,6 +8,7 @@ module RabbitFeed
     let(:config_file) { 'spec/fixtures/configuration.yml' }
     let(:environment) { 'test' }
     let(:require_file){ 'rabbit_feed.rb' }
+    let(:application) { 'rabbit_feed_test' }
     let(:arguments) do
       [
         command,
@@ -21,11 +22,14 @@ module RabbitFeed
         pidfile,
         '--require',
         require_file,
+        '--application',
+        application,
         '--daemon'
       ]
     end
     before do
       RabbitFeed.environment = nil
+      RabbitFeed.application = nil
       RabbitFeed.log = nil
       RabbitFeed.configuration_file_path = nil
     end
@@ -38,6 +42,11 @@ module RabbitFeed
       it 'sets the environment' do
         subject
         expect(RabbitFeed.environment).to eq 'test'
+      end
+
+      it 'sets the application' do
+        subject
+        expect(RabbitFeed.application).to eq 'rabbit_feed_test'
       end
 
       it 'sets the logger' do
