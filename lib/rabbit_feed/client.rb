@@ -93,6 +93,7 @@ module RabbitFeed
 
     def set_configuration
       RabbitFeed.environment             = environment
+      RabbitFeed.application             = options[:application]
       RabbitFeed.configuration_file_path = options[:config_file]
       ENV['RACK_ENV']  ||= RabbitFeed.environment
       ENV['RAILS_ENV'] ||= RabbitFeed.environment
@@ -138,6 +139,10 @@ module RabbitFeed
       opts = {}
 
       parser = OptionParser.new do |o|
+
+        o.on '-a', '--application VAL', 'Name of the application' do |arg|
+          opts[:application] = arg
+        end
 
         o.on '-m', '--payload VAL', 'Payload of event to produce' do |arg|
           opts[:payload] = arg

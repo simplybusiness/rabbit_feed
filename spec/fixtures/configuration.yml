@@ -11,3 +11,4 @@ test:
   network_recovery_interval: 0.1
   auto_delete_queue: true
   auto_delete_exchange: true
+test_blank:

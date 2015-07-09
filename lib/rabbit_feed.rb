@@ -27,13 +27,13 @@ module RabbitFeed
   class RoutingError < Error; end
   class ReturnedMessageError < Error; end
 
-  attr_accessor :log, :environment, :configuration_file_path
+  attr_accessor :log, :environment, :configuration_file_path, :application
 
   def configuration
     RabbitFeed.log                     ||= (Logger.new STDOUT)
     RabbitFeed.configuration_file_path ||= 'config/rabbit_feed.yml'
     RabbitFeed.environment             ||= ENV['RAILS_ENV'] || ENV['RACK_ENV']
-    @configuration                     ||= (Configuration.load RabbitFeed.configuration_file_path, RabbitFeed.environment)
+    @configuration                     ||= (Configuration.load RabbitFeed.configuration_file_path, RabbitFeed.environment, application)
   end
 
   def exception_notify exception
