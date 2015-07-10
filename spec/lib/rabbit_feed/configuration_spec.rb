@@ -68,7 +68,7 @@ module RabbitFeed
 
     describe '.load' do
       let(:file_path)   { 'spec/fixtures/configuration.yml' }
-      let(:environment) { 'test' }
+      let(:environment) { 'test_config' }
       let(:application) { }
       subject { described_class.load file_path, environment, application }
 
@@ -95,7 +95,7 @@ module RabbitFeed
         its(:user)                      { should eq 'guest' }
         its(:password)                  { should eq 'guest' }
         its(:application)               { should eq 'rabbit_feed' }
-        its(:environment)               { should eq 'test' }
+        its(:environment)               { should eq 'test_config' }
         its(:exchange)                  { should eq 'rabbit_feed_exchange' }
         its(:pool_timeout)              { should eq 1 }
         its(:heartbeat)                 { should eq 60 }

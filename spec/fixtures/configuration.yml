@@ -4,6 +4,13 @@ test:
   user: guest
   password: guest
   application: rabbit_feed
+  auto_delete_queue: true
+test_config:
+  host: localhost
+  port: 5672
+  user: guest
+  password: guest
+  application: rabbit_feed
   exchange: rabbit_feed_exchange
   pool_timeout: 1
   heartbeat: 60

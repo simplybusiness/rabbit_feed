@@ -1,6 +1,5 @@
 module RabbitFeed
   class ConsumerConnection
-    include ConnectionConcern
 
     SUBSCRIPTION_OPTIONS = {
       consumer_tag: Socket.gethostname, # Use the host name of the server
@@ -19,19 +18,10 @@ module RabbitFeed
         },
     }.freeze
 
-    attr_reader :queue
-
-    def initialize channel
-      channel.prefetch(1) # Fetch one message at a time to preserve order
-      RabbitFeed.log.debug "Declaring queue on #{self.to_s} (channel #{channel.id}) named: #{RabbitFeed.configuration.queue} with options: #{queue_options}..."
-      @queue = channel.queue RabbitFeed.configuration.queue, queue_options
+    def initialize
+      connection.start
+      channel.prefetch(1)
       bind_on_accepted_routes
-    end
-
-    def self.consume &block
-      with_connection do |consumer_connection|
-        consumer_connection.consume(&block)
-      end
     end
 
     def consume &block
@@ -98,6 +88,18 @@ module RabbitFeed
       negative_acknowledge delivery_info
       RabbitFeed.log.error "Exception encountered while consuming message on #{self.to_s} from queue #{RabbitFeed.configuration.queue}: #{exception.message} #{exception.backtrace}"
       RabbitFeed.exception_notify exception
+    end
+
+    def queue
+      @queue ||= channel.queue RabbitFeed.configuration.queue, queue_options
+    end
+
+    def channel
+      @channel ||= connection.create_channel
+    end
+
+    def connection
+      @connection ||= Bunny.new RabbitFeed.configuration.connection_options
     end
   end
 end

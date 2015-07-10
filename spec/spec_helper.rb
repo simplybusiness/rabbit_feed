@@ -53,7 +53,6 @@ end
 
 def close_connections
   RabbitFeed::ProducerConnection.close
-  RabbitFeed::ConsumerConnection.close
 end
 
 def reset_environment
