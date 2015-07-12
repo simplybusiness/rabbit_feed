@@ -1,6 +1,5 @@
 module RabbitFeed
-  class ProducerConnection
-    include ConnectionConcern
+  class ProducerConnection < RabbitFeed::Connection
 
     PUBLISH_OPTIONS = {
       persistent: true, # Persist the message to disk
@@ -13,39 +12,26 @@ module RabbitFeed
       no_declare:  false,  # Create the exchange if it does not exist
     }.freeze
 
-    attr_reader :exchange
-
     def self.handle_returned_message return_info, content
       RabbitFeed.log.error "Handling returned message on #{self.to_s} details: #{return_info}..."
       RabbitFeed.exception_notify (ReturnedMessageError.new return_info)
     end
 
-    def initialize channel
-      RabbitFeed.log.debug "Declaring exchange on #{self.to_s} (channel #{channel.id}) named: #{RabbitFeed.configuration.exchange} with options: #{exchange_options}..."
-      @exchange = channel.exchange RabbitFeed.configuration.exchange, exchange_options
-
+    def initialize
+      super
       exchange.on_return do |return_info, properties, content|
         RabbitFeed::ProducerConnection.handle_returned_message return_info, content
       end
     end
 
-    def self.publish message, options
-      retry_on_closed_connection do
-        with_connection do |producer_connection|
-          retry_on_exception do
-            producer_connection.publish message, options
-          end
-        end
-      end
-    end
-
     def publish message, options
-      # It's critical to dup the options for the sake of retries, as bunny modifies this hash
-      bunny_options = (options.merge PUBLISH_OPTIONS)
+      thread_safe do
+        bunny_options = (options.merge PUBLISH_OPTIONS)
 
-      RabbitFeed.log.debug "Publishing message on #{self.to_s} with options: #{options} to exchange: #{RabbitFeed.configuration.exchange}..."
+        RabbitFeed.log.debug "Publishing message on #{self.to_s} with options: #{options} to exchange: #{RabbitFeed.configuration.exchange}..."
 
-      exchange.publish message, bunny_options
+        exchange.publish message, bunny_options
+      end
     end
 
     private
@@ -56,10 +42,8 @@ module RabbitFeed
       }.merge EXCHANGE_OPTIONS
     end
 
-    def self.connection_options
-      super.merge({
-        threaded: false, # With threading enabled, there is a chance of losing an event during connection recovery
-      })
+    def exchange
+      @exchange ||= channel.exchange RabbitFeed.configuration.exchange, exchange_options
     end
   end
 end

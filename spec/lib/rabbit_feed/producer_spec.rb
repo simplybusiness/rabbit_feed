@@ -59,7 +59,7 @@ module RabbitFeed
 
       it 'serializes the event and provides message metadata' do
         Timecop.freeze do
-          expect(ProducerConnection).to receive(:publish).with(
+          expect(ProducerConnection.instance).to receive(:publish).with(
             an_instance_of(String),
             {
               routing_key: 'test.rabbit_feed.event_name',

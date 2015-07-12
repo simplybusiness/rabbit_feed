@@ -9,6 +9,9 @@ module RabbitFeed
       allow(Bunny).to receive(:new).and_return(bunny_connection)
       allow(bunny_queue).to receive(:channel).and_return(bunny_channel)
     end
+    subject do
+      Class.new(described_class).instance
+    end
 
     describe '#new' do
       before do
@@ -43,6 +46,11 @@ module RabbitFeed
 
       it 'acknowledges the message' do
         expect(bunny_channel).to receive(:ack)
+        subject.consume { }
+      end
+
+      it 'is thread safe' do
+        expect(subject).to receive(:thread_safe).and_call_original
         subject.consume { }
       end
 

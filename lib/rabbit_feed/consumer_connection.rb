@@ -1,5 +1,5 @@
 module RabbitFeed
-  class ConsumerConnection
+  class ConsumerConnection < RabbitFeed::Connection
 
     SUBSCRIPTION_OPTIONS = {
       consumer_tag: Socket.gethostname, # Use the host name of the server
@@ -19,23 +19,27 @@ module RabbitFeed
     }.freeze
 
     def initialize
-      connection.start
+      super
       channel.prefetch(1)
       bind_on_accepted_routes
     end
 
     def consume &block
-      RabbitFeed.log.info "Consuming messages on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
+      thread_safe do
+        begin
+          RabbitFeed.log.info "Consuming messages on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
 
-      consumer = queue.subscribe(SUBSCRIPTION_OPTIONS) do |delivery_info, properties, payload|
-        handle_message delivery_info, payload, &block
+          consumer = queue.subscribe(SUBSCRIPTION_OPTIONS) do |delivery_info, properties, payload|
+            handle_message delivery_info, payload, &block
+          end
+
+          sleep # Sleep indefinitely, as the consumer runs in its own thread
+        rescue SystemExit, Interrupt
+          RabbitFeed.log.info "Consumer #{self.to_s} received exit request, exiting..."
+        ensure
+          (cancel_consumer consumer) if consumer.present?
+        end
       end
-
-      sleep # Sleep indefinitely, as the consumer runs in its own thread
-    rescue SystemExit, Interrupt
-      RabbitFeed.log.info "Consumer #{self.to_s} received exit request, exiting..."
-    ensure
-      (cancel_consumer consumer) if consumer.present?
     end
 
     private
@@ -92,14 +96,6 @@ module RabbitFeed
 
     def queue
       @queue ||= channel.queue RabbitFeed.configuration.queue, queue_options
-    end
-
-    def channel
-      @channel ||= connection.create_channel
-    end
-
-    def connection
-      @connection ||= Bunny.new RabbitFeed.configuration.connection_options
     end
   end
 end

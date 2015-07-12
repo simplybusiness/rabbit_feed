@@ -2,12 +2,12 @@ require 'spec_helper'
 
 step 'I am consuming' do
   set_event_routing
-  initialize_queue
+  set_event_definitions
+  RabbitFeed::ConsumerConnection.instance # Bind the queue
   @consumer_thread = Thread.new{ RabbitFeed::Consumer.run }
 end
 
 step 'I publish an event' do
-  set_event_definitions
   publish 'test'
 end
 
@@ -17,7 +17,6 @@ step 'I receive that event' do
 end
 
 step 'I publish an event that cannot be processed by the consumer' do
-  set_event_definitions
   publish 'test_failure'
 end
 
@@ -28,11 +27,6 @@ step 'the event remains on the queue' do
 end
 
 module Turnip::Steps
-
-  def initialize_queue
-    RabbitFeed::ProducerConnection.with_connection{|connection|}
-    RabbitFeed::ConsumerConnection.new
-  end
 
   def publish event_name
     @event_text = "#{event_name}_#{Time.now.iso8601(6)}"
@@ -46,7 +40,7 @@ module Turnip::Steps
 
   def wait_for_event
     begin
-      Timeout::timeout(5.0) do
+      Timeout::timeout(2.0) do
         until @consumed_events.any? do
           sleep 0.1
         end

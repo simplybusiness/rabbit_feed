@@ -30,33 +30,17 @@ RSpec.configure do |config|
     reset_environment
   end
 
-  config.after do
-    reset_environment
-    # Ensure the consumer thread exists between tests
-    kill_consumer_thread
-    # Ensure that connections don't persist between tests
-    close_connections
-    # Clear event routing
-    RabbitFeed::Consumer.event_routing = nil
-    # Clear event definitions
-    RabbitFeed::Producer.event_definitions = nil
+  config.after(connectivity: true) do
+    Thread.kill @consumer_thread if @consumer_thread.present?
   end
 
   RabbitFeed::TestingSupport.include_support config
 end
 
-def kill_consumer_thread
-  if @consumer_thread.present?
-    Thread.kill @consumer_thread
-  end
-end
-
-def close_connections
-  RabbitFeed::ProducerConnection.close
-end
-
 def reset_environment
-  RabbitFeed.log                     = Logger.new('test.log')
-  RabbitFeed.environment             = 'test'
-  RabbitFeed.configuration_file_path = 'spec/fixtures/configuration.yml'
+  RabbitFeed.log                         = Logger.new('test.log')
+  RabbitFeed.environment                 = 'test'
+  RabbitFeed.configuration_file_path     = 'spec/fixtures/configuration.yml'
+  RabbitFeed::Consumer.event_routing     = nil
+  RabbitFeed::Producer.event_definitions = nil
 end
