@@ -3,24 +3,20 @@ module RabbitFeed
     include Singleton
 
     def initialize
-      connection.start
+      @connection = Bunny.new RabbitFeed.configuration.connection_options
+      @connection.start
+      @channel = @connection.create_channel
       @mutex = Mutex.new
     end
 
     protected
 
+    attr_reader :channel
+
     def thread_safe &block
       @mutex.synchronize do
         yield
       end
-    end
-
-    def channel
-      @channel ||= connection.create_channel
-    end
-
-    def connection
-      @connection ||= Bunny.new RabbitFeed.configuration.connection_options
     end
   end
 end

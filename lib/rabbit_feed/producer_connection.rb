@@ -19,6 +19,7 @@ module RabbitFeed
 
     def initialize
       super
+      @exchange = channel.exchange RabbitFeed.configuration.exchange, exchange_options
       exchange.on_return do |return_info, properties, content|
         RabbitFeed::ProducerConnection.handle_returned_message return_info, content
       end
@@ -36,14 +37,12 @@ module RabbitFeed
 
     private
 
+    attr_reader :exchange
+
     def exchange_options
       {
         auto_delete: RabbitFeed.configuration.auto_delete_exchange,
       }.merge EXCHANGE_OPTIONS
-    end
-
-    def exchange
-      @exchange ||= channel.exchange RabbitFeed.configuration.exchange, exchange_options
     end
   end
 end

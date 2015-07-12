@@ -21,6 +21,7 @@ module RabbitFeed
     def initialize
       super
       channel.prefetch(1)
+      @queue = channel.queue RabbitFeed.configuration.queue, queue_options
       bind_on_accepted_routes
     end
 
@@ -43,6 +44,8 @@ module RabbitFeed
     end
 
     private
+
+    attr_reader :queue
 
     def queue_options
       {
@@ -92,10 +95,6 @@ module RabbitFeed
       negative_acknowledge delivery_info
       RabbitFeed.log.error "Exception encountered while consuming message on #{self.to_s} from queue #{RabbitFeed.configuration.queue}: #{exception.message} #{exception.backtrace}"
       RabbitFeed.exception_notify exception
-    end
-
-    def queue
-      @queue ||= channel.queue RabbitFeed.configuration.queue, queue_options
     end
   end
 end
