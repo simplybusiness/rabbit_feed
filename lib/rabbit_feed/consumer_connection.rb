@@ -1,6 +1,5 @@
 module RabbitFeed
-  class ConsumerConnection
-    include ConnectionConcern
+  class ConsumerConnection < RabbitFeed::Connection
 
     SUBSCRIPTION_OPTIONS = {
       consumer_tag: Socket.gethostname, # Use the host name of the server
@@ -19,36 +18,35 @@ module RabbitFeed
         },
     }.freeze
 
-    attr_reader :queue
-
-    def initialize channel
-      channel.prefetch(1) # Fetch one message at a time to preserve order
-      RabbitFeed.log.debug "Declaring queue on #{self.to_s} (channel #{channel.id}) named: #{RabbitFeed.configuration.queue} with options: #{queue_options}..."
+    def initialize
+      super
+      channel.prefetch(1)
       @queue = channel.queue RabbitFeed.configuration.queue, queue_options
       bind_on_accepted_routes
     end
 
-    def self.consume &block
-      with_connection do |consumer_connection|
-        consumer_connection.consume(&block)
-      end
-    end
-
     def consume &block
-      RabbitFeed.log.info "Consuming messages on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
+      raise 'This connection already has a consumer subscribed' if connection_in_use?
+      synchronized do
+        begin
+          RabbitFeed.log.info "Consuming messages on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
 
-      consumer = queue.subscribe(SUBSCRIPTION_OPTIONS) do |delivery_info, properties, payload|
-        handle_message delivery_info, payload, &block
+          consumer = queue.subscribe(SUBSCRIPTION_OPTIONS) do |delivery_info, properties, payload|
+            handle_message delivery_info, payload, &block
+          end
+
+          sleep # Sleep indefinitely, as the consumer runs in its own thread
+        rescue SystemExit, Interrupt
+          RabbitFeed.log.info "Consumer #{self.to_s} received exit request, exiting..."
+        ensure
+          (cancel_consumer consumer) if consumer.present?
+        end
       end
-
-      sleep # Sleep indefinitely, as the consumer runs in its own thread
-    rescue SystemExit, Interrupt
-      RabbitFeed.log.info "Consumer #{self.to_s} received exit request, exiting..."
-    ensure
-      (cancel_consumer consumer) if consumer.present?
     end
 
     private
+
+    attr_reader :queue
 
     def queue_options
       {

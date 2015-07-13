@@ -18,7 +18,7 @@ module RabbitFeed
 
         TestingSupport.published_events = []
 
-        allow(RabbitFeed::ProducerConnection).to receive(:publish) do |serialized_event, routing_key|
+        allow(RabbitFeed::ProducerConnection.instance).to receive(:publish) do |serialized_event, routing_key|
           TestingSupport.published_events << (Event.deserialize serialized_event)
         end
       end

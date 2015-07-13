@@ -9,7 +9,9 @@ module RabbitFeed
       allow(Bunny).to receive(:new).and_return(bunny_connection)
       allow(bunny_queue).to receive(:channel).and_return(bunny_channel)
     end
-    subject{ described_class.new bunny_channel }
+    subject do
+      Class.new(described_class).instance
+    end
 
     describe '#new' do
       before do
@@ -21,24 +23,13 @@ module RabbitFeed
       end
 
       it 'binds the queue to the exchange' do
-        expect(bunny_queue).to receive(:bind).with('rabbit_feed_exchange', { routing_key: 'test.rabbit_feed.test'})
+        expect(bunny_queue).to receive(:bind).with('amq.topic', { routing_key: 'test.rabbit_feed.test'})
         subject
-      end
-
-      it 'assigns the queue' do
-        expect(subject.queue).to eq bunny_queue
       end
 
       it 'preserves message order' do
         expect(bunny_channel).to receive(:prefetch).with(1)
         subject
-      end
-    end
-
-    describe '#connection_options' do
-
-      it 'uses a threaded connection' do
-        expect(described_class.connection_options).to include(threaded: true)
       end
     end
 
@@ -58,9 +49,22 @@ module RabbitFeed
         subject.consume { }
       end
 
+      it 'is synchronized' do
+        expect(subject).to receive(:synchronized).and_call_original
+        subject.consume { }
+      end
+
       it 'cancels the consumer' do
         expect_any_instance_of(described_class).to receive(:cancel_consumer)
         subject.consume { }
+      end
+
+      context 'when consuming' do
+        before { allow(subject.send(:mutex)).to receive(:locked?).and_return(true) }
+
+        it 'raises when attempting to consume in parallel' do
+          expect{ subject.consume { } }.to raise_error 'This connection already has a consumer subscribed'
+        end
       end
 
       context 'when an exception is raised' do
