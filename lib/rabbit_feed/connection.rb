@@ -11,10 +11,10 @@ module RabbitFeed
 
     private
 
-    attr_reader :channel
+    attr_reader :channel, :mutex
 
     def synchronized &block
-      @mutex.synchronize do
+      mutex.synchronize do
         yield
       end
     end

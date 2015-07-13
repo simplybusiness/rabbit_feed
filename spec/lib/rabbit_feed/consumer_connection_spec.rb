@@ -59,6 +59,14 @@ module RabbitFeed
         subject.consume { }
       end
 
+      context 'when consuming' do
+        before { allow(subject.send(:mutex)).to receive(:locked?).and_return(true) }
+
+        it 'raises when attempting to consume in parallel' do
+          expect{ subject.consume { } }.to raise_error 'This connection already has a consumer subscribed'
+        end
+      end
+
       context 'when an exception is raised' do
 
         context 'when Airbrake is defined' do

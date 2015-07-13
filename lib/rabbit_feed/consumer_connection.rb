@@ -26,6 +26,7 @@ module RabbitFeed
     end
 
     def consume &block
+      raise 'This connection already has a consumer subscribed' if mutex.locked?
       synchronized do
         begin
           RabbitFeed.log.info "Consuming messages on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
