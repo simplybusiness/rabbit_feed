@@ -47,8 +47,8 @@ module RabbitFeed
         subject.publish message, options
       end
 
-      it 'is thread safe' do
-        expect(subject).to receive(:thread_safe).and_call_original
+      it 'is synchronized' do
+        expect(subject).to receive(:synchronized).and_call_original
         subject.publish message, options
       end
     end

@@ -49,8 +49,8 @@ module RabbitFeed
         subject.consume { }
       end
 
-      it 'is thread safe' do
-        expect(subject).to receive(:thread_safe).and_call_original
+      it 'is synchronized' do
+        expect(subject).to receive(:synchronized).and_call_original
         subject.consume { }
       end
 

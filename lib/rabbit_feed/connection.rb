@@ -9,11 +9,11 @@ module RabbitFeed
       @mutex = Mutex.new
     end
 
-    protected
+    private
 
     attr_reader :channel
 
-    def thread_safe &block
+    def synchronized &block
       @mutex.synchronize do
         yield
       end
