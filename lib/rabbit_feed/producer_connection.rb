@@ -26,7 +26,7 @@ module RabbitFeed
     end
 
     def publish message, options
-      thread_safe do
+      synchronized do
         bunny_options = (options.merge PUBLISH_OPTIONS)
 
         RabbitFeed.log.debug "Publishing message on #{self.to_s} with options: #{options} to exchange: #{RabbitFeed.configuration.exchange}..."

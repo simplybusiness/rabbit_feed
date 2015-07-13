@@ -49,14 +49,22 @@ module RabbitFeed
         subject.consume { }
       end
 
-      it 'is thread safe' do
-        expect(subject).to receive(:thread_safe).and_call_original
+      it 'is synchronized' do
+        expect(subject).to receive(:synchronized).and_call_original
         subject.consume { }
       end
 
       it 'cancels the consumer' do
         expect_any_instance_of(described_class).to receive(:cancel_consumer)
         subject.consume { }
+      end
+
+      context 'when consuming' do
+        before { allow(subject.send(:mutex)).to receive(:locked?).and_return(true) }
+
+        it 'raises when attempting to consume in parallel' do
+          expect{ subject.consume { } }.to raise_error 'This connection already has a consumer subscribed'
+        end
       end
 
       context 'when an exception is raised' do

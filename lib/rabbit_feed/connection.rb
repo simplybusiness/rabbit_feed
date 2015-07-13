@@ -9,14 +9,18 @@ module RabbitFeed
       @mutex = Mutex.new
     end
 
-    protected
+    private
 
-    attr_reader :channel
+    attr_reader :channel, :mutex
 
-    def thread_safe &block
-      @mutex.synchronize do
+    def synchronized &block
+      mutex.synchronize do
         yield
       end
+    end
+
+    def connection_in_use?
+      mutex.locked?
     end
   end
 end
