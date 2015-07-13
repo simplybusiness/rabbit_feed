@@ -19,13 +19,11 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   # Gem for interfacing with RabbitMq
-  spec.add_dependency 'bunny', '>= 1.1.9', '< 1.8.0'
+  spec.add_dependency 'bunny', '2.0.0.rc2'
   # We use some helpers from ActiveSupport
   spec.add_dependency 'activesupport', '>= 3.2.0', '< 5.0.0'
   # We use validations from ActiveModel
   spec.add_dependency 'activemodel', '>= 3.2.0', '< 5.0.0'
-  # Provides connection pooling for the producer connections
-  spec.add_dependency 'connection_pool', '< 2.2.0'
   # Manages process pidfile
   spec.add_dependency 'pidfile'
   # Schema definitions and serialization for events

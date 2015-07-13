@@ -9,7 +9,7 @@ module RabbitFeed
       allow(Bunny).to receive(:new).and_return(bunny_connection)
     end
     subject do
-      described_class.new bunny_channel
+      Class.new(described_class).instance
     end
 
     describe '#new' do
@@ -17,10 +17,6 @@ module RabbitFeed
         expect(described_class).to receive(:handle_returned_message).with('return_info', 'content')
         expect(bunny_exchange).to receive(:on_return).and_yield('return_info', 'properties', 'content')
         subject
-      end
-
-      it 'assigns the exchange' do
-        expect(subject.exchange).to eq bunny_exchange
       end
     end
 
@@ -42,30 +38,18 @@ module RabbitFeed
       end
     end
 
-    describe '#connection_options' do
-
-      it 'does not use a threaded connection' do
-        expect(described_class.connection_options).to include(threaded: false)
-      end
-    end
-
     describe '#publish' do
       let(:message) { 'the message' }
       let(:options) { {routing_key: 'routing_key'} }
 
       it 'publishes the message as mandatory and persistent' do
         expect(bunny_exchange).to receive(:publish).with(message, { persistent: true, mandatory: true, routing_key: 'routing_key' })
-        described_class.publish message, options
+        subject.publish message, options
       end
 
-      it 'retries on closed connections' do
-        expect(described_class).to receive(:retry_on_closed_connection).and_call_original
-        described_class.publish message, options
-      end
-
-      it 'retries on exception' do
-        expect(described_class).to receive(:retry_on_exception).twice.and_call_original
-        described_class.publish message, options
+      it 'is thread safe' do
+        expect(subject).to receive(:thread_safe).and_call_original
+        subject.publish message, options
       end
     end
   end

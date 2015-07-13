@@ -1,3 +1,3 @@
 module RabbitFeed
-  VERSION = '2.1.5'
+  VERSION = '2.3.0'
 end

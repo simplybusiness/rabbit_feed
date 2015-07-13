@@ -9,7 +9,9 @@ module RabbitFeed
       allow(Bunny).to receive(:new).and_return(bunny_connection)
       allow(bunny_queue).to receive(:channel).and_return(bunny_channel)
     end
-    subject{ described_class.new bunny_channel }
+    subject do
+      Class.new(described_class).instance
+    end
 
     describe '#new' do
       before do
@@ -21,24 +23,13 @@ module RabbitFeed
       end
 
       it 'binds the queue to the exchange' do
-        expect(bunny_queue).to receive(:bind).with('rabbit_feed_exchange', { routing_key: 'test.rabbit_feed.test'})
+        expect(bunny_queue).to receive(:bind).with('amq.topic', { routing_key: 'test.rabbit_feed.test'})
         subject
-      end
-
-      it 'assigns the queue' do
-        expect(subject.queue).to eq bunny_queue
       end
 
       it 'preserves message order' do
         expect(bunny_channel).to receive(:prefetch).with(1)
         subject
-      end
-    end
-
-    describe '#connection_options' do
-
-      it 'uses a threaded connection' do
-        expect(described_class.connection_options).to include(threaded: true)
       end
     end
 
@@ -55,6 +46,11 @@ module RabbitFeed
 
       it 'acknowledges the message' do
         expect(bunny_channel).to receive(:ack)
+        subject.consume { }
+      end
+
+      it 'is thread safe' do
+        expect(subject).to receive(:thread_safe).and_call_original
         subject.consume { }
       end
 
