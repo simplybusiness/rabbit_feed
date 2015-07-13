@@ -18,5 +18,9 @@ module RabbitFeed
         yield
       end
     end
+
+    def connection_in_use?
+      mutex.locked?
+    end
   end
 end
