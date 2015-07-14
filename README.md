@@ -90,6 +90,14 @@ RabbitFeed.instance_eval do
 end
 ```
 
+#### Logging in JSON
+
+RabbitFeed log messages are constructed in such a way that they are friendly to JSON log formats. This is done to simplify log aggregation with tools like [Kibana](https://www.elastic.co/products/kibana). To log in JSON format, set the RabbitFeed log to use the JSON formatter, e.g.
+
+```ruby
+RabbitFeed.log.formatter = RabbitFeed::JsonLogFormatter
+```
+
 ## Producing events
 
 The producer defines the events and their payloads using the [Event Definitions DSL](https://github.com/simplybusiness/rabbit_feed#event-definitions-dsl). In a rails app, this can be defined in the [initialiser](https://github.com/simplybusiness/rabbit_feed#initialisation).
