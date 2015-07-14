@@ -10,7 +10,9 @@ module RabbitFeed
       timestamp        = Time.now.utc
       metadata         = (metadata event_definition.version, name, timestamp)
       event            = Event.new metadata, payload, event_definition.schema, event_definition.sensitive_fields
+      RabbitFeed.log.info {{ event: :publish_start, metadata: event.metadata }}
       ProducerConnection.instance.publish event.serialize, (options name, timestamp)
+      RabbitFeed.log.info {{ event: :publish_end, metadata: event.metadata }}
       event
     end
 

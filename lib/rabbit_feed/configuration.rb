@@ -6,14 +6,14 @@ module RabbitFeed
     validates_presence_of :application, :environment, :exchange
 
     def initialize options
-      RabbitFeed.log.debug "RabbitFeed initialising with options: #{options}..."
+      RabbitFeed.log.info {{ event: :initialize_configuration, options: options.merge({password: :redacted}) }}
 
       @host                      = options[:host]
       @hosts                     = options[:hosts]
       @port                      = options[:port]
       @user                      = options[:user]
       @password                  = options[:password]
-      @exchange                  = options[:exchange]     || 'amq.topic'
+      @exchange                  = options[:exchange] || 'amq.topic'
       @heartbeat                 = options[:heartbeat]
       @connect_timeout           = options[:connect_timeout]
       @network_recovery_interval = options[:network_recovery_interval]
@@ -25,7 +25,7 @@ module RabbitFeed
     end
 
     def self.load file_path, environment, application
-      RabbitFeed.log.debug "Reading configurations from #{file_path} in #{environment} for application #{application}..."
+      RabbitFeed.log.info {{ event: :load_configuration_file, file_path: file_path, environment: environment, application: application }}
 
       raise ConfigurationError.new "The RabbitFeed configuration file path specified does not exist: #{file_path}" unless (File.exist? file_path)
 

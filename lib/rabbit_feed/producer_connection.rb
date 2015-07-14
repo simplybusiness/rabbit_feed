@@ -13,13 +13,14 @@ module RabbitFeed
     }.freeze
 
     def self.handle_returned_message return_info, content
-      RabbitFeed.log.error "Handling returned message on #{self.to_s} details: #{return_info}..."
+      RabbitFeed.log.error {{ event: :returned_message, return_info: return_info }}
       RabbitFeed.exception_notify (ReturnedMessageError.new return_info)
     end
 
     def initialize
       super
       @exchange = channel.exchange RabbitFeed.configuration.exchange, exchange_options
+      RabbitFeed.log.info {{ event: :exchange_declared, exchange: RabbitFeed.configuration.exchange, options: exchange_options }}
       exchange.on_return do |return_info, properties, content|
         RabbitFeed::ProducerConnection.handle_returned_message return_info, content
       end
@@ -28,9 +29,7 @@ module RabbitFeed
     def publish message, options
       synchronized do
         bunny_options = (options.merge PUBLISH_OPTIONS)
-
-        RabbitFeed.log.debug "Publishing message on #{self.to_s} with options: #{options} to exchange: #{RabbitFeed.configuration.exchange}..."
-
+        RabbitFeed.log.debug {{ event: :publish, options: options, exchange: RabbitFeed.configuration.exchange }}
         exchange.publish message, bunny_options
       end
     end

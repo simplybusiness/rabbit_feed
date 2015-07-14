@@ -22,6 +22,7 @@ module RabbitFeed
       super
       channel.prefetch(1)
       @queue = channel.queue RabbitFeed.configuration.queue, queue_options
+      RabbitFeed.log.info {{ event: :queue_declared, queue: RabbitFeed.configuration.queue, options: queue_options }}
       bind_on_accepted_routes
     end
 
@@ -29,7 +30,7 @@ module RabbitFeed
       raise 'This connection already has a consumer subscribed' if connection_in_use?
       synchronized do
         begin
-          RabbitFeed.log.info "Consuming messages on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
+          RabbitFeed.log.info {{ event: :subscribe_to_queue, queue: RabbitFeed.configuration.queue }}
 
           consumer = queue.subscribe(SUBSCRIPTION_OPTIONS) do |delivery_info, properties, payload|
             handle_message delivery_info, payload, &block
@@ -37,7 +38,7 @@ module RabbitFeed
 
           sleep # Sleep indefinitely, as the consumer runs in its own thread
         rescue SystemExit, Interrupt
-          RabbitFeed.log.info "Consumer #{self.to_s} received exit request, exiting..."
+          RabbitFeed.log.info {{ event: :unsubscribe_from_queue, queue: RabbitFeed.configuration.queue }}
         ensure
           (cancel_consumer consumer) if consumer.present?
         end
@@ -58,20 +59,20 @@ module RabbitFeed
       if RabbitFeed::Consumer.event_routing.present?
         RabbitFeed::Consumer.event_routing.accepted_routes.each do |accepted_route|
           queue.bind(RabbitFeed.configuration.exchange, { routing_key: accepted_route })
+          RabbitFeed.log.info {{ event: :queue_bound, queue: RabbitFeed.configuration.queue, exchange: RabbitFeed.configuration.exchange, routing_key: accepted_route }}
         end
       else
         queue.bind(RabbitFeed.configuration.exchange)
+        RabbitFeed.log.info {{ event: :queue_bound, queue: RabbitFeed.configuration.queue, exchange: RabbitFeed.configuration.exchange }}
       end
     end
 
     def acknowledge delivery_info
       queue.channel.ack(delivery_info.delivery_tag)
-      RabbitFeed.log.debug "Message acknowledged on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
+      RabbitFeed.log.debug {{ event: :acknowledge, delivery_tag: delivery_info.delivery_tag }}
     end
 
     def handle_message delivery_info, payload, &block
-      RabbitFeed.log.debug "Message received on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
-
       begin
         yield payload
         acknowledge delivery_info
@@ -82,19 +83,19 @@ module RabbitFeed
 
     def cancel_consumer consumer
       cancel_ok = consumer.cancel
-      RabbitFeed.log.debug "Consumer: #{cancel_ok.consumer_tag} cancelled on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
+      RabbitFeed.log.debug {{ event: :consumer_cancelled, status: cancel_ok, queue: RabbitFeed.configuration.queue }}
     end
 
     def negative_acknowledge delivery_info
       # Tell rabbit that we were unable to process the message
       # This will re-queue the message
       queue.channel.nack(delivery_info.delivery_tag, false, true)
-      RabbitFeed.log.debug "Message negatively acknowledged on #{self.to_s} from queue: #{RabbitFeed.configuration.queue}..."
+      RabbitFeed.log.debug {{ event: :negative_acknowledge, delivery_tag: delivery_info.delivery_tag }}
     end
 
     def handle_processing_exception delivery_info, exception
       negative_acknowledge delivery_info
-      RabbitFeed.log.error "Exception encountered while consuming message on #{self.to_s} from queue #{RabbitFeed.configuration.queue}: #{exception.message} #{exception.backtrace}"
+      RabbitFeed.log.error {{ event: :processing_exception, delivery_tag: delivery_info.delivery_tag, message: exception.message, backtrace: exception.backtrace.join(',') }}
       RabbitFeed.exception_notify exception
     end
   end
