@@ -17,6 +17,7 @@ require 'rabbit_feed/producer'
 require 'rabbit_feed/event_definitions'
 require 'rabbit_feed/testing_support'
 require 'rabbit_feed/version'
+require 'rabbit_feed/json_log_formatter'
 
 module RabbitFeed
   extend self

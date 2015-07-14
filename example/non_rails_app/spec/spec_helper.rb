@@ -19,5 +19,6 @@ RSpec.configure do |config|
 end
 
 RabbitFeed.log = Logger.new('log/rabbit_feed.log')
+RabbitFeed.log.formatter = RabbitFeed::JsonLogFormatter
 RabbitFeed.environment = 'test'
 RabbitFeed.configuration_file_path = 'config/rabbit_feed.yml'
