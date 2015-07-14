@@ -1,3 +1,6 @@
+require 'rabbit_feed'
+require 'logger'
+
 RSpec.configure do |config|
 
   # Run specs in random order to surface order dependencies. If you find an
@@ -6,3 +9,6 @@ RSpec.configure do |config|
   #     --seed 1234
   config.order = 'random'
 end
+
+RabbitFeed.log = Logger.new('log/rabbit_feed.log')
+RabbitFeed.log.formatter = RabbitFeed::JsonLogFormatter
