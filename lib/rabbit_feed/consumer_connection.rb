@@ -73,6 +73,7 @@ module RabbitFeed
     end
 
     def handle_message delivery_info, payload, &block
+      RabbitFeed.log.debug {{ event: :handling_message, delivery_tag: delivery_info.delivery_tag }}
       begin
         yield payload
         acknowledge delivery_info
