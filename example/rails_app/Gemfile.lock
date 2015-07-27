@@ -1,11 +1,11 @@
 PATH
   remote: ../../
   specs:
-    rabbit_feed (2.3.0)
+    rabbit_feed (2.3.1)
       activemodel (>= 3.2.0, < 5.0.0)
       activesupport (>= 3.2.0, < 5.0.0)
       avro (>= 1.5.4, < 1.8.0)
-      bunny (= 2.0.0.rc2)
+      bunny (>= 2.0.0, < 2.1.0)
       pidfile
 
 GEM
@@ -51,7 +51,7 @@ GEM
     avro (1.7.7)
       multi_json
     builder (3.2.2)
-    bunny (2.0.0.rc2)
+    bunny (2.0.0)
       amq-protocol (>= 1.9.2)
     coffee-rails (4.0.1)
       coffee-script (>= 2.2.0)
