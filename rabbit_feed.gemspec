@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   # Gem for interfacing with RabbitMq
-  spec.add_dependency 'bunny', '2.0.0.rc2'
+  spec.add_dependency 'bunny', '>= 2.0.0', '< 2.1.0'
   # We use some helpers from ActiveSupport
   spec.add_dependency 'activesupport', '>= 3.2.0', '< 5.0.0'
   # We use validations from ActiveModel
