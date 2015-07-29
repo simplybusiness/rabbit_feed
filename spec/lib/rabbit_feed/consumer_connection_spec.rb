@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 module RabbitFeed
   describe ConsumerConnection do
     let(:bunny_queue)      { double(:bunny_queue, bind: nil, subscribe: nil)}

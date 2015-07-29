@@ -80,7 +80,7 @@ EventRouting do
 end
 ```
 
-You may also override the log location (defaults to `STDOUT`), the environment (defaults to the `RAILS_ENV`), and the path to the RabbitFeed config file (defaults to `config/rabbit_feed.yml`) in the initializer, like this:
+You may also override the log location (defaults to `log/rabbit_feed.log` if a `log` directory exists, else `STDOUT`), the environment (defaults to the `RAILS_ENV` or `RACK_ENV`), and the path to the RabbitFeed config file (defaults to `config/rabbit_feed.yml`) in the initializer, like this:
 
 ```ruby
 RabbitFeed.instance_eval do

@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 module RabbitFeed
   describe ProducerConnection do
     let(:bunny_exchange)   { double(:bunny_exchange, on_return: nil, publish: nil) }

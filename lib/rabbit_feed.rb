@@ -29,10 +29,7 @@ module RabbitFeed
   attr_accessor :log, :environment, :configuration_file_path, :application
 
   def configuration
-    RabbitFeed.log                     ||= (Logger.new STDOUT)
-    RabbitFeed.configuration_file_path ||= 'config/rabbit_feed.yml'
-    RabbitFeed.environment             ||= ENV['RAILS_ENV'] || ENV['RACK_ENV']
-    @configuration                     ||= (Configuration.load RabbitFeed.configuration_file_path, RabbitFeed.environment, application)
+    @configuration ||= (Configuration.load configuration_file_path, environment, application)
   end
 
   def exception_notify exception
@@ -40,4 +37,24 @@ module RabbitFeed
       (Airbrake.notify_or_ignore exception) if Airbrake.configuration.public?
     end
   end
+
+  def default_logger
+    if File.directory? 'log'
+      Logger.new 'log/rabbit_feed.log', 10, 100.megabytes
+    else
+      Logger.new STDOUT
+    end.tap do |log|
+      log.formatter = RabbitFeed::JsonLogFormatter
+      log.level     = Logger::INFO
+    end
+  end
+
+  def set_defaults
+    self.log                     = default_logger
+    self.configuration_file_path = 'config/rabbit_feed.yml'
+    self.environment             = ENV['RAILS_ENV'] || ENV['RACK_ENV']
+  end
+  private :set_defaults
+
+  set_defaults
 end

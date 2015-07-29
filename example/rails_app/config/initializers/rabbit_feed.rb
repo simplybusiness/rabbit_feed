@@ -1,6 +1,3 @@
-RabbitFeed.log = Logger.new('log/rabbit_feed.log')
-RabbitFeed.log.formatter = RabbitFeed::JsonLogFormatter
-
 EventDefinitions do
   define_event('user_creates_beaver', version: '1.0.0') do
     defined_as do

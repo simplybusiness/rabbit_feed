@@ -5,7 +5,7 @@ pkg
 # OSX dotfile
 .DS_Store
 # Log files
-*.log
+*.log*
 *.iml
 .idea/
 *.gem
