@@ -8,8 +8,9 @@ require 'rabbit_feed'
 I18n.enforce_available_locales = true
 
 RabbitFeed.instance_eval do
-  self.log         = Logger.new 'log/rabbit_feed.log'
-  self.environment = 'development'
+  self.log           = Logger.new('log/rabbit_feed.log', 10, 100.megabytes)
+  self.log.formatter = RabbitFeed::JsonLogFormatter
+  self.environment   = 'development'
 end
 
 payload = 'abc'*5000
