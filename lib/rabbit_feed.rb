@@ -50,9 +50,9 @@ module RabbitFeed
   end
 
   def set_defaults
-    RabbitFeed.log                     = default_logger
-    RabbitFeed.configuration_file_path = 'config/rabbit_feed.yml'
-    RabbitFeed.environment             = ENV['RAILS_ENV'] || ENV['RACK_ENV']
+    self.log                     = default_logger
+    self.configuration_file_path = 'config/rabbit_feed.yml'
+    self.environment             = ENV['RAILS_ENV'] || ENV['RACK_ENV']
   end
   private :set_defaults
 
