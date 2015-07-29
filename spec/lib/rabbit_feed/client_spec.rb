@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 module RabbitFeed
   describe Client do
     let(:command)     { 'consume' }

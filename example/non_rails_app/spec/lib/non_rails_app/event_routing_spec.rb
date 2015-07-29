@@ -1,5 +1,3 @@
-require_relative '../../spec_helper'
-
 module NonRailsApp
   describe 'Event Routing' do
     let(:payload)  { {'field' => 'value'} }

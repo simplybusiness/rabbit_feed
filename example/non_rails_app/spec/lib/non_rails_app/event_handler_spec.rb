@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 module NonRailsApp
   describe EventHandler do
 

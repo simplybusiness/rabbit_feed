@@ -1,5 +1,3 @@
-require 'rails_helper'
-
 describe BeaversController do
 
   describe 'POST create' do

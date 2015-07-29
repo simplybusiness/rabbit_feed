@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 module RabbitFeed
   describe Event do
     let(:schema)   { double(:schema) }

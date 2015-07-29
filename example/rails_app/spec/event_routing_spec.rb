@@ -1,5 +1,3 @@
-require_relative 'rails_helper'
-
 module RailsApp
   describe 'Event Routing' do
 
