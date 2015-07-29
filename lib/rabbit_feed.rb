@@ -40,7 +40,7 @@ module RabbitFeed
 
   def default_logger
     if File.directory? 'log'
-      Logger.new('log/rabbit_feed.log', 10, 100.megabytes)
+      Logger.new 'log/rabbit_feed.log', 10, 100.megabytes
     else
       Logger.new STDOUT
     end.tap do |log|
