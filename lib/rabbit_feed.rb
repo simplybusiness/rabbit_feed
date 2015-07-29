@@ -29,14 +29,7 @@ module RabbitFeed
   attr_accessor :log, :environment, :configuration_file_path, :application
 
   def configuration
-    set_defaults
     @configuration ||= (Configuration.load configuration_file_path, environment, application)
-  end
-
-  def set_defaults
-    RabbitFeed.log                     ||= default_logger
-    RabbitFeed.configuration_file_path ||= 'config/rabbit_feed.yml'
-    RabbitFeed.environment             ||= ENV['RAILS_ENV'] || ENV['RACK_ENV']
   end
 
   def exception_notify exception
@@ -55,5 +48,13 @@ module RabbitFeed
       log.level     = Logger::INFO
     end
   end
-  private :default_logger
+
+  def set_defaults
+    RabbitFeed.log                     = default_logger
+    RabbitFeed.configuration_file_path = 'config/rabbit_feed.yml'
+    RabbitFeed.environment             = ENV['RAILS_ENV'] || ENV['RACK_ENV']
+  end
+  private :set_defaults
+
+  set_defaults
 end

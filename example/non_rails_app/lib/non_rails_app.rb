@@ -1,9 +1,6 @@
 require 'rabbit_feed'
 require_relative 'non_rails_app/event_handler'
 
-RabbitFeed.log = Logger.new('log/rabbit_feed.log')
-RabbitFeed.log.formatter = RabbitFeed::JsonLogFormatter
-
 EventRouting do
   accept_from('rails_app') do
     event('user_creates_beaver') do |event|

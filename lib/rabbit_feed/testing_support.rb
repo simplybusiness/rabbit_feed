@@ -9,6 +9,7 @@ module RabbitFeed
     attr_accessor :published_events
 
     def setup rspec_config
+      RabbitFeed.environment ||= 'test'
       capture_published_events rspec_config
       include_support rspec_config
     end
