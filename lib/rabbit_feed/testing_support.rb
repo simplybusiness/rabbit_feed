@@ -18,8 +18,9 @@ module RabbitFeed
       rspec_config.before :each do
 
         TestingSupport.published_events = []
-
-        allow(RabbitFeed::ProducerConnection.instance).to receive(:publish) do |serialized_event, routing_key|
+        mock_connection = double(:rabbitmq_connection)
+        allow(RabbitFeed::ProducerConnection).to receive(:instance).and_return(mock_connection)
+        allow(mock_connection).to receive(:publish) do |serialized_event, routing_key|
           TestingSupport.published_events << (Event.deserialize serialized_event)
         end
       end
