@@ -129,6 +129,14 @@ RSpec.configure do |config|
 end
 ```
 
+Or, if using Cucumber, put this in your `env.rb`:
+
+```ruby
+Before do
+  RabbitFeed::TestingSupport.capture_published_events_in_context(self)
+end
+```
+
 #### RSpec
 
 To verify that your application publishes an event, use the custom RSpec matcher provided with this application.
