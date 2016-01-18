@@ -2,7 +2,7 @@ module RabbitFeed
   module TestingSupport
     module RSpecMatchers
       class PublishEvent
-        attr_reader :expected_event, :expected_payload
+        attr_reader :expected_event
 
         def initialize(expected_event, expected_payload)
           @expected_event   = expected_event
@@ -59,7 +59,21 @@ module RabbitFeed
           true
         end
 
+        def with(expected_payload=nil, &block)
+          if !!@expected_payload
+            ::Kernel.warn "`publish_event` was called with and expected payload already, anything in `with` is ignored"
+          else
+            @expected_payload = expected_payload ? (->() { expected_payload }) : block
+          end
+
+          self
+        end
+
         private
+
+        def expected_payload
+          @expected_payload.respond_to?(:call) ? @expected_payload.call : @expected_payload
+        end
 
         def received_events_message
           if TestingSupport.published_events.any?

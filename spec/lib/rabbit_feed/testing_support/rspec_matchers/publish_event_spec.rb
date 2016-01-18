@@ -62,10 +62,22 @@ module RabbitFeed
           (matcher.matches? block).should be_falsey
         end
 
-        it 'validates the event payload' do
-          matcher = described_class.new(event_name, event_payload)
-          block   = Proc.new { RabbitFeed::Producer.publish_event event_name, {'field' => 'different value'} }
-          (matcher.matches? block).should be_falsey
+        context 'when validating the payload' do
+          context 'and the payload is not a Proc' do
+            it 'validates the event payload' do
+              matcher = described_class.new(event_name, event_payload)
+              block   = Proc.new { RabbitFeed::Producer.publish_event event_name, {'field' => 'different value'} }
+              (matcher.matches? block).should be_falsey
+            end
+          end
+
+          context 'and the payload is a Proc' do
+            it 'validates the event payload' do
+              matcher = described_class.new(event_name, event_payload)
+              block   = Proc.new { RabbitFeed::Producer.publish_event(event_name).with{{'field' => 'different value'}} }
+              (matcher.matches? block).should be_falsey
+            end
+          end
         end
       end
     end
