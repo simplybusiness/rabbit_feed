@@ -61,7 +61,7 @@ module RabbitFeed
 
         def with(expected_payload=nil, &block)
           if !!@expected_payload
-            ::Kernel.warn "`publish_event` was called with and expected payload already, anything in `with` is ignored"
+            ::Kernel.warn "`publish_event` was called with an expected payload already, anything in `with` is ignored"
           else
             @expected_payload = expected_payload
           end
