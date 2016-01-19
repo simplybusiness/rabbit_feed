@@ -1,7 +1,7 @@
 PATH
   remote: ../../
   specs:
-    rabbit_feed (2.3.5)
+    rabbit_feed (2.3.6)
       activemodel (>= 3.2.0, < 5.0.0)
       activesupport (>= 3.2.0, < 5.0.0)
       avro (>= 1.5.4, < 1.8.0)
@@ -20,7 +20,7 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    amq-protocol (2.0.0)
+    amq-protocol (2.0.1)
     avro (1.7.7)
       multi_json
     builder (3.2.2)
