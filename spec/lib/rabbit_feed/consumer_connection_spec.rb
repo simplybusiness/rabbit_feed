@@ -29,6 +29,16 @@ module RabbitFeed
         expect(bunny_channel).to receive(:prefetch).with(1)
         subject
       end
+
+      context 'when RabbitFeed.route_prefix_extension is set' do
+        before { RabbitFeed.route_prefix_extension = 'foobar' }
+        after  { RabbitFeed.route_prefix_extension = nil }
+
+        it 'appends the route_prefix_extension to the routing_key' do
+          expect(bunny_queue).to receive(:bind).with('amq.topic', { routing_key: 'test.foobar.rabbit_feed.test'})
+          subject
+        end
+      end
     end
 
     describe '#consume' do
