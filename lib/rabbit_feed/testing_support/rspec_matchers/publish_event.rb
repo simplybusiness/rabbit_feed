@@ -63,7 +63,7 @@ module RabbitFeed
           if !!@expected_payload
             ::Kernel.warn "`publish_event` was called with and expected payload already, anything in `with` is ignored"
           else
-            @expected_payload = expected_payload ? (->() { expected_payload }) : block
+            @expected_payload = expected_payload
           end
 
           self
