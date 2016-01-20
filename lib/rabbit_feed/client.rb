@@ -161,16 +161,16 @@ module RabbitFeed
           opts[:environment] = arg
         end
 
+        o.on '-x', '--prefix_extension VAL', 'Prefix for rabbit queue routing key' do |arg|
+          opts[:route_prefix_extension] = arg
+        end
+
         o.on '-r', '--require [PATH|DIR]', 'Location of Rails application with workers or file to require' do |arg|
           opts[:require_path] = arg
         end
 
         o.on '-v', '--verbose', 'Print more verbose output' do |arg|
           opts[:verbose] = arg
-        end
-
-        o.on '-x', '--route_prefix_extension', 'Prefix for rabbit queue routing key' do |arg|
-          opts[:route_prefix_extension] = arg
         end
 
         o.on '-C', '--config PATH', 'Path to YAML config file' do |arg|
