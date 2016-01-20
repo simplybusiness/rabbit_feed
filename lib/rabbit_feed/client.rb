@@ -95,6 +95,7 @@ module RabbitFeed
       RabbitFeed.environment             = environment
       RabbitFeed.application             = options[:application]
       RabbitFeed.configuration_file_path = options[:config_file]
+      RabbitFeed.route_prefix_extension  = options[:route_prefix_extension]
       ENV['RACK_ENV']  ||= RabbitFeed.environment
       ENV['RAILS_ENV'] ||= RabbitFeed.environment
     end
@@ -166,6 +167,10 @@ module RabbitFeed
 
         o.on '-v', '--verbose', 'Print more verbose output' do |arg|
           opts[:verbose] = arg
+        end
+
+        o.on '-x', '--route_prefix_extension', 'Prefix for rabbit queue routing key' do |arg|
+          opts[:route_prefix_extension] = arg
         end
 
         o.on '-C', '--config PATH', 'Path to YAML config file' do |arg|
