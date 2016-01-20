@@ -11,6 +11,13 @@ module RabbitFeed
       subject { (described_class.new options).queue }
 
       it { should eq 'test.rabbit_feed' }
+
+      context 'when RabbitFeed.route_prefix_extension is set' do
+        before { RabbitFeed.route_prefix_extension = 'foobar' }
+        after  { RabbitFeed.route_prefix_extension = nil }
+
+        it { should eq 'test.foobar.rabbit_feed' }
+      end
     end
 
     describe '#connection_options' do

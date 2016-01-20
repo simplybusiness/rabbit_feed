@@ -36,7 +36,7 @@ module RabbitFeed
     end
 
     def queue
-      "#{environment}.#{application}"
+      "#{environment}#{RabbitFeed.route_prefix_extension}.#{application}"
     end
 
     def connection_options
