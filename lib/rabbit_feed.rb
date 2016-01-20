@@ -51,7 +51,7 @@ module RabbitFeed
   end
 
   def route_prefix_extension
-    ".#{@route_prefix_extension}" if !!@route_prefix_extension
+    ".#{@route_prefix_extension}" if !!@route_prefix_extension && !@route_prefix_extension.empty?
   end
 
   def set_defaults

@@ -161,7 +161,7 @@ module RabbitFeed
           opts[:environment] = arg
         end
 
-        o.on '-x', '--prefix_extension VAL', 'Prefix for rabbit queue routing key' do |arg|
+        o.on '-x', '--prefix VAL', 'Prefix for rabbit queue routing key' do |arg|
           opts[:route_prefix_extension] = arg
         end
 
