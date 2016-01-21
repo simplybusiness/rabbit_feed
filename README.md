@@ -53,6 +53,7 @@ Configuration options that can be specified are:
 | `network_recovery_interval` | Recovery interval (in seconds) periodic network recovery will use |
 | `auto_delete_queue` | If true, any queues created will auto-delete upon disconnect |
 | `auto_delete_exchange` | If true, any exchanges created will auto-delete upon disconnect |
+| `route_prefix_extension` | If set, the routing key/queue of the exchange will become env.`route_prefix_extension`.application.event |
 
 ### Initialisation
 

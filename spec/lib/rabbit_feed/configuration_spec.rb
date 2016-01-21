@@ -11,6 +11,18 @@ module RabbitFeed
       subject { (described_class.new options).queue }
 
       it { should eq 'test.rabbit_feed' }
+
+      context 'when a route_prefix_extension is set' do
+      let(:options) do
+        {
+          application: 'rabbit_feed',
+          environment: 'test',
+          route_prefix_extension: 'foobar'
+        }
+      end
+
+        it { should eq 'test.foobar.rabbit_feed' }
+      end
     end
 
     describe '#connection_options' do
