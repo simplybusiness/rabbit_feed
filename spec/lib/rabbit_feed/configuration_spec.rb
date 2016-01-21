@@ -12,7 +12,7 @@ module RabbitFeed
 
       it { should eq 'test.rabbit_feed' }
 
-      context 'when RabbitFeed.route_prefix_extension is set' do
+      context 'when a route_prefix_extension is set' do
       let(:options) do
         {
           application: 'rabbit_feed',

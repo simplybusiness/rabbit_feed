@@ -30,7 +30,7 @@ module RabbitFeed
         subject
       end
 
-      context 'when RabbitFeed.route_prefix_extension is set' do
+      context 'when a route_prefix_extension is set' do
         before { RabbitFeed.environment = 'test_route_prefix_extension' }
         after  { reset_environment }
 
