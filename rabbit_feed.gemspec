@@ -28,6 +28,11 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'pidfile'
   # Schema definitions and serialization for events
   spec.add_dependency 'avro', '>= 1.5.4', '< 1.8.0'
-  # For stubbing and custom matchers
+
+  spec.add_development_dependency 'codeclimate-test-reporter'
+  spec.add_development_dependency 'rake'
   spec.add_development_dependency 'rspec', '>=2.14.0', '< 3.3.0'
+  spec.add_development_dependency 'rspec-its'
+  spec.add_development_dependency 'rutabaga'
+  spec.add_development_dependency 'timecop'
 end
