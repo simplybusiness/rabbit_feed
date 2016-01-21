@@ -5,6 +5,14 @@ test:
   password: guest
   application: rabbit_feed
   auto_delete_queue: true
+test_route_prefix_extension:
+  host: localhost
+  port: 5672
+  user: guest
+  password: guest
+  application: rabbit_feed
+  auto_delete_queue: true
+  route_prefix_extension: foobar
 test_config:
   host: localhost
   port: 5672

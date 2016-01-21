@@ -2,7 +2,8 @@ module RabbitFeed
   class Configuration
     include ActiveModel::Validations
 
-    attr_reader :host, :hosts, :port, :user, :password, :application, :environment, :exchange, :heartbeat, :connect_timeout, :network_recovery_interval, :auto_delete_queue, :auto_delete_exchange
+    attr_reader :host, :hosts, :port, :user, :password, :application, :environment, :exchange, :heartbeat,
+                :connect_timeout, :network_recovery_interval, :auto_delete_queue, :auto_delete_exchange
     validates_presence_of :application, :environment, :exchange
 
     def initialize options
@@ -21,6 +22,7 @@ module RabbitFeed
       @auto_delete_exchange      = !!(options[:auto_delete_exchange] || false)
       @application               = options[:application]
       @environment               = options[:environment]
+      @route_prefix_extension    = options[:route_prefix_extension]
       validate!
     end
 
@@ -35,8 +37,12 @@ module RabbitFeed
       new options
     end
 
+    def route_prefix_extension
+      ".#{@route_prefix_extension}" unless @route_prefix_extension.blank?
+    end
+
     def queue
-      "#{environment}.#{application}"
+      "#{environment}#{route_prefix_extension}.#{application}"
     end
 
     def connection_options

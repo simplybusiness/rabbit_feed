@@ -31,7 +31,7 @@ module RabbitFeed
     end
 
     def routing_key event_name
-      "#{RabbitFeed.environment}.#{RabbitFeed.configuration.application}.#{event_name}"
+      "#{RabbitFeed.environment}#{RabbitFeed.configuration.route_prefix_extension}.#{RabbitFeed.configuration.application}.#{event_name}"
     end
 
     def options event_name, timestamp
