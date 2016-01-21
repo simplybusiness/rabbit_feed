@@ -13,8 +13,13 @@ module RabbitFeed
       it { should eq 'test.rabbit_feed' }
 
       context 'when RabbitFeed.route_prefix_extension is set' do
-        before { RabbitFeed.route_prefix_extension = 'foobar' }
-        after  { RabbitFeed.route_prefix_extension = nil }
+      let(:options) do
+        {
+          application: 'rabbit_feed',
+          environment: 'test',
+          route_prefix_extension: 'foobar'
+        }
+      end
 
         it { should eq 'test.foobar.rabbit_feed' }
       end

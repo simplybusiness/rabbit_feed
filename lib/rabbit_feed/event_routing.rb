@@ -53,7 +53,7 @@ module RabbitFeed
 
       def accepted_routes
         all_events.map do |event|
-          "#{RabbitFeed.environment}#{RabbitFeed.route_prefix_extension}.#{name}.#{event.name}"
+          "#{RabbitFeed.environment}#{RabbitFeed.configuration.route_prefix_extension}.#{name}.#{event.name}"
         end
       end
 

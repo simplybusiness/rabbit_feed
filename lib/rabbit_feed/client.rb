@@ -95,7 +95,6 @@ module RabbitFeed
       RabbitFeed.environment             = environment
       RabbitFeed.application             = options[:application]
       RabbitFeed.configuration_file_path = options[:config_file]
-      RabbitFeed.route_prefix_extension  = options[:route_prefix_extension]
       ENV['RACK_ENV']  ||= RabbitFeed.environment
       ENV['RAILS_ENV'] ||= RabbitFeed.environment
     end
@@ -159,10 +158,6 @@ module RabbitFeed
 
         o.on '-e', '--environment ENV', 'Application environment' do |arg|
           opts[:environment] = arg
-        end
-
-        o.on '-x', '--prefix VAL', 'Prefix to append to the routing and queue naming allowing exclusive publishing/consuming' do |arg|
-          opts[:route_prefix_extension] = arg
         end
 
         o.on '-r', '--require [PATH|DIR]', 'Location of Rails application with workers or file to require' do |arg|

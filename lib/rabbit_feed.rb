@@ -27,7 +27,6 @@ module RabbitFeed
   class ReturnedMessageError < Error; end
 
   attr_accessor :log, :environment, :configuration_file_path, :application
-  attr_writer :route_prefix_extension
 
   def configuration
     @configuration ||= (Configuration.load configuration_file_path, environment, application)
@@ -48,10 +47,6 @@ module RabbitFeed
       log.formatter = RabbitFeed::JsonLogFormatter
       log.level     = Logger::INFO
     end
-  end
-
-  def route_prefix_extension
-    ".#{@route_prefix_extension}" unless @route_prefix_extension.blank?
   end
 
   def set_defaults

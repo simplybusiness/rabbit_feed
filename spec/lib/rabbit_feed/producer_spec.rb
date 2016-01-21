@@ -70,13 +70,13 @@ module RabbitFeed
       end
 
       context 'when RabbitFeed.route_prefix_extension is set' do
-        before { RabbitFeed.route_prefix_extension = 'foobar' }
-        after  { RabbitFeed.route_prefix_extension = nil }
+        before { RabbitFeed.environment = 'test_route_prefix_extension' }
+        after  { reset_environment }
 
         it 'appends the route_prefix_extension to the routing_key' do
           Timecop.freeze do
             expect(ProducerConnection.instance).to receive(:publish) do |_, options|
-              expect(options[:routing_key]).to eq 'test.foobar.rabbit_feed.event_name'
+              expect(options[:routing_key]).to eq 'test_route_prefix_extension.foobar.rabbit_feed.event_name'
             end
             subject
           end
