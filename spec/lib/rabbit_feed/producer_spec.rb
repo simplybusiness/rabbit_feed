@@ -42,7 +42,7 @@ module RabbitFeed
       end
 
       it 'sets the event metadata' do
-        Timecop.freeze(Time.local(1990)) do
+        Timecop.freeze(Time.gm(1990)) do
           expect(subject.metadata).to match({
            'application'    => 'rabbit_feed',
            'created_at_utc' => '1990-01-01T00:00:00.000000Z',
