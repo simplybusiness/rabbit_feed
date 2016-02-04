@@ -117,8 +117,8 @@ module RabbitFeed
       context 'with application provided' do
         let(:application) { 'new_application' }
 
-        it 'prefers the application specified in the config file' do
-          expect(subject.application).to eq 'rabbit_feed'
+        it 'prefers the application provided' do
+          expect(subject.application).to eq 'new_application'
         end
 
         context 'with an empty config file' do

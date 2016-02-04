@@ -32,8 +32,8 @@ module RabbitFeed
       raise ConfigurationError.new "The RabbitFeed configuration file path specified does not exist: #{file_path}" unless (File.exist? file_path)
 
       options = read_configuration_file file_path, environment
-      options[:environment]   = environment
-      options[:application] ||= application
+      options[:environment] = environment
+      options[:application] = application if !!application
       new options
     end
 
