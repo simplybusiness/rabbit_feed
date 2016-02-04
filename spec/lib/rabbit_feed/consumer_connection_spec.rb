@@ -80,16 +80,36 @@ module RabbitFeed
       context 'when an exception is raised' do
 
         context 'when Airbrake is defined' do
-          before do
-            stub_const('Airbrake', double(:airbrake, configuration: airbrake_configuration))
+          after { Object.send(:remove_const, ('Airbrake').to_sym) rescue NameError }
+
+          context 'when the version is lower than 5' do
+            before do
+              module ::Airbrake
+                VERSION = '4.0.0'
+              end
+              allow(Airbrake).to receive(:configuration).and_return(airbrake_configuration)
+            end
+
+            context 'and the Airbrake configuration is public' do
+              let(:airbrake_configuration) { double(:airbrake_configuration, public?: true) }
+
+              it 'notifies airbrake' do
+                expect(Airbrake).to receive(:notify_or_ignore).with(an_instance_of RuntimeError)
+
+                expect{ subject.consume { raise 'Consuming time' } }.not_to raise_error
+              end
+            end
           end
 
-          context 'and the Airbrake configuration is public' do
-            let(:airbrake_configuration) { double(:airbrake_configuration, public?: true) }
+          context 'when the version is greater than 4' do
+            before do
+              module ::Airbrake
+                AIRBRAKE_VERSION = '5.0.0'
+              end
+            end
 
             it 'notifies airbrake' do
-              expect(Airbrake).to receive(:notify_or_ignore).with(an_instance_of RuntimeError)
-
+              expect(Airbrake).to receive(:notify).with(an_instance_of RuntimeError)
               expect{ subject.consume { raise 'Consuming time' } }.not_to raise_error
             end
           end
