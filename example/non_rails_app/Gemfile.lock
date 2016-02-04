@@ -1,7 +1,7 @@
 PATH
   remote: ../../
   specs:
-    rabbit_feed (2.3.7)
+    rabbit_feed (2.3.8)
       activemodel (>= 3.2.0, < 5.0.0)
       activesupport (>= 3.2.0, < 5.0.0)
       avro (>= 1.5.4, < 1.8.0)
@@ -11,10 +11,10 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (4.2.5)
-      activesupport (= 4.2.5)
+    activemodel (4.2.5.1)
+      activesupport (= 4.2.5.1)
       builder (~> 3.1)
-    activesupport (4.2.5)
+    activesupport (4.2.5.1)
       i18n (~> 0.7)
       json (~> 1.7, >= 1.7.7)
       minitest (~> 5.1)
@@ -29,7 +29,7 @@ GEM
     diff-lcs (1.2.5)
     i18n (0.7.0)
     json (1.8.3)
-    minitest (5.8.3)
+    minitest (5.8.4)
     multi_json (1.11.2)
     pidfile (0.3.0)
     rake (10.4.2)

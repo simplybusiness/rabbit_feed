@@ -27,7 +27,6 @@ echo 'Rails application consumer started'
 # Start the rails application
 echo 'Starting rails application...'
 pushd example/rails_app >/dev/null
-nodenv local v0.10 >/dev/null
 bundle exec unicorn -c config/unicorn.rb -D
 sleep 1
 popd >/dev/null
