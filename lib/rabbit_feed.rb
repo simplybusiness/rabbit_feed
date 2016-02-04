@@ -34,7 +34,11 @@ module RabbitFeed
 
   def exception_notify exception
     if defined? Airbrake
-      (Airbrake.notify_or_ignore exception) if Airbrake.configuration.public?
+      if defined?(Airbrake::VERSION) && Airbrake::VERSION.to_i < 5
+        (Airbrake.notify_or_ignore exception) if Airbrake.configuration.public?
+      elsif defined?(Airbrake::AIRBRAKE_VERSION) && Airbrake::AIRBRAKE_VERSION.to_i >= 5
+        Airbrake.notify exception
+      end
     end
   end
 
