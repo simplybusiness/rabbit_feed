@@ -38,22 +38,23 @@ Sample:
 
 Configuration options that can be specified are:
 
-| Name | Use |
-| ---- | --- |
-| `host` | Hostname or IP of the RabbitMQ server |
-| `hosts` | Array of hostnames or IPs of a RabbitMQ cluster |
-| `port` | The port to use on the RabbitMQ server |
-| `user` | The user to authenticate with the RabbitMQ server |
-| `password` | The password to authenticate with the RabbitMQ server |
-| `application` | The name of the application - used for routing events to the specified consumers |
-| `environment` | The environment of the application - used for routing events to the specified consumers |
-| `exchange` | The name of the RabbitMQ exchange to which events are published |
-| `heartbeat` | The interval at which to send heartbeats to the RabbitMQ server (in seconds) |
-| `connect_timeout` | The timeout (in seconds) for connecting to the RabbitMQ server |
-| `network_recovery_interval` | Recovery interval (in seconds) periodic network recovery will use |
-| `auto_delete_queue` | If true, any queues created will auto-delete upon disconnect |
-| `auto_delete_exchange` | If true, any exchanges created will auto-delete upon disconnect |
-| `route_prefix_extension` | If set, the routing key/queue of the exchange will become env.`route_prefix_extension`.application.event |
+| Name                        | Use                                                                                                                                       |
+| ----                        | ---                                                                                                                                       |
+| `host`                      | Hostname or IP of the RabbitMQ server                                                                                                     |
+| `hosts`                     | Array of hostnames or IPs of a RabbitMQ cluster                                                                                           |
+| `port`                      | The port to use on the RabbitMQ server                                                                                                    |
+| `user`                      | The user to authenticate with the RabbitMQ server                                                                                         |
+| `password`                  | The password to authenticate with the RabbitMQ server                                                                                     |
+| `application`               | The name of the application - used for routing events to the specified consumers                                                          |
+| `environment`               | The environment of the application - used for routing events to the specified consumers                                                   |
+| `exchange`                  | The name of the RabbitMQ exchange to which events are published                                                                           |
+| `heartbeat`                 | The interval at which to send heartbeats to the RabbitMQ server (in seconds)                                                              |
+| `connect_timeout`           | The timeout (in seconds) for connecting to the RabbitMQ server                                                                            |
+| `network_recovery_interval` | Recovery interval (in seconds) periodic network recovery will use                                                                         |
+| `auto_delete_queue`         | If true, any queues created will auto-delete upon disconnect                                                                              |
+| `auto_delete_exchange`      | If true, any exchanges created will auto-delete upon disconnect                                                                           |
+| `route_prefix_extension`    | If set, the routing key/queue of the exchange will become env.`route_prefix_extension`.application.event                                  |
+| `consumer_exit_after_fail`  | If set, consumer will stop consuming as soon as it fail to process an event. By Default, it will continue to consume and log the error(s) |
 
 ### Initialisation
 

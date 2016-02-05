@@ -79,6 +79,7 @@ module RabbitFeed
         acknowledge delivery_info
       rescue => e
         handle_processing_exception delivery_info, e
+        raise if RabbitFeed.configuration.consumer_exit_after_fail
       end
     end
 

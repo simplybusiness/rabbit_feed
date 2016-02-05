@@ -3,7 +3,8 @@ module RabbitFeed
     include ActiveModel::Validations
 
     attr_reader :host, :hosts, :port, :user, :password, :application, :environment, :exchange, :heartbeat,
-                :connect_timeout, :network_recovery_interval, :auto_delete_queue, :auto_delete_exchange
+                :connect_timeout, :network_recovery_interval, :auto_delete_queue, :auto_delete_exchange,
+                :consumer_exit_after_fail
     validates_presence_of :application, :environment, :exchange
 
     def initialize options
@@ -23,6 +24,7 @@ module RabbitFeed
       @application               = options[:application]
       @environment               = options[:environment]
       @route_prefix_extension    = options[:route_prefix_extension]
+      @consumer_exit_after_fail  = options[:consumer_exit_after_fail] || false
       validate!
     end
 
