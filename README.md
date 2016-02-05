@@ -269,6 +269,12 @@ Starts a consumer. Note: until you've specified the [event routing](https://gith
 
 _This only applies if you've started the consumer with the `--daemon` option._
 
+### Console Consumer
+
+    bundle exec bin/rabbit_feed console --environment test --config spec/fixtures/configuration.yml --logfile test.log --pidfile rabbit_feed.pid --verbose
+
+The console consumer will accept any event from any application and will print the event metadata and payload to the console. This is useful during development to get instant feedback on the events being published.
+
 ## Event Definitions DSL
 
 Provides a means to define all events that are published by an application. Defines the event names and the payload associated with each event. The DSL is converted into a schema that is serialized along with the event payload, meaning the events are self-describing. This is accomplished using Apache [Avro](http://avro.apache.org/docs/current/). This also validates the event payload against its schema before it is published.
