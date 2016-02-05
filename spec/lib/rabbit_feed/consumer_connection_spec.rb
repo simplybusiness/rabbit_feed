@@ -82,7 +82,7 @@ module RabbitFeed
         context 'when consumer_exit_after_fail is true' do
           before { allow(RabbitFeed.configuration).to receive(:consumer_exit_after_fail).and_return(true) }
 
-          it 'raises the exception' do
+          it 'exits the application' do
             expect_any_instance_of(described_class).to receive(:exit).with(1)
             subject.consume { raise 'Consuming time' }
           end
