@@ -39,6 +39,7 @@ end
 
 def reset_environment
   RabbitFeed.log                         = RabbitFeed.default_logger
+  RabbitFeed.application                 = nil
   RabbitFeed.environment                 = 'test'
   RabbitFeed.configuration_file_path     = 'spec/fixtures/configuration.yml'
   RabbitFeed.instance_variable_set('@configuration', nil)
