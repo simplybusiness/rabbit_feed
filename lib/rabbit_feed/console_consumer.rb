@@ -2,7 +2,10 @@ module RabbitFeed
   module ConsoleConsumer
     extend self
 
+    APPLICATION_NAME = 'rabbit_feed_console'
+
     def init
+      set_application
       route_all_events
       puts welcome_message
       ask_to_purge_queue unless ConsumerConnection.instance.queue_depth.zero?
@@ -43,6 +46,10 @@ Queue: #{RabbitFeed.configuration.queue}
           end
         end
       end
+    end
+
+    def set_application
+      RabbitFeed.application = APPLICATION_NAME
     end
 
     class Formatter
