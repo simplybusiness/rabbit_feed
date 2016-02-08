@@ -154,6 +154,7 @@ module RabbitFeed
         its(:connect_timeout)           { should be_nil }
         its(:auto_delete_queue)         { should be_falsey }
         its(:auto_delete_exchange)      { should be_falsey }
+        its(:consumer_exit_after_fail)  { should be_falsey }
       end
 
       context 'with provided options' do
@@ -172,6 +173,7 @@ module RabbitFeed
             network_recovery_interval: 2,
             auto_delete_queue:         'true',
             auto_delete_exchange:      'false',
+            consumer_exit_after_fail:  'true'
           }
         end
 
@@ -188,6 +190,7 @@ module RabbitFeed
         its(:network_recovery_interval) { should eq 2 }
         its(:auto_delete_queue)         { should be_truthy }
         its(:auto_delete_exchange)      { should be_truthy }
+        its(:consumer_exit_after_fail)  { should be_truthy }
       end
 
       context 'with empty options' do

@@ -79,46 +79,61 @@ module RabbitFeed
 
       context 'when an exception is raised' do
 
-        context 'when Airbrake is defined' do
-          after { Object.send(:remove_const, ('Airbrake').to_sym) rescue NameError }
+        context 'when consumer_exit_after_fail is true' do
+          before { allow(RabbitFeed.configuration).to receive(:consumer_exit_after_fail).and_return(true) }
 
-          context 'when the version is lower than 5' do
-            before do
-              module ::Airbrake
-                VERSION = '4.0.0'
+          it 'exits the application' do
+            expect_any_instance_of(described_class).to receive(:exit).with(1)
+            subject.consume { raise 'Consuming time' }
+          end
+        end
+
+
+        context 'when consumer_exit_after_fail is false' do
+          before { allow(RabbitFeed.configuration).to receive(:consumer_exit_after_fail).and_return(false) }
+
+          context 'when Airbrake is defined' do
+            after { Object.send(:remove_const, ('Airbrake').to_sym) rescue NameError }
+
+            context 'when the version is lower than 5' do
+              before do
+                module ::Airbrake
+                  VERSION = '4.0.0'
+                end
+                allow(Airbrake).to receive(:configuration).and_return(airbrake_configuration)
               end
-              allow(Airbrake).to receive(:configuration).and_return(airbrake_configuration)
+
+              context 'and the Airbrake configuration is public' do
+                let(:airbrake_configuration) { double(:airbrake_configuration, public?: true) }
+
+                it 'notifies airbrake' do
+                  expect(Airbrake).to receive(:notify_or_ignore).with(an_instance_of RuntimeError)
+
+                  expect{ subject.consume { raise 'Consuming time' } }.not_to raise_error
+                end
+              end
             end
 
-            context 'and the Airbrake configuration is public' do
-              let(:airbrake_configuration) { double(:airbrake_configuration, public?: true) }
+            context 'when the version is greater than 4' do
+              before do
+                module ::Airbrake
+                  AIRBRAKE_VERSION = '5.0.0'
+                end
+              end
 
               it 'notifies airbrake' do
-                expect(Airbrake).to receive(:notify_or_ignore).with(an_instance_of RuntimeError)
-
+                expect(Airbrake).to receive(:notify).with(an_instance_of RuntimeError)
                 expect{ subject.consume { raise 'Consuming time' } }.not_to raise_error
               end
             end
           end
 
-          context 'when the version is greater than 4' do
-            before do
-              module ::Airbrake
-                AIRBRAKE_VERSION = '5.0.0'
-              end
-            end
-
-            it 'notifies airbrake' do
-              expect(Airbrake).to receive(:notify).with(an_instance_of RuntimeError)
-              expect{ subject.consume { raise 'Consuming time' } }.not_to raise_error
-            end
+          it 'negatively acknowledges the message' do
+            expect(bunny_channel).to receive(:nack)
+            subject.consume { raise 'Consuming time' }
           end
         end
 
-        it 'negatively acknowledges the message' do
-          expect(bunny_channel).to receive(:nack)
-          subject.consume { raise 'Consuming time' }
-        end
       end
     end
   end
