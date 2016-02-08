@@ -4,9 +4,9 @@ module RabbitFeed
   describe ConsoleConsumer do
     let(:purge) { 'n' }
     let(:queue_depth) { 0 }
-    let(:queue) { double(:queue, queue_depth: queue_depth) }
+    let(:connection) { double(:connection, queue_depth: queue_depth) }
     before do
-      allow(ConsumerConnection).to receive(:instance).and_return(queue)
+      allow(ConsumerConnection).to receive(:instance).and_return(connection)
       allow(STDIN).to receive(:gets).and_return(purge)
     end
 
@@ -33,7 +33,7 @@ Would you like to purge the queue before proceeding\? \(y\/N\)>/).to_stdout
           let(:purge) { 'y' }
 
           it 'purges the queue' do
-            expect(queue).to receive(:purge_queue)
+            expect(connection).to receive(:purge_queue)
             expect{ subject.init }.to output(/Queue purged\./).to_stdout
           end
         end
