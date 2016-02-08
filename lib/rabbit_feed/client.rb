@@ -76,7 +76,7 @@ module RabbitFeed
     def console
       require_relative 'console_consumer'
       ConsoleConsumer.init
-      RabbitFeed::Consumer.run
+      consume
     end
 
     def shutdown
