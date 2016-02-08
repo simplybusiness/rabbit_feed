@@ -1,13 +1,13 @@
 require 'rabbit_feed/console_consumer'
-require 'rabbit_feed/testing_support/test_rabbit_feed_consumer'
 
 module RabbitFeed
   describe ConsoleConsumer do
+    let(:purge) { 'n' }
     let(:queue_depth) { 0 }
     let(:queue) { double(:queue, queue_depth: queue_depth) }
     before do
       allow(ConsumerConnection).to receive(:instance).and_return(queue)
-      allow(STDIN).to receive(:gets).and_return('n')
+      allow(STDIN).to receive(:gets).and_return(purge)
     end
 
     describe '#init' do
@@ -28,8 +28,16 @@ Ready\. Press CTRL\+C to exit\./).to_stdout
 /There are currently 1 message\(s\) in the console's queue\.
 Would you like to purge the queue before proceeding\? \(y\/N\)>/).to_stdout
         end
-      end
 
+        context 'when the user wishes to purge the queue' do
+          let(:purge) { 'y' }
+
+          it 'purges the queue' do
+            expect(queue).to receive(:purge_queue)
+            expect{ subject.init }.to output(/Queue purged\./).to_stdout
+          end
+        end
+      end
     end
 
     describe 'receiving an event' do
