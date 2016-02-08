@@ -5,6 +5,7 @@ module RabbitFeed
     APPLICATION_NAME = 'rabbit_feed_console'
 
     def init
+      @event_count = 0
       set_application
       route_all_events
       puts welcome_message
@@ -12,8 +13,16 @@ module RabbitFeed
       puts "Ready. Press CTRL+C to exit."
     end
 
-    def print_to_console event
-      puts Formatter.new(event).to_s
+    def formatted event
+      Formatter.new(event).to_s
+    end
+
+    def event_count_message
+      "#{@event_count} events received."
+    end
+
+    def increment_event_count
+      @event_count += 1
     end
 
     private
@@ -42,7 +51,9 @@ Queue: #{RabbitFeed.configuration.queue}
       EventRouting do
         accept_from(:any) do
           event(:any) do |event|
-            scope.print_to_console event
+            scope.increment_event_count
+            puts (scope.formatted event)
+            puts scope.event_count_message
           end
         end
       end
