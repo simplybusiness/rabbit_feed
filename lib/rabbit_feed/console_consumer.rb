@@ -9,7 +9,7 @@ module RabbitFeed
       set_application
       route_all_events
       puts welcome_message
-      ask_to_purge_queue unless ConsumerConnection.instance.queue_depth.zero?
+      ask_to_purge_queue unless queue_empty?
       puts "Ready. Press CTRL+C to exit."
     end
 
@@ -32,6 +32,10 @@ module RabbitFeed
 Environment: #{RabbitFeed.environment}
 Queue: #{RabbitFeed.configuration.queue}
 """
+    end
+
+    def queue_empty?
+      ConsumerConnection.instance.queue_depth.zero?
     end
 
     def ask_to_purge_queue
