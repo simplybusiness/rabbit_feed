@@ -1,3 +1,10 @@
+development:
+  host: localhost
+  port: 5672
+  user: guest
+  password: guest
+  application: rabbit_feed
+  auto_delete_queue: false
 test:
   host: localhost
   port: 5672

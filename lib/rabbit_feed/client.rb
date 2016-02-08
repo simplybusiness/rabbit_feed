@@ -16,10 +16,10 @@ module RabbitFeed
 
     attr_reader :command, :options
     validates_presence_of :command, :options
-    validates :command, inclusion: { in: %w(consume produce shutdown), message: "%{value} is not a valid command" }
+    validates :command, inclusion: { in: %w(consume produce shutdown console), message: "%{value} is not a valid command" }
     validate :log_file_path_exists
     validate :config_file_exists
-    validate :require_path_valid
+    validate :require_path_valid, unless: :console?
     validate :pidfile_path_exists, if: :daemonize?
     validate :environment_specified
 
@@ -32,7 +32,7 @@ module RabbitFeed
 
         set_logging
         set_configuration
-        load_dependancies
+        load_dependancies unless console?
       end
     end
 
@@ -71,6 +71,12 @@ module RabbitFeed
     def consume
       daemonize if daemonize?
       RabbitFeed::Consumer.run
+    end
+
+    def console
+      require_relative 'console_consumer'
+      ConsoleConsumer.init
+      consume
     end
 
     def shutdown
@@ -125,6 +131,10 @@ module RabbitFeed
 
     def daemonize?
       options[:daemon]
+    end
+
+    def console?
+      command == 'console'
     end
 
     def verbose?

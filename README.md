@@ -270,6 +270,38 @@ Starts a consumer. Note: until you've specified the [event routing](https://gith
 
 _This only applies if you've started the consumer with the `--daemon` option._
 
+### Console Consumer
+
+    bundle exec bin/rabbit_feed console --environment development --config spec/fixtures/configuration.yml --logfile development.log --pidfile rabbit_feed.pid --verbose
+
+The console consumer will accept any event from any application and will print the event metadata and payload to the console. This is useful during development to get instant feedback on the events being published.
+
+#### Example Console Output
+
+```
+RabbitFeed console starting at 2016-02-08 16:22:22 UTC...
+Environment: development
+Queue: development.rabbit_feed_console
+There are currently 4 message(s) in the console's queue.
+Would you like to purge the queue before proceeding? (y/N)>
+n
+Ready. Press CTRL+C to exit.
+----------------------------user_creates_beaver: 2016-02-08 16:19:30 UTC----------------------------
+#Event metadata
+application: rails_app
+created_at_utc: 2016-02-08T16:19:30.530210Z
+environment: development
+host: localhost
+name: user_creates_beaver
+schema_version: 2.0.0
+version: 1.0.0
+****************************************************************************************************
+#Event payload
+beaver_name: 02/08/16 16:19:30
+----------------------------------------------------------------------------------------------------
+1 events received.
+```
+
 ## Event Definitions DSL
 
 Provides a means to define all events that are published by an application. Defines the event names and the payload associated with each event. The DSL is converted into a schema that is serialized along with the event payload, meaning the events are self-describing. This is accomplished using Apache [Avro](http://avro.apache.org/docs/current/). This also validates the event payload against its schema before it is published.

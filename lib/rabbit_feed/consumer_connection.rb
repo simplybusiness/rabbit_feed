@@ -45,6 +45,14 @@ module RabbitFeed
       end
     end
 
+    def queue_depth
+      @queue.message_count
+    end
+
+    def purge_queue
+      @queue.purge
+    end
+
     private
 
     attr_reader :queue

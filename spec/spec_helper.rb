@@ -31,7 +31,8 @@ RSpec.configure do |config|
   end
 
   config.after(connectivity: true) do
-    Thread.kill @consumer_thread if @consumer_thread.present?
+    @consumer_thread.kill if @consumer_thread.present?
+    @consumer_thread.join if @consumer_thread.present?
   end
 
   RabbitFeed::TestingSupport.include_support config
@@ -39,6 +40,7 @@ end
 
 def reset_environment
   RabbitFeed.log                         = RabbitFeed.default_logger
+  RabbitFeed.application                 = nil
   RabbitFeed.environment                 = 'test'
   RabbitFeed.configuration_file_path     = 'spec/fixtures/configuration.yml'
   RabbitFeed.instance_variable_set('@configuration', nil)
