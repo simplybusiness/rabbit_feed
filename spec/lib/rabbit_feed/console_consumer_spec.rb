@@ -20,7 +20,7 @@ Queue: test\.rabbit_feed_console
 Ready\. Press CTRL\+C to exit\./).to_stdout
       end
 
-      context 'when there are messages on the rabbit_feed_console queue' do
+      context 'when there are events on the rabbit_feed_console queue' do
         let(:queue_depth) { 1 }
 
         it 'asks to purge the queue' do
@@ -32,11 +32,11 @@ Would you like to purge the queue before proceeding\? \(y\/N\)>/).to_stdout
 
     end
 
-    describe 'receiving a message' do
+    describe 'receiving an event' do
       let(:event) { Event.new({name: 'name'},{key: :value}) }
       before { subject.init }
 
-      it 'prints the message' do
+      it 'prints the event' do
         expect{ rabbit_feed_consumer.consume_event event }.to output(
 /-----------------------------------------------name: -----------------------------------------------
 #Event metadata
