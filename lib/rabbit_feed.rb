@@ -37,7 +37,11 @@ module RabbitFeed
       if defined?(Airbrake::VERSION) && Airbrake::VERSION.to_i < 5
         (Airbrake.notify_or_ignore exception) if Airbrake.configuration.public?
       elsif defined?(Airbrake::AIRBRAKE_VERSION) && Airbrake::AIRBRAKE_VERSION.to_i >= 5
-        Airbrake.notify exception
+        if RabbitFeed.configuration.consumer_exit_after_fail
+          Airbrake.notify_sync exception
+        else
+          Airbrake.notify exception
+        end
       end
     end
   end
