@@ -123,7 +123,7 @@ module RabbitFeed
 
               context 'and consumer_exit_after_fail is true' do
                 before { allow(RabbitFeed.configuration).to receive(:consumer_exit_after_fail).and_return(true) }
-                it 'notifies airbrake' do
+                it 'notifies airbrake synchronously' do
                   expect(Airbrake).to receive(:notify_sync).with(an_instance_of RuntimeError)
                   expect{ subject.consume { raise 'Consuming time' } }.not_to raise_error
                 end
