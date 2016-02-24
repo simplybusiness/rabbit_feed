@@ -37,7 +37,7 @@ module RabbitFeed
           end
 
           sleep # Sleep indefinitely, as the consumer runs in its own thread
-        rescue SystemExit, Interrupt
+        rescue SystemExit, Interrupt, SignalException
           RabbitFeed.log.info {{ event: :unsubscribe_from_queue, queue: RabbitFeed.configuration.queue }}
         ensure
           (cancel_consumer consumer) if consumer.present?
