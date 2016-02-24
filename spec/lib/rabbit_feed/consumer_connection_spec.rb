@@ -79,6 +79,34 @@ module RabbitFeed
 
       context 'when an exception is raised' do
 
+        context 'when the exception is' do
+          [SystemExit.new, Interrupt.new, SignalException.new('SIGTERM')].each do |exception|
+            context exception.to_s do
+              let!(:logger) do
+                test_logger_string_io = StringIO.new
+                logger = Logger.new test_logger_string_io
+                logger.formatter = RabbitFeed::JsonLogFormatter
+                old_logger = RabbitFeed.log
+                RabbitFeed.log = logger
+                test_logger_string_io
+              end
+
+              before { allow(subject).to receive(:handle_message).and_raise(exception) }
+
+              it 'does not re-raise error' do
+                expect { subject.consume { } }.to_not raise_error
+              end
+
+              it 'logs unsubscribe_from_queue' do
+                subject.consume { }
+
+                expect(logger.string).to match /unsubscribe_from_queue/
+              end
+
+            end
+          end
+        end
+
         context 'when consumer_exit_after_fail is true' do
           before { allow(RabbitFeed.configuration).to receive(:consumer_exit_after_fail).and_return(true) }
 
