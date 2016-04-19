@@ -16,6 +16,7 @@ module RabbitFeed
           end
 
           begin
+            TestingSupport.published_events.clear
             given_proc.call
           rescue
           end

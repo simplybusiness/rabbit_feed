@@ -21,8 +21,20 @@ module RabbitFeed
           end
         end
 
-        context 'when the expectation is met' do
+        it 'clears any existing published_events' do
+          10.times.each do
+            RabbitFeed::Producer.publish_event event_name, event_payload
+          end
 
+          expect do
+            expect {
+              RabbitFeed::Producer.publish_event event_name, event_payload
+            }.to publish_event(event_name, event_payload)
+          end.to change { TestingSupport.published_events.count }.from(10).to(1)
+
+        end
+
+        context 'when the expectation is met' do
           it 'validates' do
             expect {
               RabbitFeed::Producer.publish_event event_name, event_payload
