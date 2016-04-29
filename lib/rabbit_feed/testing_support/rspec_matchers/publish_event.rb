@@ -26,11 +26,10 @@ module RabbitFeed
           end
 
           received_expected_event = actual_event.present?
-
           with_expected_payload = negative_expectation
           if received_expected_event && !with_expected_payload
             actual_payload        = actual_event.payload
-            with_expected_payload = expected_payload.nil? || actual_payload == expected_payload
+            with_expected_payload = expected_payload.nil? || match(actual_payload, expected_payload)
           end
 
           return received_expected_event && with_expected_payload
@@ -71,6 +70,14 @@ module RabbitFeed
         end
 
         private
+
+        def match(actual_payload, expected_payload)
+          if expected_payload.respond_to?(:match)
+            !!(actual_payload.to_s.match(expected_payload))
+          else
+            actual_payload == expected_payload
+          end
+        end
 
         def expected_payload
           @expected_payload.respond_to?(:call) ? @expected_payload.call : @expected_payload

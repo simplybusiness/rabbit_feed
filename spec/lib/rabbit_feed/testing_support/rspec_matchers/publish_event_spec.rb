@@ -84,6 +84,14 @@ module RabbitFeed
           end
 
           context 'uses .with' do
+            context 'with regex matcher' do
+              it 'validates the event payload' do
+                matcher = described_class.new(event_name, nil).with(/value/)
+                block   = Proc.new { RabbitFeed::Producer.publish_event event_name, event_payload }
+                (matcher.matches? block).should be true
+              end
+            end
+
             context 'and it is not a Proc' do
               it 'validates the event payload' do
                 matcher = described_class.new(event_name, nil).with(event_payload)
