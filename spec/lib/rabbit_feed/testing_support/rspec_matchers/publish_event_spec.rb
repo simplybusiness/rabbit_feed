@@ -87,7 +87,7 @@ module RabbitFeed
             eval_block  = Proc.new {|actual_payload|
               expect(actual_payload['field']).to eq 'value'
             }
-            matcher = described_class.new(event_name, nil).with({filed: 'different name'})
+            matcher = described_class.new(event_name, nil).with({field: 'different name'})
             block   = Proc.new { RabbitFeed::Producer.publish_event event_name, {'field' => 'value'} }
 
             (matcher.matches? block, &eval_block).should be true
