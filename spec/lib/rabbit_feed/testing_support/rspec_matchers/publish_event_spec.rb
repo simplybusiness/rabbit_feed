@@ -93,6 +93,15 @@ module RabbitFeed
             (matcher.matches? block, &eval_block).should be true
           end
 
+          it 'does not evaluates block with {}' do
+            # This is because block will dropped as part of transpforming `publish_event` to rspec custom helper
+            expect {
+              RabbitFeed::Producer.publish_event event_name, event_payload
+            }.to publish_event(event_name, nil) { |actual_payload|
+              raise 'this block should not be evaluated'
+            }
+          end
+
           it 'does not evaluate block if the expectation block does not return actual payload' do
             expect {
               nil
@@ -112,14 +121,6 @@ module RabbitFeed
           end
 
           context 'uses .with' do
-            context 'with regex matcher' do
-              it 'validates the event payload' do
-                matcher = described_class.new(event_name, nil).with(/value/)
-                block   = Proc.new { RabbitFeed::Producer.publish_event event_name, event_payload }
-                (matcher.matches? block).should be true
-              end
-            end
-
             context 'and it is not a Proc' do
               it 'validates the event payload' do
                 matcher = described_class.new(event_name, nil).with(event_payload)
