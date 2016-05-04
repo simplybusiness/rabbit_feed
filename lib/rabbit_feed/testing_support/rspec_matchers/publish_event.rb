@@ -10,30 +10,19 @@ module RabbitFeed
         end
 
         def matches?(given_proc, negative_expectation = false)
-          unless given_proc.respond_to?(:call)
-            ::Kernel.warn "`publish_event` was called with non-proc object #{given_proc.inspect}"
-            return false
+          execute_proc(given_proc)
+
+          if block_given? && actual_event
+            yield actual_event.payload
+          else
+            received_expected_event = actual_event.present?
+            with_expected_payload = negative_expectation
+
+            if received_expected_event && !with_expected_payload
+              with_expected_payload = expected_payload.nil? || actual_event.payload == expected_payload
+            end
+            return received_expected_event && with_expected_payload
           end
-
-          begin
-            TestingSupport.published_events.clear
-            given_proc.call
-          rescue
-          end
-
-          actual_event = TestingSupport.published_events.detect do |event|
-            event.name == expected_event
-          end
-
-          received_expected_event = actual_event.present?
-
-          with_expected_payload = negative_expectation
-          if received_expected_event && !with_expected_payload
-            actual_payload        = actual_event.payload
-            with_expected_payload = expected_payload.nil? || actual_payload == expected_payload
-          end
-
-          return received_expected_event && with_expected_payload
         end
 
         alias == matches?
@@ -71,6 +60,23 @@ module RabbitFeed
         end
 
         private
+
+        def execute_proc(given_proc)
+          unless given_proc.respond_to?(:call)
+            ::Kernel.warn "`publish_event` was called with non-proc object #{given_proc.inspect}"
+            return false
+          end
+
+          TestingSupport.published_events.clear
+          given_proc.call
+        rescue
+        end
+
+        def actual_event
+          TestingSupport.published_events.detect do |event|
+            event.name == expected_event
+          end
+        end
 
         def expected_payload
           @expected_payload.respond_to?(:call) ? @expected_payload.call : @expected_payload
