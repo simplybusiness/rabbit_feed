@@ -92,6 +92,23 @@ module RabbitFeed
 
             (matcher.matches? block).should be true
           end
+
+          it 'does not evaluate block if the expectation block does not return actual payload' do
+            expect {
+              nil
+            }.not_to publish_event(event_name, nil) {|actual_payload|
+              raise 'this block should not be evaluated'
+            }
+          end
+
+          it 'does not evaluate block with do/end' do
+            # This is because block will dropped as part of transpforming `publish_event` to rspec custom helper
+            expect {
+              RabbitFeed::Producer.publish_event event_name, event_payload
+            }.to publish_event(event_name, nil) do |actual_payload|
+              raise 'this block should not be evaluated'
+            end
+          end
         end
 
         context 'when validating the payload' do
