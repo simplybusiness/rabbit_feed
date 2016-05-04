@@ -9,11 +9,11 @@ module RabbitFeed
           @expected_payload = expected_payload
         end
 
-        def matches?(given_proc, negative_expectation = false, &block)
+        def matches?(given_proc, negative_expectation = false)
           execute_proc(given_proc)
 
-          if block && actual_event
-            block.call actual_event.payload
+          if block_given? && actual_event
+            yield actual_event.payload
           else
             received_expected_event = actual_event.present?
             with_expected_payload = negative_expectation
