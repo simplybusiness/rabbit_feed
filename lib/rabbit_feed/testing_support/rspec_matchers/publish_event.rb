@@ -4,17 +4,16 @@ module RabbitFeed
       class PublishEvent
         attr_reader :expected_event
 
-        def initialize(expected_event, expected_payload, block = nil)
+        def initialize(expected_event, expected_payload)
           @expected_event   = expected_event
           @expected_payload = expected_payload
-          @block = block
         end
 
-        def matches?(given_proc, negative_expectation = false)
+        def matches?(given_proc, negative_expectation = false, &block)
           execute_proc(given_proc)
 
-          if @block && actual_event
-            @block.call actual_event.payload
+          if block && actual_event
+            block.call actual_event.payload
           else
             received_expected_event = actual_event.present?
             with_expected_payload = negative_expectation
@@ -102,8 +101,8 @@ module RabbitFeed
         end
       end
 
-      def publish_event(expected_event, expected_payload = nil, &block)
-        PublishEvent.new(expected_event, expected_payload, block)
+      def publish_event(expected_event, expected_payload = nil)
+        PublishEvent.new(expected_event, expected_payload)
       end
     end
   end
