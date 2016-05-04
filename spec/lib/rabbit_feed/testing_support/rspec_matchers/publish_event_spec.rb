@@ -74,6 +74,26 @@ module RabbitFeed
           (matcher.matches? block).should be_falsey
         end
 
+        context 'with block' do
+          it 'validates block' do
+            expect {
+              RabbitFeed::Producer.publish_event event_name, event_payload
+            }.to publish_event(event_name, nil) {|actual_payload|
+              expect(actual_payload['field']).to eq 'value'
+            }
+          end
+
+          it 'validates block with `with` will be ignored' do
+            eval_block  = Proc.new {|actual_payload|
+              expect(actual_payload['field']).to eq 'value'
+            }
+            matcher = described_class.new(event_name, nil, eval_block).with({filed: 'different name'})
+            block   = Proc.new { RabbitFeed::Producer.publish_event event_name, {'field' => 'value'} }
+
+            (matcher.matches? block).should be true
+          end
+        end
+
         context 'when validating the payload' do
           context 'and the payload is not a Proc' do
             it 'validates the event payload' do

@@ -4,9 +4,10 @@ module RabbitFeed
       class PublishEvent
         attr_reader :expected_event
 
-        def initialize(expected_event, expected_payload)
+        def initialize(expected_event, expected_payload, block = nil)
           @expected_event   = expected_event
           @expected_payload = expected_payload
+          @block = block
         end
 
         def matches?(given_proc, negative_expectation = false)
@@ -27,6 +28,11 @@ module RabbitFeed
 
           received_expected_event = actual_event.present?
           with_expected_payload = negative_expectation
+
+          if @block
+            return @block.call actual_event.payload
+          end
+
           if received_expected_event && !with_expected_payload
             actual_payload        = actual_event.payload
             with_expected_payload = expected_payload.nil? || match(actual_payload, expected_payload)
@@ -60,7 +66,7 @@ module RabbitFeed
         end
 
         def with(expected_payload=nil, &block)
-          if !!@expected_payload
+          if !!@expected_payload || !!@block
             ::Kernel.warn "`publish_event` was called with an expected payload already, anything in `with` is ignored"
           else
             @expected_payload = expected_payload || block
@@ -94,8 +100,8 @@ module RabbitFeed
         end
       end
 
-      def publish_event(expected_event, expected_payload = nil)
-        PublishEvent.new(expected_event, expected_payload)
+      def publish_event(expected_event, expected_payload = nil, &block)
+        PublishEvent.new(expected_event, expected_payload, block)
       end
     end
   end
