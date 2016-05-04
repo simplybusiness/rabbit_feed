@@ -168,6 +168,18 @@ describe BeaversController do
 end
 ```
 
+You can also pass a block with `do/end` (not `{}`) and do more fine grained matching.
+
+```ruby
+it 'publishes a create event' do
+  expect{
+    post :create, beaver: { name: 'beaver' }
+  }.to publish_event('user_creates_beaver', nil) do |payload|
+    expect(payload['beaver_name']).to match(/ea/)
+  end
+end
+```
+
 ## Consuming events
 
 The consumer defines to which events it will subscribe as well as how it handles events using the [Event Routing DSL](https://github.com/simplybusiness/rabbit_feed#event-routing-dsl). In a rails app, this can be defined in the [initialiser](https://github.com/simplybusiness/rabbit_feed#initialisation).
