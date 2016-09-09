@@ -12,6 +12,8 @@ module RabbitFeed
         def matches?(given_proc, negative_expectation = false)
           execute_proc(given_proc)
 
+          return false if @exception_thrown
+
           if block_given? && actual_event
             yield actual_event.payload
           else
@@ -69,7 +71,8 @@ module RabbitFeed
 
           TestingSupport.published_events.clear
           given_proc.call
-        rescue
+        rescue Exception => e
+          @exception_thrown = e.to_s
         end
 
         def actual_event
@@ -87,6 +90,8 @@ module RabbitFeed
             TestingSupport.published_events.map do |received_event|
               "#{received_event.name} with #{received_event.payload}"
             end
+          elsif @exception_thrown
+            @exception_thrown
           else
             'no events'
           end

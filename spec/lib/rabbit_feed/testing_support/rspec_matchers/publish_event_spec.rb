@@ -47,10 +47,15 @@ module RabbitFeed
             }.to_not publish_event(event_name, {})
           end
 
-          it 'traps exceptions' do
+          it 'traps exceptions in negation' do
             expect {
               raise 'this hurts me more than it hurts you'
             }.to_not publish_event(event_name, {})
+          end
+
+          subject { expect { raise 'this hurts me more than it hurts you' }.to publish_event(event_name, {}) }
+          it 'catches and logs exceptions when not in negation' do
+            expect { subject }.to raise_error(RSpec::Expectations::ExpectationNotMetError, /this hurts me more than it hurts you/)
           end
 
           context 'when not validating the payload' do
