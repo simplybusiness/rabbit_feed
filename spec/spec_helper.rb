@@ -1,15 +1,10 @@
-require 'codeclimate-test-reporter'
+require 'simplecov'
+SimpleCov.start
+
 require 'rabbit_feed'
 require 'rspec/its'
 require 'timecop'
 require 'timeout'
-
-# Send data to code climate from semaphore
-# Disable the warning messages
-CodeClimate::TestReporter.configure do |config|
-  config.logger.level = Logger::WARN
-end
-CodeClimate::TestReporter.start
 
 # Get rid of deprecation warnings
 I18n.enforce_available_locales = true

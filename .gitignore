@@ -10,3 +10,4 @@ pkg
 .idea/
 *.gem
 Gemfile.lock
+coverage/

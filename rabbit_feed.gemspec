@@ -29,11 +29,12 @@ Gem::Specification.new do |spec|
   # Schema definitions and serialization for events
   spec.add_dependency 'avro', '>= 1.5.4', '< 1.8.0'
 
-  spec.add_development_dependency 'codeclimate-test-reporter'
-  spec.add_development_dependency 'rake'
-  spec.add_development_dependency 'rspec', '>=2.14.0', '< 3.3.0'
-  spec.add_development_dependency 'rspec-its'
-  spec.add_development_dependency 'rutabaga'
-  spec.add_development_dependency 'rubocop'
-  spec.add_development_dependency 'timecop'
+  spec.add_development_dependency 'codeclimate-test-reporter', '~> 1.0'
+  spec.add_development_dependency 'rake', '~> 12.0'
+  spec.add_development_dependency 'rspec', '~> 3.5'
+  spec.add_development_dependency 'rspec-its', '~> 1.2'
+  spec.add_development_dependency 'rubocop', '~> 0.46'
+  spec.add_development_dependency 'rutabaga', '~> 2.1'
+  spec.add_development_dependency 'simplecov', '~> 0.12'
+  spec.add_development_dependency 'timecop', '~> 0.8'
 end
