@@ -8,12 +8,12 @@ Gem::Specification.new do |spec|
   spec.version       = RabbitFeed::VERSION
   spec.authors       = ['Simply Business']
   spec.email         = ['tech@simplybusiness.co.uk']
-  spec.description   = %q{A gem providing asynchronous event publish and subscribe capabilities with RabbitMQ.}
-  spec.summary       = %q{Enables your Ruby applications to perform centralized event logging with RabbitMq}
+  spec.description   = 'A gem providing asynchronous event publish and subscribe capabilities with RabbitMQ.'
+  spec.summary       = 'Enables your Ruby applications to perform centralized event logging with RabbitMq'
   spec.homepage      = 'https://github.com/simplybusiness/rabbit_feed'
   spec.license       = 'MIT'
 
-  spec.files         = `git ls-files`.split($/)
+  spec.files         = `git ls-files`.split($INPUT_RECORD_SEPARATOR)
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
   spec.test_files    = spec.files.grep(%r{^(test|spec|features)/})
   spec.require_paths = ['lib']
@@ -34,5 +34,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rspec', '>=2.14.0', '< 3.3.0'
   spec.add_development_dependency 'rspec-its'
   spec.add_development_dependency 'rutabaga'
+  spec.add_development_dependency 'rubocop'
   spec.add_development_dependency 'timecop'
 end

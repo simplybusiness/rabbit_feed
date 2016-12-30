@@ -19,7 +19,7 @@ module RabbitFeed
     it { should_not be_nil }
     it { should be_valid }
     its(:name) { should eq 'customer_purchases_policy' }
-    its(:sensitive_fields) { should match_array(['price', 'policy_id']) }
+    its(:sensitive_fields) { should match_array(%w(price policy_id)) }
 
     describe EventDefinitions::Event do
       let(:name)       { 'event_name' }
@@ -31,7 +31,7 @@ module RabbitFeed
             definition
           end
           event.payload_contains do
-            field 'field', { type: 'string', definition: 'field definition' }
+            field 'field', type: 'string', definition: 'field definition'
           end
         end
       end
@@ -39,30 +39,30 @@ module RabbitFeed
       it { should be_valid }
       its(:fields)          { should_not be_empty }
       its(:schema)          { should be_a Avro::Schema }
-      its(:metadata_schema) { should eq({
-          name:   'event_metadata',
-          type:   'record',
-          fields: [
-            {name: 'application', type: 'string', doc: 'The name of the application that created the event'},
-            {name: 'host', type: 'string', doc: 'The hostname of the server on which the event was created'},
-            {name: 'environment', type: 'string', doc: 'The environment in which the event was created'},
-            {name: 'version', type: 'string', doc: 'The version of the event payload'},
-            {name: 'schema_version', type: 'string', doc: 'The version of the event schema'},
-            {name: 'name', type: 'string', doc: 'The name of the event'},
-            {name: 'created_at_utc', type: 'string', doc: 'The UTC time that the event was created'},
-        ]})
-      }
-      its(:payload_schema) { should eq({
-          name:   'event_name_payload',
-          type:   'record',
-          fields: [{name: 'field', type: 'string', doc: 'field definition'}],
-        })
-      }
-      its(:event_schema) { should match([
-          { name: 'payload', type: an_instance_of(Hash), doc: 'The event payload (defined by the source system)' },
-          { name: 'metadata', type: an_instance_of(Hash), doc: 'The event metadata (defined by rabbit feed)' },
-        ])
-      }
+      its(:metadata_schema) do
+        should eq(name:   'event_metadata',
+                  type:   'record',
+                  fields: [
+                    { name: 'application', type: 'string', doc: 'The name of the application that created the event' },
+                    { name: 'host', type: 'string', doc: 'The hostname of the server on which the event was created' },
+                    { name: 'environment', type: 'string', doc: 'The environment in which the event was created' },
+                    { name: 'version', type: 'string', doc: 'The version of the event payload' },
+                    { name: 'schema_version', type: 'string', doc: 'The version of the event schema' },
+                    { name: 'name', type: 'string', doc: 'The name of the event' },
+                    { name: 'created_at_utc', type: 'string', doc: 'The UTC time that the event was created' }
+                  ])
+      end
+      its(:payload_schema) do
+        should eq(name:   'event_name_payload',
+                  type:   'record',
+                  fields: [{ name: 'field', type: 'string', doc: 'field definition' }])
+      end
+      its(:event_schema) do
+        should match([
+                       { name: 'payload', type: an_instance_of(Hash), doc: 'The event payload (defined by the source system)' },
+                       { name: 'metadata', type: an_instance_of(Hash), doc: 'The event metadata (defined by rabbit feed)' }
+                     ])
+      end
 
       context 'when the name is nil' do
         let(:name) {}
@@ -99,16 +99,16 @@ module RabbitFeed
       let(:name)       { 'event_name' }
       let(:type)       { 'string' }
       let(:definition) { 'event definition' }
-      subject{ EventDefinitions::Field.new name, type, definition }
+      subject { EventDefinitions::Field.new name, type, definition }
 
       it { should be_valid }
-      its(:schema) { should eq({ name: name, type: type, doc: definition }) }
+      its(:schema) { should eq(name: name, type: type, doc: definition) }
 
       context 'when the name is nil' do
         let(:name) {}
 
         it 'raises a configuration error' do
-          expect{ subject }.to raise_error ConfigurationError
+          expect { subject }.to raise_error ConfigurationError
         end
       end
 
@@ -116,7 +116,7 @@ module RabbitFeed
         let(:type) {}
 
         it 'raises a configuration error' do
-          expect{ subject }.to raise_error ConfigurationError
+          expect { subject }.to raise_error ConfigurationError
         end
       end
 
@@ -124,7 +124,7 @@ module RabbitFeed
         let(:definition) {}
 
         it 'raises a configuration error' do
-          expect{ subject }.to raise_error ConfigurationError
+          expect { subject }.to raise_error ConfigurationError
         end
       end
     end

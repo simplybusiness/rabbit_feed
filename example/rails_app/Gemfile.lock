@@ -2,8 +2,8 @@ PATH
   remote: ../../
   specs:
     rabbit_feed (2.4.4)
-      activemodel (>= 3.2.0, < 5.0.0)
-      activesupport (>= 3.2.0, < 5.0.0)
+      activemodel (>= 3.2.0, < 6.0.0)
+      activesupport (>= 3.2.0, < 6.0.0)
       avro (>= 1.5.4, < 1.8.0)
       bunny (>= 2.0.0, < 2.1.0)
       pidfile
@@ -189,4 +189,4 @@ DEPENDENCIES
   unicorn
 
 BUNDLED WITH
-   1.11.2
+   1.13.7

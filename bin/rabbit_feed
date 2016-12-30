@@ -8,4 +8,3 @@ I18n.enforce_available_locales = true
 
 client = RabbitFeed::Client.new
 client.run
-

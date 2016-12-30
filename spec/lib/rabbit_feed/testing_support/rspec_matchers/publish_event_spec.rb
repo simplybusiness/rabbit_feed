@@ -3,7 +3,7 @@ module RabbitFeed
     module RSpecMatchers
       describe PublishEvent do
         let(:event_name) { 'test_event' }
-        let(:event_payload) { {'field' => 'value'} }
+        let(:event_payload) { { 'field' => 'value' } }
         TestingSupport.capture_published_events self
         before do
           EventDefinitions do
@@ -27,84 +27,83 @@ module RabbitFeed
           end
 
           expect do
-            expect {
+            expect do
               RabbitFeed::Producer.publish_event event_name, event_payload
-            }.to publish_event(event_name, event_payload)
+            end.to publish_event(event_name, event_payload)
           end.to change { TestingSupport.published_events.count }.from(10).to(1)
-
         end
 
         context 'when the expectation is met' do
           it 'validates' do
-            expect {
+            expect do
               RabbitFeed::Producer.publish_event event_name, event_payload
-            }.to publish_event(event_name, event_payload)
+            end.to publish_event(event_name, event_payload)
           end
 
           it 'validates the negation' do
-            expect {
+            expect do
               RabbitFeed::Producer.publish_event 'different name', {}
-            }.to_not publish_event(event_name, {})
+            end.to_not publish_event(event_name, {})
           end
 
           it 'traps exceptions' do
-            expect {
+            expect do
               raise 'this hurts me more than it hurts you'
-            }.to_not publish_event(event_name, {})
+            end.to_not publish_event(event_name, {})
           end
 
           context 'when not validating the payload' do
             it 'validates' do
-              expect {
+              expect do
                 RabbitFeed::Producer.publish_event event_name, event_payload
-              }.to publish_event(event_name)
+              end.to publish_event(event_name)
             end
 
             it 'validates the negation' do
-              expect {
+              expect do
                 RabbitFeed::Producer.publish_event 'different name', {}
-              }.to_not publish_event(event_name)
+              end.to_not publish_event(event_name)
             end
           end
         end
 
         it 'validates the event name' do
           matcher = described_class.new(event_name, {})
-          block   = Proc.new { RabbitFeed::Producer.publish_event 'different name', {} }
+          block   = proc { RabbitFeed::Producer.publish_event 'different name', {} }
           (matcher.matches? block).should be_falsey
         end
 
         context 'with block' do
           it 'validates block' do
-            expect {
+            expect do
               RabbitFeed::Producer.publish_event event_name, event_payload
-            }.to publish_event(event_name, nil) do |actual_payload|
+            end.to publish_event(event_name, nil) do |actual_payload|
               expect(actual_payload['field']).to eq 'value'
             end
           end
 
           it 'validates block with `with` will be ignored' do
-            eval_block  = Proc.new {|actual_payload|
+            eval_block = proc do |actual_payload|
               expect(actual_payload['field']).to eq 'value'
-            }
-            matcher = described_class.new(event_name, nil).with({field: 'different name'})
-            block   = Proc.new { RabbitFeed::Producer.publish_event event_name, {'field' => 'value'} }
+            end
+            matcher = described_class.new(event_name, nil).with(field: 'different name')
+            block   = proc { RabbitFeed::Producer.publish_event event_name, 'field' => 'value' }
 
             (matcher.matches? block, &eval_block).should be true
           end
 
           it 'does not evaluates block with {}' do
-            expect {
+            expect do
               RabbitFeed::Producer.publish_event event_name, event_payload
-            }.to publish_event(event_name, nil) { |actual_payload|
+            end.to publish_event(event_name, nil) { |_actual_payload|
               raise 'this block should not be evaluated'
             }
           end
 
           it 'does not evaluate block if the expectation block does not return actual payload' do
-            expect {
+            expect do
               nil
-            }.not_to publish_event(event_name, nil) do |actual_payload|
+            end.not_to publish_event(event_name, nil) do |_actual_payload|
               raise 'this block should not be evaluated'
             end
           end
@@ -114,7 +113,7 @@ module RabbitFeed
           context 'and the payload is not a Proc' do
             it 'validates the event payload' do
               matcher = described_class.new(event_name, event_payload)
-              block   = Proc.new { RabbitFeed::Producer.publish_event event_name, {'field' => 'different value'} }
+              block   = proc { RabbitFeed::Producer.publish_event event_name, 'field' => 'different value' }
               (matcher.matches? block).should be_falsey
             end
           end
@@ -123,15 +122,15 @@ module RabbitFeed
             context 'and it is not a Proc' do
               it 'validates the event payload' do
                 matcher = described_class.new(event_name, nil).with(event_payload)
-                block   = Proc.new { RabbitFeed::Producer.publish_event event_name, {'field' => 'different value'} }
+                block   = proc { RabbitFeed::Producer.publish_event event_name, 'field' => 'different value' }
                 (matcher.matches? block).should be false
               end
             end
 
             context 'and it is a Proc' do
               it 'validates the event payload' do
-                matcher = described_class.new(event_name, nil).with{event_payload}
-                block   = Proc.new { RabbitFeed::Producer.publish_event event_name, {'field' => 'different value'} }
+                matcher = described_class.new(event_name, nil).with { event_payload }
+                block   = proc { RabbitFeed::Producer.publish_event event_name, 'field' => 'different value' }
                 (matcher.matches? block).should be false
               end
             end

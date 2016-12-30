@@ -8,28 +8,28 @@ module RabbitFeed
 
     attr_accessor :published_events
 
-    def setup rspec_config
+    def setup(rspec_config)
       RabbitFeed.environment ||= 'test'
       capture_published_events rspec_config
       include_support rspec_config
     end
 
-    def capture_published_events rspec_config
+    def capture_published_events(rspec_config)
       rspec_config.before :each do
         TestingSupport.capture_published_events_in_context(self)
       end
     end
 
-    def capture_published_events_in_context context
+    def capture_published_events_in_context(context)
       TestingSupport.published_events = []
       mock_connection = context.double(:rabbitmq_connection)
       context.allow(RabbitFeed::ProducerConnection).to context.receive(:instance).and_return(mock_connection)
-      context.allow(mock_connection).to context.receive(:publish) do |serialized_event, routing_key|
+      context.allow(mock_connection).to context.receive(:publish) do |serialized_event, _routing_key|
         TestingSupport.published_events << (Event.deserialize serialized_event)
       end
     end
 
-    def include_support rspec_config
+    def include_support(rspec_config)
       rspec_config.include(RabbitFeed::TestingSupport::RSpecMatchers)
       rspec_config.include(RabbitFeed::TestingSupport::TestingHelpers)
     end

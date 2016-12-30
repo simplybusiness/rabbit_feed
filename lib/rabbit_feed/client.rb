@@ -10,30 +10,27 @@ module RabbitFeed
       require_path: '.',
       config_file:  'config/rabbit_feed.yml',
       logfile:      'log/rabbit_feed.log',
-      pidfile:      'tmp/pids/rabbit_feed.pid',
-    }
+      pidfile:      'tmp/pids/rabbit_feed.pid'
+    }.freeze
     DEFAULTS.freeze
 
     attr_reader :command, :options
     validates_presence_of :command, :options
-    validates :command, inclusion: { in: %w(consume produce shutdown console), message: "%{value} is not a valid command" }
+    validates :command, inclusion: { in: %w(consume produce shutdown console), message: '%{value} is not a valid command' }
     validate :log_file_path_exists
     validate :config_file_exists
     validate :require_path_valid, unless: :console?
     validate :pidfile_path_exists, if: :daemonize?
     validate :environment_specified
 
-    def initialize arguments=ARGV
+    def initialize(arguments = ARGV)
       @command = arguments[0]
       @options = parse_options arguments
-
-      unless shutdown?
-        validate!
-
-        set_logging
-        set_configuration
-        load_dependancies unless console?
-      end
+      return if shutdown?
+      validate!
+      set_logging
+      set_configuration
+      load_dependancies unless console?
     end
 
     def run
@@ -43,25 +40,24 @@ module RabbitFeed
     private
 
     def validate!
-      raise Error.new errors.messages if invalid?
+      raise Error, errors.messages if invalid?
     end
 
     def log_file_path_exists
-      errors.add(:options, "log file path not found: '#{options[:logfile]}', specify this using the --logfile option") unless Dir.exists?(File.dirname(options[:logfile]))
+      errors.add(:options, "log file path not found: '#{options[:logfile]}', specify this using the --logfile option") unless Dir.exist?(File.dirname(options[:logfile]))
     end
 
     def config_file_exists
-      errors.add(:options, "configuration file not found: '#{options[:config_file]}', specify this using the --config option") unless File.exists?(options[:config_file])
+      errors.add(:options, "configuration file not found: '#{options[:config_file]}', specify this using the --config option") unless File.exist?(options[:config_file])
     end
 
     def require_path_valid
-      if require_rails? && !File.exist?("#{options[:require_path]}/config/application.rb")
-        errors.add(:options, 'point rabbit_feed to a Rails 3/4 application or a Ruby file to load your worker classes with --require')
-      end
+      return unless require_rails? && !File.exist?("#{options[:require_path]}/config/application.rb")
+      errors.add(:options, 'point rabbit_feed to a Rails 3/4 application or a Ruby file to load your worker classes with --require')
     end
 
     def pidfile_path_exists
-      errors.add(:options, "pid file path not found: '#{options[:pidfile]}', specify this using the --pidfile option") unless Dir.exists?(File.dirname(options[:pidfile]))
+      errors.add(:options, "pid file path not found: '#{options[:pidfile]}', specify this using the --pidfile option") unless Dir.exist?(File.dirname(options[:pidfile]))
     end
 
     def environment_specified
@@ -145,11 +141,10 @@ module RabbitFeed
       File.directory?(options[:require_path])
     end
 
-    def parse_options argv
+    def parse_options(argv)
       opts = {}
 
       parser = OptionParser.new do |o|
-
         o.on '-a', '--application VAL', 'Name of the application' do |arg|
           opts[:application] = arg
         end
@@ -190,7 +185,7 @@ module RabbitFeed
           opts[:pidfile] = arg
         end
 
-        o.on '-V', '--version', 'Print version and exit' do |arg|
+        o.on '-V', '--version', 'Print version and exit' do |_arg|
           puts "RabbitFeed #{RabbitFeed::VERSION}"
           exit 0
         end
@@ -204,6 +199,5 @@ module RabbitFeed
       parser.parse! argv
       DEFAULTS.merge opts
     end
-
   end
 end

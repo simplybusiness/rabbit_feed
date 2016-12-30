@@ -1,0 +1,75 @@
+Lint/HandleExceptions:
+  Exclude:
+    - 'example/non_rails_app/bin/benchmark'
+    - 'lib/rabbit_feed/testing_support/rspec_matchers/publish_event.rb'
+    - 'spec/features/step_definitions/connectivity_steps.rb'
+
+Metrics/AbcSize:
+  Exclude:
+    - 'lib/rabbit_feed/client.rb'
+    - 'lib/rabbit_feed/configuration.rb'
+    - 'lib/rabbit_feed/consumer_connection.rb'
+    - 'lib/rabbit_feed/producer.rb'
+    - 'lib/rabbit_feed/testing_support/rspec_matchers/publish_event.rb'
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/ClassLength:
+  Exclude:
+    - 'lib/rabbit_feed/client.rb'
+
+Metrics/CyclomaticComplexity:
+  Exclude:
+    - 'lib/rabbit_feed/configuration.rb'
+    - 'lib/rabbit_feed.rb'
+    - 'lib/rabbit_feed/testing_support/rspec_matchers/publish_event.rb'
+
+Metrics/LineLength:
+  Enabled: false
+
+Metrics/MethodLength:
+  Max: 20
+  Exclude:
+    - 'lib/rabbit_feed/client.rb'
+
+Metrics/ModuleLength:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Exclude:
+    - 'lib/rabbit_feed/configuration.rb'
+    - 'lib/rabbit_feed.rb'
+    - 'lib/rabbit_feed/testing_support/rspec_matchers/publish_event.rb'
+
+Style/Documentation:
+  Enabled: false
+
+Style/DoubleNegation:
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Exclude:
+    - 'example/rails_app/test/test_helper.rb'
+    - 'spec/features/step_definitions/connectivity_steps.rb'
+    - 'spec/lib/rabbit_feed/consumer_connection_spec.rb'
+    - 'spec/lib/rabbit_feed/producer_connection_spec.rb'
+
+Style/FirstParameterIndentation:
+  Exclude:
+    - 'spec/lib/rabbit_feed/console_consumer_spec.rb'
+
+Style/MethodName:
+  Exclude:
+    - 'lib/dsl.rb'
+
+Style/ModuleFunction:
+  EnforcedStyle: 'extend_self'
+
+Style/MultilineBlockChain:
+  Exclude:
+    - 'spec/lib/rabbit_feed/testing_support/rspec_matchers/publish_event_spec.rb'
+
+Style/SymbolProc:
+  Exclude:
+    - 'spec/lib/rabbit_feed/event_routing_spec.rb'

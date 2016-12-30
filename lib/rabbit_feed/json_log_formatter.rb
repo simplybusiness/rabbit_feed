@@ -5,7 +5,7 @@ module RabbitFeed
         severity: severity,
         time: time.utc.iso8601(6),
         progname: progname,
-        message: msg,
+        message: msg
       }.to_json + "\n"
     end
   end

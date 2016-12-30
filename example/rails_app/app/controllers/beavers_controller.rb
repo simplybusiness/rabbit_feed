@@ -9,8 +9,7 @@ class BeaversController < ApplicationController
 
   # GET /beavers/1
   # GET /beavers/1.json
-  def show
-  end
+  def show; end
 
   # GET /beavers/new
   def new
@@ -18,8 +17,7 @@ class BeaversController < ApplicationController
   end
 
   # GET /beavers/1/edit
-  def edit
-  end
+  def edit; end
 
   # POST /beavers
   # POST /beavers.json
@@ -65,17 +63,18 @@ class BeaversController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_beaver
-      @beaver = Beaver.find(params[:id])
-    end
 
-    # Never trust parameters from the scary internet, only allow the white list through.
-    def beaver_params
-      params.require(:beaver).permit(:name)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_beaver
+    @beaver = Beaver.find(params[:id])
+  end
 
-    def publish_event name
-      RabbitFeed::Producer.publish_event name, { 'beaver_name' => @beaver.name }
-    end
+  # Never trust parameters from the scary internet, only allow the white list through.
+  def beaver_params
+    params.require(:beaver).permit(:name)
+  end
+
+  def publish_event(name)
+    RabbitFeed::Producer.publish_event name, 'beaver_name' => @beaver.name
+  end
 end

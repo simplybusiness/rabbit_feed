@@ -1,7 +1,7 @@
 module RabbitFeed
   describe ConsumerConnection do
-    let(:bunny_queue)      { double(:bunny_queue, bind: nil, subscribe: nil)}
-    let(:bunny_channel)    { double(:bunny_channel, prefetch: nil, nack: nil, ack: nil, queue: bunny_queue, id: 1)}
+    let(:bunny_queue)      { double(:bunny_queue, bind: nil, subscribe: nil) }
+    let(:bunny_channel)    { double(:bunny_channel, prefetch: nil, nack: nil, ack: nil, queue: bunny_queue, id: 1) }
     let(:bunny_connection) { double(:bunny_connection, start: nil, closed?: false, close: nil, create_channel: bunny_channel) }
     before do
       allow(Bunny).to receive(:new).and_return(bunny_connection)
@@ -15,13 +15,13 @@ module RabbitFeed
       before do
         EventRouting do
           accept_from('rabbit_feed') do
-            event('test') {|event|}
+            event('test') { |event| }
           end
         end
       end
 
       it 'binds the queue to the exchange' do
-        expect(bunny_queue).to receive(:bind).with('amq.topic', { routing_key: 'test.rabbit_feed.test'})
+        expect(bunny_queue).to receive(:bind).with('amq.topic', routing_key: 'test.rabbit_feed.test')
         subject
       end
 
@@ -36,8 +36,7 @@ module RabbitFeed
 
         it 'appends the route_prefix_extension to the routing_key' do
           expect(bunny_queue).to receive(:bind).with('amq.topic',
-            { routing_key: 'test_route_prefix_extension.foobar.rabbit_feed.test'}
-          )
+                                                     routing_key: 'test_route_prefix_extension.foobar.rabbit_feed.test')
           subject
         end
       end
@@ -51,34 +50,33 @@ module RabbitFeed
       end
 
       it 'yields the payload' do
-        subject.consume { |payload| payload.should eq 'payload'}
+        subject.consume { |payload| payload.should eq 'payload' }
       end
 
       it 'acknowledges the message' do
         expect(bunny_channel).to receive(:ack)
-        subject.consume { }
+        subject.consume {}
       end
 
       it 'is synchronized' do
         expect(subject).to receive(:synchronized).and_call_original
-        subject.consume { }
+        subject.consume {}
       end
 
       it 'cancels the consumer' do
         expect_any_instance_of(described_class).to receive(:cancel_consumer)
-        subject.consume { }
+        subject.consume {}
       end
 
       context 'when consuming' do
         before { allow(subject.send(:mutex)).to receive(:locked?).and_return(true) }
 
         it 'raises when attempting to consume in parallel' do
-          expect{ subject.consume { } }.to raise_error 'This connection already has a consumer subscribed'
+          expect { subject.consume {} }.to raise_error 'This connection already has a consumer subscribed'
         end
       end
 
       context 'when an exception is raised' do
-
         context 'when the exception is' do
           [SystemExit.new, Interrupt.new, SignalException.new('SIGTERM')].each do |exception|
             context exception.to_s do
@@ -86,7 +84,6 @@ module RabbitFeed
                 test_logger_string_io = StringIO.new
                 logger = Logger.new test_logger_string_io
                 logger.formatter = RabbitFeed::JsonLogFormatter
-                old_logger = RabbitFeed.log
                 RabbitFeed.log = logger
                 test_logger_string_io
               end
@@ -94,15 +91,14 @@ module RabbitFeed
               before { allow(subject).to receive(:handle_message).and_raise(exception) }
 
               it 'does not re-raise error' do
-                expect { subject.consume { } }.to_not raise_error
+                expect { subject.consume {} }.to_not raise_error
               end
 
               it 'logs unsubscribe_from_queue' do
-                subject.consume { }
+                subject.consume {}
 
-                expect(logger.string).to match /unsubscribe_from_queue/
+                expect(logger.string).to match(/unsubscribe_from_queue/)
               end
-
             end
           end
         end
@@ -116,17 +112,22 @@ module RabbitFeed
           end
         end
 
-
         context 'when consumer_exit_after_fail is false' do
           before { allow(RabbitFeed.configuration).to receive(:consumer_exit_after_fail).and_return(false) }
 
           context 'when Airbrake is defined' do
-            after { Object.send(:remove_const, ('Airbrake').to_sym) rescue NameError }
+            after do
+              begin
+                      Object.send(:remove_const, 'Airbrake'.to_sym)
+                    rescue
+                      NameError
+                    end
+            end
 
             context 'when the version is lower than 5' do
               before do
                 module ::Airbrake
-                  VERSION = '4.0.0'
+                  VERSION = '4.0.0'.freeze
                 end
                 allow(Airbrake).to receive(:configuration).and_return(airbrake_configuration)
               end
@@ -135,9 +136,9 @@ module RabbitFeed
                 let(:airbrake_configuration) { double(:airbrake_configuration, public?: true) }
 
                 it 'notifies airbrake' do
-                  expect(Airbrake).to receive(:notify_or_ignore).with(an_instance_of RuntimeError)
+                  expect(Airbrake).to receive(:notify_or_ignore).with(an_instance_of(RuntimeError))
 
-                  expect{ subject.consume { raise 'Consuming time' } }.not_to raise_error
+                  expect { subject.consume { raise 'Consuming time' } }.not_to raise_error
                 end
               end
             end
@@ -145,23 +146,23 @@ module RabbitFeed
             context 'when the version is greater than 4' do
               before do
                 module ::Airbrake
-                  AIRBRAKE_VERSION = '5.0.0'
+                  AIRBRAKE_VERSION = '5.0.0'.freeze
                 end
               end
 
               context 'and consumer_exit_after_fail is true' do
                 before { allow(RabbitFeed.configuration).to receive(:consumer_exit_after_fail).and_return(true) }
                 it 'notifies airbrake synchronously' do
-                  expect(Airbrake).to receive(:notify_sync).with(an_instance_of RuntimeError)
-                  expect{ subject.consume { raise 'Consuming time' } }.not_to raise_error
+                  expect(Airbrake).to receive(:notify_sync).with(an_instance_of(RuntimeError))
+                  expect { subject.consume { raise 'Consuming time' } }.not_to raise_error
                 end
               end
 
               context 'and consumer_exit_after_fail is not true' do
                 before { allow(RabbitFeed.configuration).to receive(:consumer_exit_after_fail).and_return(false) }
                 it 'notifies airbrake' do
-                  expect(Airbrake).to receive(:notify).with(an_instance_of RuntimeError)
-                  expect{ subject.consume { raise 'Consuming time' } }.not_to raise_error
+                  expect(Airbrake).to receive(:notify).with(an_instance_of(RuntimeError))
+                  expect { subject.consume { raise 'Consuming time' } }.not_to raise_error
                 end
               end
             end
@@ -172,7 +173,6 @@ module RabbitFeed
             subject.consume { raise 'Consuming time' }
           end
         end
-
       end
     end
   end

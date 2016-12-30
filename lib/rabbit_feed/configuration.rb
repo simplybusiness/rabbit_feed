@@ -7,8 +7,8 @@ module RabbitFeed
                 :consumer_exit_after_fail
     validates_presence_of :application, :environment, :exchange
 
-    def initialize options
-      RabbitFeed.log.info {{ event: :initialize_configuration, options: options.merge({password: :redacted}) }}
+    def initialize(options)
+      RabbitFeed.log.info { { event: :initialize_configuration, options: options.merge(password: :redacted) } }
 
       @host                      = options[:host]
       @hosts                     = options[:hosts]
@@ -28,10 +28,10 @@ module RabbitFeed
       validate!
     end
 
-    def self.load file_path, environment, application
-      RabbitFeed.log.info {{ event: :load_configuration_file, file_path: file_path, environment: environment, application: application }}
+    def self.load(file_path, environment, application)
+      RabbitFeed.log.info { { event: :load_configuration_file, file_path: file_path, environment: environment, application: application } }
 
-      raise ConfigurationError.new "The RabbitFeed configuration file path specified does not exist: #{file_path}" unless (File.exist? file_path)
+      raise ConfigurationError, "The RabbitFeed configuration file path specified does not exist: #{file_path}" unless File.exist? file_path
 
       options = read_configuration_file file_path, environment
       options[:environment] = environment
@@ -48,7 +48,7 @@ module RabbitFeed
     end
 
     def connection_options
-      Hash.new.tap do |options|
+      {}.tap do |options|
         options[:heartbeat] = heartbeat if heartbeat
         options[:connect_timeout] = connect_timeout if connect_timeout
         options[:host] = host if host
@@ -65,13 +65,14 @@ module RabbitFeed
 
     private
 
-    def self.read_configuration_file file_path, environment
+    def self.read_configuration_file(file_path, environment)
       raw_configuration = YAML.load(ERB.new(File.read(file_path)).result)
-      HashWithIndifferentAccess.new (raw_configuration[environment] || {})
+      HashWithIndifferentAccess.new(raw_configuration[environment] || {})
     end
+    private_class_method :read_configuration_file
 
     def validate!
-      raise ConfigurationError.new errors.messages if invalid?
+      raise ConfigurationError, errors.messages if invalid?
     end
   end
 end
