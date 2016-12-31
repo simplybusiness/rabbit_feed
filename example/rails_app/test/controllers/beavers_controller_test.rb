@@ -18,30 +18,30 @@ class BeaversControllerTest < ActionController::TestCase
 
   test 'should create beaver' do
     assert_difference('Beaver.count') do
-      post :create, beaver: { name: @beaver.name }
+      post :create, params: { beaver: { name: @beaver.name } }
     end
 
     assert_redirected_to beaver_path(assigns(:beaver))
   end
 
   test 'should show beaver' do
-    get :show, id: @beaver
+    get :show, params: { id: @beaver }
     assert_response :success
   end
 
   test 'should get edit' do
-    get :edit, id: @beaver
+    get :edit, params: { id: @beaver }
     assert_response :success
   end
 
   test 'should update beaver' do
-    patch :update, id: @beaver, beaver: { name: @beaver.name }
+    patch :update, params: { id: @beaver, beaver: { name: @beaver.name } }
     assert_redirected_to beaver_path(assigns(:beaver))
   end
 
   test 'should destroy beaver' do
     assert_difference('Beaver.count', -1) do
-      delete :destroy, id: @beaver
+      delete :destroy, params: { id: @beaver }
     end
 
     assert_redirected_to beavers_path
