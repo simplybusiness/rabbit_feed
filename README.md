@@ -151,7 +151,7 @@ RSpec.configure do |config|
 end
 ```
 
-The expectation looks like this:
+Validating an event was published by event name:
 
 ```ruby
 require 'spec_helper'
@@ -162,19 +162,53 @@ describe BeaversController do
     it 'publishes a create event' do
       expect{
         post :create, beaver: { name: 'beaver' }
-      }.to publish_event('user_creates_beaver', { 'beaver_name' => 'beaver' })
+      }.to publish_event('user_creates_beaver')
     end
   end
 end
 ```
 
-You can also pass a block with `do/end` (not `{}`) and do more fine grained matching.
+Validating an event was published by event name and payload:
+
+```ruby
+require 'spec_helper'
+
+describe BeaversController do
+
+  describe 'POST create' do
+    it 'publishes a create event' do
+      expect{
+        post :create, beaver: { name: 'beaver' }
+      }.to publish_event('user_creates_beaver', 'beaver_name' => 'beaver')
+    end
+  end
+end
+```
+
+Validating an event was published by event name and partial payload match:
+
+```ruby
+require 'spec_helper'
+
+describe BeaversController do
+
+  describe 'POST create' do
+    it 'publishes a create event' do
+      expect{
+        post :create, beaver: { name: 'beaver' }
+      }.to publish_event('user_creates_beaver').including('beaver_name' => 'beaver')
+    end
+  end
+end
+```
+
+You can also use the `.asserting` chain, allowing you to provide your own expectation on the event's payload:
 
 ```ruby
 it 'publishes a create event' do
   expect{
     post :create, beaver: { name: 'beaver' }
-  }.to publish_event('user_creates_beaver', nil) do |payload|
+  }.to publish_event('user_creates_beaver', nil).asserting do |payload|
     expect(payload['beaver_name']).to match(/ea/)
   end
 end
@@ -228,7 +262,7 @@ describe 'consuming events' do
 
   before { define_route }
 
-  it 'route to the correct service' do
+  it 'routes to the correct service' do
     rabbit_feed_consumer.consume_event(event)
     expect(accumulator.size).to eq(1)
   end

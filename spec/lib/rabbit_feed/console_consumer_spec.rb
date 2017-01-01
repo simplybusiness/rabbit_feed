@@ -13,7 +13,7 @@ module RabbitFeed
     describe '#init' do
       it 'prints a welcome message' do
         expect { subject.init }.to output(
-          /RabbitFeed console starting at .* UTC\.\.\.\s+Environment: test\s+Queue: test\.rabbit_feed_console\s+Ready\. Press CTRL\+C to exit\./
+          /RabbitFeed console starting at .* UTC\.\.\.\nEnvironment: test\nQueue: test\.rabbit_feed_console\nReady\. Press CTRL\+C to exit\./
         ).to_stdout
       end
 
@@ -22,7 +22,7 @@ module RabbitFeed
 
         it 'asks to purge the queue' do
           expect { subject.init }.to output(
-            %r{There are currently 1 message\(s\) in the console's queue\.\s+Would you like to purge the queue before proceeding\? \(y\/N\)>}
+            %r{There are currently 1 message\(s\) in the console's queue\.\nWould you like to purge the queue before proceeding\? \(y\/N\)>}
           ).to_stdout
         end
 

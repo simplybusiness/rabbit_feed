@@ -1,7 +1,7 @@
 module RabbitFeed
   module TestingSupport
     module RSpecMatchers
-      describe PublishEvent do
+      describe 'publish_event' do
         let(:event_name) { 'test_event' }
         let(:event_payload) { { 'field' => 'value' } }
         TestingSupport.capture_published_events self
@@ -23,116 +23,112 @@ module RabbitFeed
 
         it 'clears any existing published_events' do
           10.times.each do
-            RabbitFeed::Producer.publish_event event_name, event_payload
+            RabbitFeed::Producer.publish_event(event_name, event_payload)
           end
 
           expect do
             expect do
-              RabbitFeed::Producer.publish_event event_name, event_payload
+              RabbitFeed::Producer.publish_event(event_name, event_payload)
             end.to publish_event(event_name, event_payload)
           end.to change { TestingSupport.published_events.count }.from(10).to(1)
         end
 
-        context 'when the expectation is met' do
-          it 'validates' do
-            expect do
-              RabbitFeed::Producer.publish_event event_name, event_payload
-            end.to publish_event(event_name, event_payload)
-          end
-
-          it 'validates the negation' do
-            expect do
-              RabbitFeed::Producer.publish_event 'different name', {}
-            end.to_not publish_event(event_name, {})
-          end
-
-          it 'traps exceptions' do
-            expect do
-              raise 'this hurts me more than it hurts you'
-            end.to_not publish_event(event_name, {})
-          end
-
-          context 'when not validating the payload' do
-            it 'validates' do
-              expect do
-                RabbitFeed::Producer.publish_event event_name, event_payload
-              end.to publish_event(event_name)
-            end
-
-            it 'validates the negation' do
-              expect do
-                RabbitFeed::Producer.publish_event 'different name', {}
-              end.to_not publish_event(event_name)
-            end
-          end
+        it 'traps exceptions' do
+          expect do
+            raise 'this hurts me more than it hurts you'
+          end.to_not publish_event(event_name)
         end
 
-        it 'validates the event name' do
-          matcher = described_class.new(event_name, {})
-          block   = proc { RabbitFeed::Producer.publish_event 'different name', {} }
-          (matcher.matches? block).should be_falsey
+        it 'validates' do
+          expect do
+            RabbitFeed::Producer.publish_event(event_name, event_payload)
+          end.to publish_event(event_name, event_payload)
+
+          expect do
+            RabbitFeed::Producer.publish_event('different name', event_payload)
+          end.to_not publish_event(event_name, event_payload)
         end
 
-        context 'with block' do
-          it 'validates block' do
+        context 'when not validating the payload' do
+          it 'validates the event name' do
             expect do
-              RabbitFeed::Producer.publish_event event_name, event_payload
-            end.to publish_event(event_name, nil) do |actual_payload|
-              expect(actual_payload['field']).to eq 'value'
-            end
-          end
+              RabbitFeed::Producer.publish_event(event_name, event_payload)
+            end.to publish_event(event_name)
 
-          it 'validates block with `with` will be ignored' do
-            eval_block = proc do |actual_payload|
-              expect(actual_payload['field']).to eq 'value'
-            end
-            matcher = described_class.new(event_name, nil).with(field: 'different name')
-            block   = proc { RabbitFeed::Producer.publish_event event_name, 'field' => 'value' }
-
-            (matcher.matches? block, &eval_block).should be true
-          end
-
-          it 'does not evaluates block with {}' do
             expect do
-              RabbitFeed::Producer.publish_event event_name, event_payload
-            end.to publish_event(event_name, nil) { |_actual_payload|
-              raise 'this block should not be evaluated'
-            }
-          end
-
-          it 'does not evaluate block if the expectation block does not return actual payload' do
-            expect do
-              nil
-            end.not_to publish_event(event_name, nil) do |_actual_payload|
-              raise 'this block should not be evaluated'
-            end
+              RabbitFeed::Producer.publish_event('different name', {})
+            end.to_not publish_event(event_name)
           end
         end
 
         context 'when validating the payload' do
-          context 'and the payload is not a Proc' do
+          it 'validates the event payload' do
+            expect do
+              RabbitFeed::Producer.publish_event(event_name, 'field' => 'different value')
+            end.not_to publish_event(event_name, event_payload)
+
+            expect do
+              RabbitFeed::Producer.publish_event(event_name, event_payload)
+            end.to publish_event(event_name, event_payload)
+          end
+
+          context 'using .including' do
+            context 'when there is an earlier payload provided' do
+              it 'prefers the earlier payload' do
+                expect do
+                  RabbitFeed::Producer.publish_event(event_name, 'field' => 'different value')
+                end.not_to publish_event(event_name, event_payload).including(event_payload)
+              end
+            end
+
             it 'validates the event payload' do
-              matcher = described_class.new(event_name, event_payload)
-              block   = proc { RabbitFeed::Producer.publish_event event_name, 'field' => 'different value' }
-              (matcher.matches? block).should be_falsey
+              expect do
+                RabbitFeed::Producer.publish_event(event_name, event_payload)
+              end.not_to publish_event(event_name).including('field' => 'different value')
+
+              expect do
+                RabbitFeed::Producer.publish_event(event_name, event_payload)
+              end.to publish_event(event_name).including(event_payload)
+            end
+
+            context 'when the actual payload contains more fields than the expected payload' do
+              it 'validates the event payload' do
+                expect do
+                  RabbitFeed::Producer.publish_event(event_name, event_payload.merge('different field' => 'value'))
+                end.to publish_event(event_name).including(event_payload)
+              end
+            end
+
+            context 'when the expected payload contains more fields than the actual payload' do
+              it 'invalidates the event payload' do
+                expect do
+                  RabbitFeed::Producer.publish_event(event_name, event_payload)
+                end.not_to publish_event(event_name).including(event_payload.merge('different field' => 'value'))
+              end
             end
           end
 
-          context 'uses .with' do
-            context 'and it is not a Proc' do
-              it 'validates the event payload' do
-                matcher = described_class.new(event_name, nil).with(event_payload)
-                block   = proc { RabbitFeed::Producer.publish_event event_name, 'field' => 'different value' }
-                (matcher.matches? block).should be false
+          context 'using .asserting' do
+            context 'when there is an earlier payload provided' do
+              it 'prefers the earlier payload' do
+                expect do
+                  RabbitFeed::Producer.publish_event(event_name, 'field' => 'different value')
+                end.not_to publish_event(event_name, event_payload).asserting { |actual_payload| expect(actual_payload).to eq(event_payload) }
+
+                expect do
+                  RabbitFeed::Producer.publish_event(event_name, 'field' => 'different value')
+                end.not_to publish_event(event_name, event_payload).asserting { |actual_payload| expect(actual_payload).not_to eq(event_payload) }
               end
             end
 
-            context 'and it is a Proc' do
-              it 'validates the event payload' do
-                matcher = described_class.new(event_name, nil).with { event_payload }
-                block   = proc { RabbitFeed::Producer.publish_event event_name, 'field' => 'different value' }
-                (matcher.matches? block).should be false
-              end
+            it 'performs the assertion' do
+              expect do
+                RabbitFeed::Producer.publish_event(event_name, event_payload)
+              end.to publish_event(event_name).asserting { |actual_payload| expect(actual_payload).to eq(event_payload) }
+
+              expect do
+                RabbitFeed::Producer.publish_event(event_name, event_payload)
+              end.to publish_event(event_name).asserting { |actual_payload| expect(actual_payload).not_to eq('field' => 'different value') }
             end
           end
         end

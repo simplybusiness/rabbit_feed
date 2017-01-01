@@ -4,6 +4,10 @@ Lint/HandleExceptions:
     - 'lib/rabbit_feed/testing_support/rspec_matchers/publish_event.rb'
     - 'spec/features/step_definitions/connectivity_steps.rb'
 
+Style/RescueModifier:
+  Exclude:
+    - 'lib/rabbit_feed/testing_support/rspec_matchers/publish_event.rb'
+
 Metrics/AbcSize:
   Exclude:
     - 'lib/rabbit_feed/client.rb'

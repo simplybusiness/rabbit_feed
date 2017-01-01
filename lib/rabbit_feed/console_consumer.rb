@@ -28,10 +28,9 @@ module RabbitFeed
     private
 
     def welcome_message
-      ''"RabbitFeed console starting at #{Time.now.utc}...
-      Environment: #{RabbitFeed.environment}
-      Queue: #{RabbitFeed.configuration.queue}
-      "''
+      "RabbitFeed console starting at #{Time.now.utc}...\n"\
+      "Environment: #{RabbitFeed.environment}\n"\
+      "Queue: #{RabbitFeed.configuration.queue}"
     end
 
     def queue_empty?

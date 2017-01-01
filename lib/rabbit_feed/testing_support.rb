@@ -30,7 +30,6 @@ module RabbitFeed
     end
 
     def include_support(rspec_config)
-      rspec_config.include(RabbitFeed::TestingSupport::RSpecMatchers)
       rspec_config.include(RabbitFeed::TestingSupport::TestingHelpers)
     end
   end
