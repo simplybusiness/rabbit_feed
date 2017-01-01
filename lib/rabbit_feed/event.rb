@@ -48,25 +48,7 @@ module RabbitFeed
           event_hash = datum
         end
         reader.close
-        if version_1? event_hash
-          new_from_version_1 event_hash, datum_reader.readers_schema
-        else
-          new event_hash['metadata'], event_hash['payload'], datum_reader.readers_schema
-        end
-      end
-
-      private
-
-      def version_1?(event_hash)
-        %w(metadata payload).none? { |key| event_hash.key? key }
-      end
-
-      def new_from_version_1(metadata_and_payload, schema)
-        metadata = {}
-        %w(application name host version environment created_at_utc).each do |field|
-          metadata[field] = metadata_and_payload.delete field
-        end
-        new metadata, metadata_and_payload, schema
+        new event_hash['metadata'], event_hash['payload'], datum_reader.readers_schema
       end
     end
 
