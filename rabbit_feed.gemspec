@@ -25,7 +25,7 @@ Gem::Specification.new do |spec|
   # We use validations from ActiveModel
   spec.add_dependency 'activemodel', '>= 3.2.0', '< 6.0.0'
   # Manages process pidfile
-  spec.add_dependency 'pidfile'
+  spec.add_dependency 'pidfile', '~> 0.3'
   # Schema definitions and serialization for events
   spec.add_dependency 'avro', '>= 1.5.4', '< 1.9.0'
 
