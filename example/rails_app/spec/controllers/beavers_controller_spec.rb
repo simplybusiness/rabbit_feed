@@ -1,10 +1,9 @@
 describe BeaversController do
-
   describe 'POST create' do
     it 'publishes a create event' do
-      expect{
-        post :create, beaver: { name: 'beaver' }
-      }.to publish_event('user_creates_beaver', { 'beaver_name' => 'beaver' })
+      expect do
+        post :create, params: { beaver: { name: 'beaver' } }
+      end.to publish_event('user_creates_beaver', 'beaver_name' => 'beaver')
     end
   end
 
@@ -13,17 +12,17 @@ describe BeaversController do
 
     describe 'PUT update' do
       it 'publishes an update event' do
-        expect{
-          put :update, id: beaver.id, beaver: { name: 'beaver_updated' }
-        }.to publish_event('user_updates_beaver', { 'beaver_name' => 'beaver_updated' })
+        expect do
+          put :update, params: { id: beaver.id, beaver: { name: 'beaver_updated' } }
+        end.to publish_event('user_updates_beaver', 'beaver_name' => 'beaver_updated')
       end
     end
 
     describe 'DELETE destroy' do
       it 'publishes an delete event' do
-        expect{
-          delete :destroy, id: beaver.id
-        }.to publish_event('user_deletes_beaver', { 'beaver_name' => 'beaver' })
+        expect do
+          delete :destroy, params: { id: beaver.id }
+        end.to publish_event('user_deletes_beaver', 'beaver_name' => 'beaver')
       end
     end
   end

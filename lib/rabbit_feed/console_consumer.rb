@@ -2,7 +2,7 @@ module RabbitFeed
   module ConsoleConsumer
     extend self
 
-    APPLICATION_NAME = 'rabbit_feed_console'
+    APPLICATION_NAME = 'rabbit_feed_console'.freeze
 
     def init
       @event_count = 0
@@ -10,10 +10,10 @@ module RabbitFeed
       route_all_events
       puts welcome_message
       ask_to_purge_queue unless queue_empty?
-      puts "Ready. Press CTRL+C to exit."
+      puts 'Ready. Press CTRL+C to exit.'
     end
 
-    def formatted event
+    def formatted(event)
       Formatter.new(event).to_s
     end
 
@@ -28,10 +28,9 @@ module RabbitFeed
     private
 
     def welcome_message
-"""RabbitFeed console starting at #{Time.now.utc}...
-Environment: #{RabbitFeed.environment}
-Queue: #{RabbitFeed.configuration.queue}
-"""
+      "RabbitFeed console starting at #{Time.now.utc}...\n"\
+      "Environment: #{RabbitFeed.environment}\n"\
+      "Queue: #{RabbitFeed.configuration.queue}"
     end
 
     def queue_empty?
@@ -39,15 +38,15 @@ Queue: #{RabbitFeed.configuration.queue}
     end
 
     def ask_to_purge_queue
-      puts "There are currently #{ConsumerConnection.instance.queue_depth} message(s) in the console's queue.\n"+
-      "Would you like to purge the queue before proceeding? (y/N)>"
+      puts "There are currently #{ConsumerConnection.instance.queue_depth} message(s) in the console's queue.\n"\
+           'Would you like to purge the queue before proceeding? (y/N)>'
       response = STDIN.gets.chomp
       purge_queue if response == 'y'
     end
 
     def purge_queue
       ConsumerConnection.instance.purge_queue
-      puts "Queue purged."
+      puts 'Queue purged.'
     end
 
     def route_all_events
@@ -56,7 +55,7 @@ Queue: #{RabbitFeed.configuration.queue}
         accept_from(:any) do
           event(:any) do |event|
             scope.increment_event_count
-            puts (scope.formatted event)
+            puts scope.formatted(event)
             puts scope.event_count_message
           end
         end
@@ -68,15 +67,14 @@ Queue: #{RabbitFeed.configuration.queue}
     end
 
     class Formatter
-
       BORDER_WIDTH = 100
-      BORDER_CHAR  = "-"
-      DIVIDER_CHAR = "*"
-      NEWLINE      = "\n"
+      BORDER_CHAR  = '-'.freeze
+      DIVIDER_CHAR = '*'.freeze
+      NEWLINE      = "\n".freeze
 
       attr_reader :event
 
-      def initialize event
+      def initialize(event)
         @event = event
       end
 
@@ -88,12 +86,12 @@ Queue: #{RabbitFeed.configuration.queue}
 
       def header
         event_detail = "#{event.name}: #{event.created_at_utc}"
-        border_filler = BORDER_CHAR*((BORDER_WIDTH - event_detail.length)/2)
-        border_filler+event_detail+border_filler
+        border_filler = BORDER_CHAR * ((BORDER_WIDTH - event_detail.length) / 2)
+        border_filler + event_detail + border_filler
       end
 
       def footer
-        BORDER_CHAR*BORDER_WIDTH
+        BORDER_CHAR * BORDER_WIDTH
       end
 
       def metadata
@@ -101,18 +99,18 @@ Queue: #{RabbitFeed.configuration.queue}
       end
 
       def divider
-        DIVIDER_CHAR*BORDER_WIDTH
+        DIVIDER_CHAR * BORDER_WIDTH
       end
 
       def payload
         pretty_print_hash 'Event payload', event.payload
       end
 
-      def pretty_print_hash description, hash
+      def pretty_print_hash(description, hash)
         '#' + description + NEWLINE +
-        hash.keys.sort.map do |key|
-          "#{key}: #{hash[key]}"
-        end.join(NEWLINE)
+          hash.keys.sort.map do |key|
+            "#{key}: #{hash[key]}"
+          end.join(NEWLINE)
       end
     end
   end

@@ -1,100 +1,63 @@
-module RabbitFeed
-  module TestingSupport
-    module RSpecMatchers
-      class PublishEvent
-        attr_reader :expected_event
+require 'rspec/expectations'
 
-        def initialize(expected_event, expected_payload)
-          @expected_event   = expected_event
-          @expected_payload = expected_payload
-        end
-
-        def matches?(given_proc, negative_expectation = false)
-          execute_proc(given_proc)
-
-          if block_given? && actual_event
-            yield actual_event.payload
-          else
-            received_expected_event = actual_event.present?
-            with_expected_payload = negative_expectation
-
-            if received_expected_event && !with_expected_payload
-              with_expected_payload = expected_payload.nil? || actual_event.payload == expected_payload
-            end
-            return received_expected_event && with_expected_payload
-          end
-        end
-
-        alias == matches?
-
-        def does_not_match?(given_proc)
-          !matches?(given_proc, :negative_expectation)
-        end
-
-        def failure_message
-          "expected #{expected_event} with #{expected_payload || 'some payload'} but instead received #{received_events_message}"
-        end
-
-        def negative_failure_message
-          "expected no #{expected_event} event, but received one anyways"
-        end
-
-        alias failure_message_when_negated negative_failure_message
-
-        def description
-          "publish_event #{expected_event}"
-        end
-
-        def supports_block_expectations?
-          true
-        end
-
-        def with(expected_payload=nil, &block)
-          if !!@expected_payload
-            ::Kernel.warn "`publish_event` was called with an expected payload already, anything in `with` is ignored"
-          else
-            @expected_payload = expected_payload || block
-          end
-
-          self
-        end
-
-        private
-
-        def execute_proc(given_proc)
-          unless given_proc.respond_to?(:call)
-            ::Kernel.warn "`publish_event` was called with non-proc object #{given_proc.inspect}"
-            return false
-          end
-
-          TestingSupport.published_events.clear
-          given_proc.call
-        rescue
-        end
-
-        def actual_event
-          TestingSupport.published_events.detect do |event|
-            event.name == expected_event
-          end
-        end
-
-        def expected_payload
-          @expected_payload.respond_to?(:call) ? @expected_payload.call : @expected_payload
-        end
-
-        def received_events_message
-          if TestingSupport.published_events.any?
-            TestingSupport.published_events.map do |received_event|
-              "#{received_event.name} with #{received_event.payload}"
-            end
-          else
-            'no events'
-          end
-        end
+module TestingSupport
+  RSpec::Matchers.define :publish_event do |expected_event, expected_payload = nil|
+    match do |given_proc|
+      RabbitFeed::TestingSupport.published_events.clear
+      given_proc.call rescue nil
+      actual_event = first_matching_event(expected_event)
+      if actual_event.nil?
+        false
+      elsif expected_payload
+        actual_event.payload == expected_payload
+      elsif @included_in_payload
+        (@included_in_payload.to_a - actual_event.payload.to_a).empty?
+      elsif @asserting_block
+        @asserting_block.call(actual_event.payload)
+      else
+        true
       end
+    end
 
-      def publish_event(expected_event, expected_payload = nil)
-        PublishEvent.new(expected_event, expected_payload)
+    failure_message do |_str|
+      "expected #{expected_event} with #{expected_payload || @included_in_payload || 'some payload'} but instead received #{received_events_message}"
+    end
+
+    failure_message_when_negated do |_str|
+      "expected no #{expected_event} event, but received one anyways"
+    end
+
+    chain :including do |included_in_payload|
+      if expected_payload
+        Kernel.warn '`publish_event` was called with an expected payload already, anything in `including` is ignored'
+      else
+        @included_in_payload = included_in_payload
+      end
+    end
+
+    chain :asserting do |&block|
+      if expected_payload || @included_in_payload
+        Kernel.warn '`publish_event` was called with an expected payload already, anything in `asserting` is ignored'
+      else
+        @asserting_block = block
+      end
+    end
+
+    supports_block_expectations
+
+    def first_matching_event(expected_event)
+      RabbitFeed::TestingSupport.published_events.detect do |event|
+        event.name == expected_event
+      end
+    end
+
+    def received_events_message
+      if RabbitFeed::TestingSupport.published_events.any?
+        RabbitFeed::TestingSupport.published_events.map do |received_event|
+          "#{received_event.name} with #{received_event.payload}"
+        end
+      else
+        'no events'
       end
     end
   end

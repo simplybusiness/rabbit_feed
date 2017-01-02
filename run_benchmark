@@ -6,15 +6,16 @@ echo 'Starting test of rails application...'
 # Start the rails application
 echo 'Starting rails application...'
 pushd example/rails_app >/dev/null
-nodenv local v0.10 >/dev/null
-bundle exec rake db:reset RAILS_ENV=development
+bundle >/dev/null
+bin/rails db:environment:set RAILS_ENV=development
+bundle exec rake db:reset
 bundle exec unicorn -c config/unicorn.rb -E development -D
 sleep 1
 popd >/dev/null
 echo 'Rails application started'
 
 # Test publishing via the rails application
-siege -c 10 -r 10 -q -b "http://localhost:8080/beavers POST beaver[name]=`date '+%m/%d/%y %H:%M:%S'`"
+siege -c 10 -r 10 -b "http://localhost:8080/beavers POST beaver[name]=`date '+%m/%d/%y %H:%M:%S'`"
 sleep 4
 
 # Stop the rails application

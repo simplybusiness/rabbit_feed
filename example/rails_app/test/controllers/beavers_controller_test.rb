@@ -5,43 +5,43 @@ class BeaversControllerTest < ActionController::TestCase
     @beaver = beavers(:one)
   end
 
-  test "should get index" do
+  test 'should get index' do
     get :index
     assert_response :success
     assert_not_nil assigns(:beavers)
   end
 
-  test "should get new" do
+  test 'should get new' do
     get :new
     assert_response :success
   end
 
-  test "should create beaver" do
+  test 'should create beaver' do
     assert_difference('Beaver.count') do
-      post :create, beaver: { name: @beaver.name }
+      post :create, params: { beaver: { name: @beaver.name } }
     end
 
     assert_redirected_to beaver_path(assigns(:beaver))
   end
 
-  test "should show beaver" do
-    get :show, id: @beaver
+  test 'should show beaver' do
+    get :show, params: { id: @beaver }
     assert_response :success
   end
 
-  test "should get edit" do
-    get :edit, id: @beaver
+  test 'should get edit' do
+    get :edit, params: { id: @beaver }
     assert_response :success
   end
 
-  test "should update beaver" do
-    patch :update, id: @beaver, beaver: { name: @beaver.name }
+  test 'should update beaver' do
+    patch :update, params: { id: @beaver, beaver: { name: @beaver.name } }
     assert_redirected_to beaver_path(assigns(:beaver))
   end
 
-  test "should destroy beaver" do
+  test 'should destroy beaver' do
     assert_difference('Beaver.count', -1) do
-      delete :destroy, id: @beaver
+      delete :destroy, params: { id: @beaver }
     end
 
     assert_redirected_to beavers_path

@@ -14,8 +14,8 @@ module RabbitFeed
           end
         end
 
-        let(:payload)  { {'stuff' => 'some_stuff'} }
-        let(:metadata) { {'application' => 'some_place', 'name' => 'some_event'} }
+        let(:payload)  { { 'stuff' => 'some_stuff' } }
+        let(:metadata) { { 'application' => 'some_place', 'name' => 'some_event' } }
         let(:event)    { Event.new metadata, payload }
 
         before { define_route }

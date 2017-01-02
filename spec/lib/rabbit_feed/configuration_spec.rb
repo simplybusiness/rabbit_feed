@@ -1,11 +1,10 @@
 module RabbitFeed
   describe Configuration do
-
     describe '#queue' do
       let(:options) do
         {
           application: 'rabbit_feed',
-          environment: 'test',
+          environment: 'test'
         }
       end
       subject { (described_class.new options).queue }
@@ -13,13 +12,13 @@ module RabbitFeed
       it { should eq 'test.rabbit_feed' }
 
       context 'when a route_prefix_extension is set' do
-      let(:options) do
-        {
-          application: 'rabbit_feed',
-          environment: 'test',
-          route_prefix_extension: 'foobar'
-        }
-      end
+        let(:options) do
+          {
+            application: 'rabbit_feed',
+            environment: 'test',
+            route_prefix_extension: 'foobar'
+          }
+        end
 
         it { should eq 'test.foobar.rabbit_feed' }
       end
@@ -32,7 +31,7 @@ module RabbitFeed
         let(:options) do
           {
             application: 'rabbit_feed',
-            environment: 'test',
+            environment: 'test'
           }
         end
 
@@ -59,7 +58,7 @@ module RabbitFeed
             user:            'guest',
             password:        'guest',
             port:            1234,
-            network_recovery_interval: 1,
+            network_recovery_interval: 1
           }
         end
 
@@ -79,14 +78,14 @@ module RabbitFeed
     describe '.load' do
       let(:file_path)   { 'spec/fixtures/configuration.yml' }
       let(:environment) { 'test_config' }
-      let(:application) { }
+      let(:application) {}
       subject { described_class.load file_path, environment, application }
 
       context 'with missing configuration' do
         let(:environment) { 'production' }
 
         it 'raises an error' do
-          expect{ subject }.to raise_error ConfigurationError
+          expect { subject }.to raise_error ConfigurationError
         end
       end
 
@@ -94,12 +93,11 @@ module RabbitFeed
         let(:file_path) { 'I do not exist' }
 
         it 'raises an error' do
-          expect{ subject }.to raise_error ConfigurationError
+          expect { subject }.to raise_error ConfigurationError
         end
       end
 
       context 'with configuration' do
-
         its(:host)                      { should eq 'localhost' }
         its(:port)                      { should eq 5672 }
         its(:user)                      { should eq 'guest' }
@@ -132,14 +130,14 @@ module RabbitFeed
     end
 
     describe '.new' do
-      let(:options) {{}}
+      let(:options) { {} }
       subject { described_class.new options }
 
       context 'with default options' do
         let(:options) do
           {
             application: 'rabbit_feed',
-            environment: 'test',
+            environment: 'test'
           }
         end
 
@@ -161,8 +159,8 @@ module RabbitFeed
         let(:options) do
           {
             host:                      'host_name',
-            hosts:                     ['host_name0', 'host_name1'],
-            port:                      12345,
+            hosts:                     %w(host_name0 host_name1),
+            port:                      12_345,
             user:                      'user_name',
             password:                  'password',
             application:               'rabbit_feed',
@@ -178,8 +176,8 @@ module RabbitFeed
         end
 
         its(:host)                      { should eq 'host_name' }
-        its(:hosts)                     { should eq ['host_name0', 'host_name1'] }
-        its(:port)                      { should eq 12345 }
+        its(:hosts)                     { should eq %w(host_name0 host_name1) }
+        its(:port)                      { should eq 12_345 }
         its(:user)                      { should eq 'user_name' }
         its(:password)                  { should eq 'password' }
         its(:application)               { should eq 'rabbit_feed' }
@@ -194,9 +192,8 @@ module RabbitFeed
       end
 
       context 'with empty options' do
-
         it 'should raise an error' do
-          expect{ subject }.to raise_error ConfigurationError
+          expect { subject }.to raise_error ConfigurationError
         end
       end
     end

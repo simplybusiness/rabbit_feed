@@ -9,7 +9,7 @@ I18n.enforce_available_locales = true
 
 RabbitFeed.environment = 'development'
 
-payload = 'abc'*5000
+payload = 'abc' * 5000
 number_of_events = 5000
 
 EventDefinitions do
@@ -25,14 +25,14 @@ end
 
 puts "Publishing #{number_of_events} events..."
 Benchmark.bm do |x|
-  x.report { number_of_events.times { RabbitFeed::Producer.publish_event 'test_event', { 'data' => payload } } }
+  x.report { number_of_events.times { RabbitFeed::Producer.publish_event 'test_event', 'data' => payload } }
 end
 
 events_consumed = 0
 
 EventRouting do
   accept_from('non_rails_app') do
-    event('test_event') do |event|
+    event('test_event') do |_event|
       events_consumed += 1
       Thread.main.raise Interrupt if events_consumed >= number_of_events
     end

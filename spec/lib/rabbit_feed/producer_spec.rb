@@ -15,13 +15,13 @@ module RabbitFeed
           end
         end
       end
-      subject{ RabbitFeed::Producer.publish_event event_name, { 'field' => 'value' } }
+      subject { RabbitFeed::Producer.publish_event event_name, 'field' => 'value' }
 
       context 'when event definitions are not set' do
-        before{ RabbitFeed::Producer.event_definitions = nil }
+        before { RabbitFeed::Producer.event_definitions = nil }
 
         it 'raises an error' do
-          expect{ subject }.to raise_error Error
+          expect { subject }.to raise_error Error
         end
       end
 
@@ -29,7 +29,7 @@ module RabbitFeed
         let(:event_name) { 'different event name' }
 
         it 'raises an error' do
-          expect{ subject }.to raise_error Error
+          expect { subject }.to raise_error Error
         end
       end
 
@@ -43,15 +43,13 @@ module RabbitFeed
 
       it 'sets the event metadata' do
         Timecop.freeze(Time.gm(1990)) do
-          expect(subject.metadata).to match({
-           'application'    => 'rabbit_feed',
-           'created_at_utc' => '1990-01-01T00:00:00.000000Z',
-           'environment'    => 'test',
-           'host'           => an_instance_of(String),
-           'name'           => 'event_name',
-           'schema_version' => Event::SCHEMA_VERSION,
-           'version'        => '1.0.0',
-           })
+          expect(subject.metadata).to match('application' => 'rabbit_feed',
+                                            'created_at_utc' => '1990-01-01T00:00:00.000000Z',
+                                            'environment'    => 'test',
+                                            'host'           => an_instance_of(String),
+                                            'name'           => 'event_name',
+                                            'schema_version' => Event::SCHEMA_VERSION,
+                                            'version'        => '1.0.0')
         end
       end
 
@@ -59,12 +57,11 @@ module RabbitFeed
         Timecop.freeze do
           expect(ProducerConnection.instance).to receive(:publish).with(
             an_instance_of(String),
-            {
-              routing_key: 'test.rabbit_feed.event_name',
-              type:        'event_name',
-              app_id:      'rabbit_feed',
-              timestamp:   Time.now.utc.to_i,
-            })
+            routing_key: 'test.rabbit_feed.event_name',
+            type:        'event_name',
+            app_id:      'rabbit_feed',
+            timestamp:   Time.now.utc.to_i
+          )
           subject
         end
       end

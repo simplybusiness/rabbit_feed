@@ -1,6 +1,5 @@
 module RabbitFeed
   class EventRouting
-
     class Event
       include ActiveModel::Validations
 
@@ -8,14 +7,14 @@ module RabbitFeed
       validates_presence_of :name, :action
       validate :action_arity
 
-      def initialize name, block
+      def initialize(name, block)
         @name   = name
         @action = block
 
         validate!
       end
 
-      def handle_event event
+      def handle_event(event)
         action.call event
       end
 
@@ -26,7 +25,7 @@ module RabbitFeed
       end
 
       def validate!
-        raise ConfigurationError.new "Bad event specification for #{name}: #{errors.messages}" if invalid?
+        raise ConfigurationError, "Bad event specification for #{name}: #{errors.messages}" if invalid?
       end
     end
 
@@ -36,18 +35,18 @@ module RabbitFeed
       attr_reader :named_events, :catch_all_event, :name
       validates_presence_of :name
 
-      def initialize name
+      def initialize(name)
         @name         = name
         @named_events = {}
 
         validate!
       end
 
-      def event name, &block
+      def event(name, &block)
         if name == :any
-          accept_any_event &block
+          accept_any_event(&block)
         else
-          accept_named_event name, &block
+          accept_named_event(name, &block)
         end
       end
 
@@ -57,34 +56,34 @@ module RabbitFeed
         end
       end
 
-      def handle_event event
+      def handle_event(event)
         event_rule = find_event event
         event_rule.handle_event event
       end
 
-      def handles_event? event
+      def handles_event?(event)
         (find_event event).present?
       end
 
       private
 
       def validate!
-        raise ConfigurationError.new "Bad application specification for #{name}: #{errors.messages}" if invalid?
+        raise ConfigurationError, "Bad application specification for #{name}: #{errors.messages}" if invalid?
       end
 
-      def accept_named_event name, &block
-        raise ConfigurationError.new "Routing has already been defined for the event with name: #{name} in application: #{self.name}" if (named_events.has_key? name)
+      def accept_named_event(name, &block)
+        raise ConfigurationError, "Routing has already been defined for the event with name: #{name} in application: #{self.name}" if named_events.key? name
         event = (Event.new name, block)
         named_events[event.name] = event
       end
 
-      def accept_any_event &block
-        raise ConfigurationError.new "Routing has already been defined for the event catch-all: :any in application: #{name}" if catch_all_event.present?
+      def accept_any_event(&block)
+        raise ConfigurationError, "Routing has already been defined for the event catch-all: :any in application: #{name}" if catch_all_event.present?
         event = (Event.new '*', block)
         @catch_all_event = event
       end
 
-      def find_event event
+      def find_event(event)
         [named_events[event.name], catch_all_event].compact.first
       end
 
@@ -101,43 +100,43 @@ module RabbitFeed
       @named_applications = {}
     end
 
-    def accept_from name, &block
+    def accept_from(name, &block)
       if name == :any
-        accept_from_any_application &block
+        accept_from_any_application(&block)
       else
-        accept_from_named_application name, &block
+        accept_from_named_application(name, &block)
       end
     end
 
     def accepted_routes
-      routes = named_applications.values.map{|application| application.accepted_routes }.flatten
+      routes = named_applications.values.flat_map(&:accepted_routes)
       routes += catch_all_application.accepted_routes if catch_all_application.present?
       routes
     end
 
-    def handle_event event
+    def handle_event(event)
       application = find_application event
-      raise RoutingError.new "No routing defined for application with name: #{event.application} for events named: #{event.name}" unless application.present?
+      raise RoutingError, "No routing defined for application with name: #{event.application} for events named: #{event.name}" unless application.present?
       application.handle_event event
     end
 
     private
 
-    def accept_from_named_application name, &block
-      raise ConfigurationError.new "Routing has already been defined for the application with name: #{name}" if (named_applications.has_key? name)
+    def accept_from_named_application(name, &block)
+      raise ConfigurationError, "Routing has already been defined for the application with name: #{name}" if named_applications.key? name
       application = Application.new name
       application.instance_eval(&block)
       named_applications[application.name] = application
     end
 
-    def accept_from_any_application &block
-      raise ConfigurationError.new "Routing has already been defined for the application catch-all: :any" if catch_all_application.present?
+    def accept_from_any_application(&block)
+      raise ConfigurationError, 'Routing has already been defined for the application catch-all: :any' if catch_all_application.present?
       application = Application.new '*'
       application.instance_eval(&block)
       @catch_all_application = application
     end
 
-    def find_application event
+    def find_application(event)
       candidate_applications = [named_applications[event.application], catch_all_application].compact
       candidate_applications.detect do |application|
         application.handles_event? event

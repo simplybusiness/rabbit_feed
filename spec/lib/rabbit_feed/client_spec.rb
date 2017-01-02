@@ -5,7 +5,7 @@ module RabbitFeed
     let(:pidfile)     { './test.pid' }
     let(:config_file) { 'spec/fixtures/configuration.yml' }
     let(:environment) { 'test' }
-    let(:require_file){ 'rabbit_feed.rb' }
+    let(:require_file) { 'rabbit_feed.rb' }
     let(:application) { 'rabbit_feed_test' }
     let(:arguments) do
       [
@@ -31,10 +31,9 @@ module RabbitFeed
       RabbitFeed.log = nil
       RabbitFeed.configuration_file_path = nil
     end
-    subject{ described_class.new arguments }
+    subject { described_class.new arguments }
 
     describe '.new' do
-
       it { should be_valid }
 
       it 'sets the environment' do
@@ -61,7 +60,7 @@ module RabbitFeed
         let(:command) { 'blah' }
 
         it 'should be invalid' do
-          expect{subject}.to raise_error Error
+          expect { subject }.to raise_error Error
         end
       end
 
@@ -69,7 +68,7 @@ module RabbitFeed
         let(:logfile) { '/blah/blah.log' }
 
         it 'should be invalid' do
-          expect{subject}.to raise_error Error
+          expect { subject }.to raise_error Error
         end
       end
 
@@ -77,7 +76,7 @@ module RabbitFeed
         let(:pidfile) { '/blah/blah.pid' }
 
         it 'should be invalid' do
-          expect{subject}.to raise_error Error
+          expect { subject }.to raise_error Error
         end
       end
 
@@ -85,7 +84,7 @@ module RabbitFeed
         let(:config_file) { '/blah/blah.yml' }
 
         it 'should be invalid' do
-          expect{subject}.to raise_error Error
+          expect { subject }.to raise_error Error
         end
       end
 
@@ -97,7 +96,7 @@ module RabbitFeed
         end
 
         it 'should be invalid' do
-          expect{subject}.to raise_error Error
+          expect { subject }.to raise_error Error
         end
 
         context 'when the RAILS_ENV is present' do
@@ -115,7 +114,7 @@ module RabbitFeed
         let(:require_file) { './' }
 
         it 'should be invalid' do
-          expect{subject}.to raise_error Error
+          expect { subject }.to raise_error Error
         end
       end
     end

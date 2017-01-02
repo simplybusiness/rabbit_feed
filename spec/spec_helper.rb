@@ -1,27 +1,21 @@
-require 'codeclimate-test-reporter'
+require 'simplecov'
+SimpleCov.start
+
 require 'rabbit_feed'
 require 'rspec/its'
 require 'timecop'
 require 'timeout'
 
-# Send data to code climate from semaphore
-# Disable the warning messages
-CodeClimate::TestReporter.configure do |config|
-  config.logger.level = Logger::WARN
-end
-CodeClimate::TestReporter.start
-
 # Get rid of deprecation warnings
 I18n.enforce_available_locales = true
 
 # Loads the shared examples
-Dir['./spec/support/**/*.rb'].sort.each { |f| require f}
+Dir['./spec/support/**/*.rb'].sort.each { |f| require f }
 
 # Loads the step definitions
 Dir.glob('spec/features/step_definitions/**/*_steps.rb') { |f| load f, true }
 
 RSpec.configure do |config|
-
   config.expect_with :rspec do |expects|
     expects.syntax = [:should, :expect]
   end

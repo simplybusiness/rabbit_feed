@@ -1,13 +1,12 @@
 module RabbitFeed
   class EventDefinitions
-
     class Field
       include ActiveModel::Validations
 
       attr_reader :name, :type, :definition
       validates_presence_of :name, :type, :definition
 
-      def initialize name, type, definition
+      def initialize(name, type, definition)
         @name       = name
         @type       = type
         @definition = definition
@@ -21,7 +20,7 @@ module RabbitFeed
       private
 
       def validate!
-        raise ConfigurationError.new "Bad field specification for #{name}: #{errors.messages}" if invalid?
+        raise ConfigurationError, "Bad field specification for #{name}: #{errors.messages}" if invalid?
       end
     end
 
@@ -33,24 +32,24 @@ module RabbitFeed
       validate :schema_parseable
       validates :version, format: { with: /\A\d+\.\d+\.\d+\z/, message: 'must be in *.*.* format' }
 
-      def initialize name, version
+      def initialize(name, version)
         @name    = name
         @version = version
         @fields  = []
         @sensitive_fields = []
       end
 
-      def payload_contains &block
-        self.instance_eval(&block)
+      def payload_contains(&block)
+        instance_eval(&block)
       end
 
-      def field name, options
+      def field(name, options)
         sensitive_fields << name.to_s if options.delete(:sensitive)
         fields << (Field.new name, options[:type], options[:definition])
       end
 
-      def defined_as &block
-        @definition = block.call if block.present?
+      def defined_as(&block)
+        @definition = yield if block.present?
       end
 
       def payload_schema
@@ -65,23 +64,23 @@ module RabbitFeed
           (Field.new 'version',        'string', 'The version of the event payload'),
           (Field.new 'schema_version', 'string', 'The version of the event schema'),
           (Field.new 'name',           'string', 'The name of the event'),
-          (Field.new 'created_at_utc', 'string', 'The UTC time that the event was created'),
+          (Field.new 'created_at_utc', 'string', 'The UTC time that the event was created')
         ].map(&:schema) }
       end
 
       def event_schema
         [
           { name: 'payload', type: payload_schema, doc: 'The event payload (defined by the source system)' },
-          { name: 'metadata', type: metadata_schema, doc: 'The event metadata (defined by rabbit feed)' },
+          { name: 'metadata', type: metadata_schema, doc: 'The event metadata (defined by rabbit feed)' }
         ]
       end
 
       def schema
-        @schema ||= (Avro::Schema.parse ({ name: name, type: 'record', doc: definition, fields: event_schema }.to_json))
+        @schema ||= Avro::Schema.parse({ name: name, type: 'record', doc: definition, fields: event_schema }.to_json)
       end
 
       def validate!
-        raise ConfigurationError.new "Bad event specification for #{name}: #{errors.messages}" if invalid?
+        raise ConfigurationError, "Bad event specification for #{name}: #{errors.messages}" if invalid?
       end
 
       private
@@ -99,13 +98,13 @@ module RabbitFeed
       @events = {}
     end
 
-    def define_event name, options, &block
+    def define_event(name, options, &block)
       events[name] = Event.new name, options[:version]
       events[name].instance_eval(&block)
       events[name].validate!
     end
 
-    def [] name
+    def [](name)
       events[name]
     end
   end

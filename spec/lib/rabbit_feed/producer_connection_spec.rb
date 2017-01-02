@@ -19,13 +19,17 @@ module RabbitFeed
     end
 
     describe '#handle_returned_message' do
-      after { Object.send(:remove_const, ('Airbrake').to_sym) rescue NameError }
+      after do
+        begin
+          Object.send(:remove_const, 'Airbrake'.to_sym)
+        rescue NameError; end
+      end
 
       context 'when Airbrake is defined' do
         context 'when the version is lower than 5' do
           before do
             module ::Airbrake
-              VERSION = '4.0.0'
+              VERSION = '4.0.0'.freeze
             end
             allow(Airbrake).to receive(:configuration).and_return(airbrake_configuration)
           end
@@ -34,7 +38,7 @@ module RabbitFeed
             let(:airbrake_configuration) { double(:airbrake_configuration, public?: true) }
 
             it 'notifies Airbrake of the return' do
-              expect(Airbrake).to receive(:notify_or_ignore).with(an_instance_of ReturnedMessageError)
+              expect(Airbrake).to receive(:notify_or_ignore).with(an_instance_of(ReturnedMessageError))
               described_class.handle_returned_message 1, 2
             end
           end
@@ -43,12 +47,12 @@ module RabbitFeed
         context 'when the version is greater than 4' do
           before do
             module ::Airbrake
-              AIRBRAKE_VERSION = '5.0.0'
+              AIRBRAKE_VERSION = '5.0.0'.freeze
             end
           end
 
           it 'notifies Airbrake of the return' do
-            expect(Airbrake).to receive(:notify).with(an_instance_of ReturnedMessageError)
+            expect(Airbrake).to receive(:notify).with(an_instance_of(ReturnedMessageError))
             described_class.handle_returned_message 1, 2
           end
         end
@@ -57,10 +61,10 @@ module RabbitFeed
 
     describe '#publish' do
       let(:message) { 'the message' }
-      let(:options) { {routing_key: 'routing_key'} }
+      let(:options) { { routing_key: 'routing_key' } }
 
       it 'publishes the message as mandatory and persistent' do
-        expect(bunny_exchange).to receive(:publish).with(message, { persistent: true, mandatory: true, routing_key: 'routing_key' })
+        expect(bunny_exchange).to receive(:publish).with(message, persistent: true, mandatory: true, routing_key: 'routing_key')
         subject.publish message, options
       end
 

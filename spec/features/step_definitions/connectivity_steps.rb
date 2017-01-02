@@ -4,7 +4,7 @@ step 'I am consuming' do
   set_event_routing
   set_event_definitions
   RabbitFeed::ConsumerConnection.instance # Bind the queue
-  @consumer_thread = Thread.new{ RabbitFeed::Consumer.run }
+  @consumer_thread = Thread.new { RabbitFeed::Consumer.run }
 end
 
 step 'I publish an event' do
@@ -27,23 +27,20 @@ step 'the event remains on the queue' do
 end
 
 module Turnip::Steps
-
-  def publish event_name
+  def publish(event_name)
     @event_text = "#{event_name}_#{Time.now.iso8601(6)}"
-    RabbitFeed::Producer.publish_event event_name, { 'field' => @event_text }
+    RabbitFeed::Producer.publish_event event_name, 'field' => @event_text
   end
 
-  def assert_event_presence event
+  def assert_event_presence(event)
     expect(event).to_not be_nil
     expect(event.payload[:field]).to eq @event_text
   end
 
   def wait_for_event
     begin
-      Timeout::timeout(2.0) do
-        until @consumed_events.any? do
-          sleep 0.1
-        end
+      Timeout.timeout(2.0) do
+        sleep 0.1 until @consumed_events.any?
       end
     rescue Timeout::Error
     end
