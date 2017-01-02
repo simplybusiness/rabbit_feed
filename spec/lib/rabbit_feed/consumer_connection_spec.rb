@@ -118,10 +118,8 @@ module RabbitFeed
           context 'when Airbrake is defined' do
             after do
               begin
-                      Object.send(:remove_const, 'Airbrake'.to_sym)
-                    rescue
-                      NameError
-                    end
+                Object.send(:remove_const, 'Airbrake'.to_sym)
+              rescue NameError; end
             end
 
             context 'when the version is lower than 5' do

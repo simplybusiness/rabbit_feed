@@ -21,10 +21,8 @@ module RabbitFeed
     describe '#handle_returned_message' do
       after do
         begin
-                Object.send(:remove_const, 'Airbrake'.to_sym)
-              rescue
-                NameError
-              end
+          Object.send(:remove_const, 'Airbrake'.to_sym)
+        rescue NameError; end
       end
 
       context 'when Airbrake is defined' do

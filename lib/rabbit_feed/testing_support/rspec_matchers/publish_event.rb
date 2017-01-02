@@ -27,11 +27,11 @@ module TestingSupport
       "expected no #{expected_event} event, but received one anyways"
     end
 
-    chain :including do |included_in_payload = nil, &block|
+    chain :including do |included_in_payload|
       if expected_payload
         Kernel.warn '`publish_event` was called with an expected payload already, anything in `including` is ignored'
       else
-        @included_in_payload = included_in_payload || block
+        @included_in_payload = included_in_payload
       end
     end
 

@@ -6,7 +6,7 @@ PATH
       activesupport (>= 3.2.0, < 6.0.0)
       avro (>= 1.5.4, < 1.9.0)
       bunny (>= 2.0.0, < 2.7.0)
-      pidfile
+      pidfile (~> 0.3)
 
 GEM
   remote: https://rubygems.org/

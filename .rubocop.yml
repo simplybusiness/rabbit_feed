@@ -3,6 +3,8 @@ Lint/HandleExceptions:
     - 'example/non_rails_app/bin/benchmark'
     - 'lib/rabbit_feed/testing_support/rspec_matchers/publish_event.rb'
     - 'spec/features/step_definitions/connectivity_steps.rb'
+    - 'spec/lib/rabbit_feed/consumer_connection_spec.rb'
+    - 'spec/lib/rabbit_feed/producer_connection_spec.rb'
 
 Style/RescueModifier:
   Exclude:

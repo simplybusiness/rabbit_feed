@@ -109,7 +109,7 @@ module RabbitFeed
     end
 
     def accepted_routes
-      routes = named_applications.values.map(&:accepted_routes).flatten
+      routes = named_applications.values.flat_map(&:accepted_routes)
       routes += catch_all_application.accepted_routes if catch_all_application.present?
       routes
     end
