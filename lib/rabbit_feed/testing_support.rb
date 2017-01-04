@@ -1,4 +1,3 @@
-require 'rabbit_feed/testing_support/rspec_matchers/publish_event'
 require 'rabbit_feed/testing_support/test_rabbit_feed_consumer'
 require 'rabbit_feed/testing_support/testing_helpers'
 
@@ -9,6 +8,7 @@ module RabbitFeed
     attr_accessor :published_events
 
     def setup(rspec_config)
+      require 'rabbit_feed/testing_support/rspec_matchers/publish_event'
       RabbitFeed.environment ||= 'test'
       capture_published_events rspec_config
       include_support rspec_config
