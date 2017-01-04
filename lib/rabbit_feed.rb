@@ -34,17 +34,13 @@ module RabbitFeed
 
   def exception_notify(exception)
     return unless defined?(Airbrake)
-    if defined?(Airbrake::VERSION) && Airbrake::VERSION.to_i < 5
-      (Airbrake.notify_or_ignore exception) if Airbrake.configuration.public?
-    elsif defined?(Airbrake::AIRBRAKE_VERSION) && Airbrake::AIRBRAKE_VERSION.to_i >= 5
-      if RabbitFeed.configuration.consumer_exit_after_fail
-        # Will need to send the notification right away, otherwise the `exit` would kill the
-        # Airbrake before the notification is sent out
-        Airbrake.notify_sync exception
-      else
-        # Airbrake notify default to sending notification asynchronously
-        Airbrake.notify exception
-      end
+    if RabbitFeed.configuration.consumer_exit_after_fail
+      # Will need to send the notification right away, otherwise the `exit` would kill the
+      # Airbrake before the notification is sent out
+      Airbrake.notify_sync exception
+    else
+      # Airbrake notify default to sending notification asynchronously
+      Airbrake.notify exception
     end
   end
 

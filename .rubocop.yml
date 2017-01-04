@@ -28,7 +28,6 @@ Metrics/ClassLength:
 Metrics/CyclomaticComplexity:
   Exclude:
     - 'lib/rabbit_feed/configuration.rb'
-    - 'lib/rabbit_feed.rb'
     - 'lib/rabbit_feed/testing_support/rspec_matchers/publish_event.rb'
 
 Metrics/LineLength:
@@ -45,7 +44,6 @@ Metrics/ModuleLength:
 Metrics/PerceivedComplexity:
   Exclude:
     - 'lib/rabbit_feed/configuration.rb'
-    - 'lib/rabbit_feed.rb'
     - 'lib/rabbit_feed/testing_support/rspec_matchers/publish_event.rb'
 
 Style/Documentation:

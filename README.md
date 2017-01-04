@@ -119,7 +119,7 @@ The event will be published to the configured exchange on RabbitMQ (`amq.topic` 
 
 ### Returned Events
 
-In the case that there are no consumers configured to subscribe to an event, the event will be returned to the producer. The returned event will be logged, and if your project uses [Airbrake](https://airbrake.io), an error will be reported there.
+In the case that there are no consumers configured to subscribe to an event, the event will be returned to the producer. The returned event will be logged, and if your project uses [Airbrake (v5.0+) or Airbrake-Ruby](https://airbrake.io), an error will be reported there.
 
 ### Testing the Producer
 
@@ -238,7 +238,7 @@ More information about the consumer command line options can be found [here](htt
 
 ### Event Processing Errors
 
-In the case that your consumer raises an error whilst processing an event, the error will be logged. If your project uses [Airbrake](https://airbrake.io), the error will also be reported there. The event that was being processed will remain on the RabbitMQ queue, and will be redelivered to the consumer until it is processed without error.
+In the case that your consumer raises an error whilst processing an event, the error will be logged. If your project uses [Airbrake (v5.0+) or Airbrake-Ruby](https://airbrake.io), the error will also be reported there. The event that was being processed will remain on the RabbitMQ queue, and will be redelivered to the consumer until it is processed without error.
 
 ### Testing the Consumer
 
