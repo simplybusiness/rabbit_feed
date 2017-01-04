@@ -19,42 +19,16 @@ module RabbitFeed
     end
 
     describe '#handle_returned_message' do
-      after do
-        begin
-          Object.send(:remove_const, 'Airbrake'.to_sym)
-        rescue NameError; end
-      end
-
       context 'when Airbrake is defined' do
-        context 'when the version is lower than 5' do
-          before do
-            module ::Airbrake
-              VERSION = '4.0.0'.freeze
-            end
-            allow(Airbrake).to receive(:configuration).and_return(airbrake_configuration)
-          end
-
-          context 'and the Airbrake configuration is public' do
-            let(:airbrake_configuration) { double(:airbrake_configuration, public?: true) }
-
-            it 'notifies Airbrake of the return' do
-              expect(Airbrake).to receive(:notify_or_ignore).with(an_instance_of(ReturnedMessageError))
-              described_class.handle_returned_message 1, 2
-            end
-          end
+        around do |example|
+          module ::Airbrake; end
+          example.run
+          Object.send(:remove_const, 'Airbrake'.to_sym)
         end
 
-        context 'when the version is greater than 4' do
-          before do
-            module ::Airbrake
-              AIRBRAKE_VERSION = '5.0.0'.freeze
-            end
-          end
-
-          it 'notifies Airbrake of the return' do
-            expect(Airbrake).to receive(:notify).with(an_instance_of(ReturnedMessageError))
-            described_class.handle_returned_message 1, 2
-          end
+        it 'notifies Airbrake of the return' do
+          expect(Airbrake).to receive(:notify).with(an_instance_of(ReturnedMessageError))
+          described_class.handle_returned_message 1, 2
         end
       end
     end

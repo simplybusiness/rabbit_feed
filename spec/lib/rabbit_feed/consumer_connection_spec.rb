@@ -116,52 +116,25 @@ module RabbitFeed
           before { allow(RabbitFeed.configuration).to receive(:consumer_exit_after_fail).and_return(false) }
 
           context 'when Airbrake is defined' do
-            after do
-              begin
-                Object.send(:remove_const, 'Airbrake'.to_sym)
-              rescue NameError; end
+            around do |example|
+              module ::Airbrake; end
+              example.run
+              Object.send(:remove_const, 'Airbrake'.to_sym)
             end
 
-            context 'when the version is lower than 5' do
-              before do
-                module ::Airbrake
-                  VERSION = '4.0.0'.freeze
-                end
-                allow(Airbrake).to receive(:configuration).and_return(airbrake_configuration)
-              end
-
-              context 'and the Airbrake configuration is public' do
-                let(:airbrake_configuration) { double(:airbrake_configuration, public?: true) }
-
-                it 'notifies airbrake' do
-                  expect(Airbrake).to receive(:notify_or_ignore).with(an_instance_of(RuntimeError))
-
-                  expect { subject.consume { raise 'Consuming time' } }.not_to raise_error
-                end
+            context 'and consumer_exit_after_fail is true' do
+              before { allow(RabbitFeed.configuration).to receive(:consumer_exit_after_fail).and_return(true) }
+              it 'notifies airbrake synchronously' do
+                expect(Airbrake).to receive(:notify_sync).with(an_instance_of(RuntimeError))
+                expect { subject.consume { raise 'Consuming time' } }.not_to raise_error
               end
             end
 
-            context 'when the version is greater than 4' do
-              before do
-                module ::Airbrake
-                  AIRBRAKE_VERSION = '5.0.0'.freeze
-                end
-              end
-
-              context 'and consumer_exit_after_fail is true' do
-                before { allow(RabbitFeed.configuration).to receive(:consumer_exit_after_fail).and_return(true) }
-                it 'notifies airbrake synchronously' do
-                  expect(Airbrake).to receive(:notify_sync).with(an_instance_of(RuntimeError))
-                  expect { subject.consume { raise 'Consuming time' } }.not_to raise_error
-                end
-              end
-
-              context 'and consumer_exit_after_fail is not true' do
-                before { allow(RabbitFeed.configuration).to receive(:consumer_exit_after_fail).and_return(false) }
-                it 'notifies airbrake' do
-                  expect(Airbrake).to receive(:notify).with(an_instance_of(RuntimeError))
-                  expect { subject.consume { raise 'Consuming time' } }.not_to raise_error
-                end
+            context 'and consumer_exit_after_fail is not true' do
+              before { allow(RabbitFeed.configuration).to receive(:consumer_exit_after_fail).and_return(false) }
+              it 'notifies airbrake' do
+                expect(Airbrake).to receive(:notify).with(an_instance_of(RuntimeError))
+                expect { subject.consume { raise 'Consuming time' } }.not_to raise_error
               end
             end
           end
