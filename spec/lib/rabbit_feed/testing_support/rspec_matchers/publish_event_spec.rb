@@ -1,3 +1,5 @@
+require 'rabbit_feed/testing_support/rspec_matchers/publish_event'
+
 module RabbitFeed
   module TestingSupport
     module RSpecMatchers
