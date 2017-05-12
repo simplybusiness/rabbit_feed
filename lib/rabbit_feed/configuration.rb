@@ -66,7 +66,7 @@ module RabbitFeed
     private
 
     def self.read_configuration_file(file_path, environment)
-      raw_configuration = YAML.load(ERB.new(File.read(file_path)).result)
+      raw_configuration = YAML.safe_load(ERB.new(File.read(file_path)).result)
       HashWithIndifferentAccess.new(raw_configuration[environment] || {})
     end
     private_class_method :read_configuration_file

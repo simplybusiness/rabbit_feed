@@ -6,7 +6,7 @@ module RabbitFeed
       block:        false, # Don't block the thread whilst consuming from the queue, as this breaks during connection recovery
     }.freeze
 
-    SEVEN_DAYS_IN_MS = 7.days * 1000
+    SEVEN_DAYS_IN_MS = 7.days.to_i * 1000
 
     QUEUE_OPTIONS = {
       durable:     true,  # Persist across server restart

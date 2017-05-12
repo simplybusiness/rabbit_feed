@@ -17,7 +17,7 @@ Dir.glob('spec/features/step_definitions/**/*_steps.rb') { |f| load f, true }
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expects|
-    expects.syntax = [:should, :expect]
+    expects.syntax = %i[should expect]
   end
 
   config.before do

@@ -77,3 +77,7 @@ Style/MultilineBlockChain:
 Style/SymbolProc:
   Exclude:
     - 'spec/lib/rabbit_feed/event_routing_spec.rb'
+
+Style/FileName:
+  Exclude:
+    - 'Brewfile'

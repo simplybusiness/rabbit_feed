@@ -22,14 +22,14 @@ module RabbitFeed
     end
 
     it 'should create routing keys for the specified routes' do
-      RabbitFeed::Consumer.event_routing.accepted_routes.should =~ %w(
+      RabbitFeed::Consumer.event_routing.accepted_routes.should =~ %w[
         test.dummy_1.event_1
         test.dummy_1.event_2
         test.dummy_2.event_3
         test.*.event_3
         test.*.event_4
         test.dummy_3.*
-      )
+      ]
     end
 
     it 'routes the event to the correct action, preferring named applications' do
@@ -114,7 +114,7 @@ module RabbitFeed
       end
 
       it 'applies routing definitions in a cumulative manner' do
-        RabbitFeed::Consumer.event_routing.accepted_routes.should =~ %w(
+        RabbitFeed::Consumer.event_routing.accepted_routes.should =~ %w[
           test.dummy_1.event_1
           test.dummy_1.event_2
           test.dummy_2.event_3
@@ -122,7 +122,7 @@ module RabbitFeed
           test.*.event_3
           test.*.event_4
           test.dummy_3.*
-        )
+        ]
       end
     end
 
