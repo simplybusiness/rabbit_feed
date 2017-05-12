@@ -1,5 +1,5 @@
 class BeaversController < ApplicationController
-  before_action :set_beaver, only: [:show, :edit, :update, :destroy]
+  before_action :set_beaver, only: %i[show edit update destroy]
 
   # GET /beavers
   # GET /beavers.json

@@ -19,7 +19,7 @@ module RabbitFeed
     it { should_not be_nil }
     it { should be_valid }
     its(:name) { should eq 'customer_purchases_policy' }
-    its(:sensitive_fields) { should match_array(%w(price policy_id)) }
+    its(:sensitive_fields) { should match_array(%w[price policy_id]) }
 
     describe EventDefinitions::Event do
       let(:name)       { 'event_name' }
