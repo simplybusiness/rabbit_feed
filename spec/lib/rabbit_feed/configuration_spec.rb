@@ -159,7 +159,7 @@ module RabbitFeed
         let(:options) do
           {
             host:                      'host_name',
-            hosts:                     %w(host_name0 host_name1),
+            hosts:                     %w[host_name0 host_name1],
             port:                      12_345,
             user:                      'user_name',
             password:                  'password',
@@ -176,7 +176,7 @@ module RabbitFeed
         end
 
         its(:host)                      { should eq 'host_name' }
-        its(:hosts)                     { should eq %w(host_name0 host_name1) }
+        its(:hosts)                     { should eq %w[host_name0 host_name1] }
         its(:port)                      { should eq 12_345 }
         its(:user)                      { should eq 'user_name' }
         its(:password)                  { should eq 'password' }

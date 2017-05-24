@@ -115,22 +115,22 @@ module RabbitFeed
               it 'prefers the earlier payload' do
                 expect do
                   RabbitFeed::Producer.publish_event(event_name, 'field' => 'different value')
-                end.not_to publish_event(event_name, event_payload).asserting { |actual_payload| expect(actual_payload).to eq(event_payload) }
+                end.not_to(publish_event(event_name, event_payload).asserting { |actual_payload| expect(actual_payload).to eq(event_payload) })
 
                 expect do
                   RabbitFeed::Producer.publish_event(event_name, 'field' => 'different value')
-                end.not_to publish_event(event_name, event_payload).asserting { |actual_payload| expect(actual_payload).not_to eq(event_payload) }
+                end.not_to(publish_event(event_name, event_payload).asserting { |actual_payload| expect(actual_payload).not_to eq(event_payload) })
               end
             end
 
             it 'performs the assertion' do
               expect do
                 RabbitFeed::Producer.publish_event(event_name, event_payload)
-              end.to publish_event(event_name).asserting { |actual_payload| expect(actual_payload).to eq(event_payload) }
+              end.to(publish_event(event_name).asserting { |actual_payload| expect(actual_payload).to eq(event_payload) })
 
               expect do
                 RabbitFeed::Producer.publish_event(event_name, event_payload)
-              end.to publish_event(event_name).asserting { |actual_payload| expect(actual_payload).not_to eq('field' => 'different value') }
+              end.to(publish_event(event_name).asserting { |actual_payload| expect(actual_payload).not_to eq('field' => 'different value') })
             end
           end
         end

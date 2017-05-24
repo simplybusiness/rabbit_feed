@@ -16,7 +16,7 @@ module RabbitFeed
 
     attr_reader :command, :options
     validates_presence_of :command, :options
-    validates :command, inclusion: { in: %w(consume produce shutdown console), message: '%{value} is not a valid command' }
+    validates :command, inclusion: { in: %w[consume produce shutdown console], message: '%{value} is not a valid command' }
     validate :log_file_path_exists
     validate :config_file_exists
     validate :require_path_valid, unless: :console?
