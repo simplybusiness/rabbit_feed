@@ -59,7 +59,7 @@ Style/ClassAndModuleChildren:
     - 'spec/lib/rabbit_feed/consumer_connection_spec.rb'
     - 'spec/lib/rabbit_feed/producer_connection_spec.rb'
 
-Style/FirstParameterIndentation:
+Layout/FirstParameterIndentation:
   Exclude:
     - 'spec/lib/rabbit_feed/console_consumer_spec.rb'
 
