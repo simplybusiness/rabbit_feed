@@ -106,7 +106,7 @@ module RabbitFeed
       end
 
       it 'uses the application given passed in as an argument' do
-        expect(ProducerConnection.instance).to receive(:publish) do |x, options|
+        expect(ProducerConnection.instance).to receive(:publish) do |_, options|
           expect(options[:app_id]).to eq app_name
         end
         RabbitFeed::Producer.publish_event(event_name, {'field' => 'value'}, app_name)
