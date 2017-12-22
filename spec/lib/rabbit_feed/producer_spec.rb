@@ -83,6 +83,7 @@ module RabbitFeed
 
     describe '.publish_event' do
       let(:event_name) { 'event_name' }
+      let(:app_name) { 'Some_application_name' }
       before do
         allow(RabbitFeed::ProducerConnection).to receive(:publish)
         EventDefinitions do
@@ -105,7 +106,6 @@ module RabbitFeed
       end
 
       it 'uses the application given passed in as an argument' do
-        app_name = "another_application_name"
         expect(ProducerConnection.instance).to receive(:publish) do |x, options|
           expect(options[:app_id]).to eq app_name
         end
