@@ -109,7 +109,7 @@ module RabbitFeed
         expect(ProducerConnection.instance).to receive(:publish) do |_, options|
           expect(options[:app_id]).to eq app_name
         end
-        RabbitFeed::Producer.publish_event(event_name, {'field' => 'value'}, app_name)
+        RabbitFeed::Producer.publish_event(event_name, { 'field' => 'value' }, app_name)
       end
     end
   end

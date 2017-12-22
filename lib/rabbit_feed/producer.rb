@@ -4,7 +4,7 @@ module RabbitFeed
 
     attr_accessor :event_definitions
 
-    def publish_event(name, payload, application=RabbitFeed.configuration.application)
+    def publish_event(name, payload, application = RabbitFeed.configuration.application)
       raise RabbitFeed::Error, 'Unable to publish event. No event definitions set.' unless event_definitions.present?
       (event_definition = event_definitions[name]) || (raise RabbitFeed::Error, "definition for event: #{name} not found")
       timestamp         = Time.now.utc
