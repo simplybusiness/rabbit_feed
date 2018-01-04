@@ -80,5 +80,37 @@ module RabbitFeed
         end
       end
     end
+
+    describe '.publish_event' do
+      let(:event_name) { 'event_name' }
+      let(:app_name) { 'Some_application_name' }
+      before do
+        allow(RabbitFeed::ProducerConnection).to receive(:publish)
+        EventDefinitions do
+          define_event('event_name', version: '1.0.0') do
+            defined_as do
+              'The definition of the event'
+            end
+            payload_contains do
+              field('field', type: 'string', definition: 'The definition of the field', sensitive: true)
+            end
+          end
+        end
+      end
+
+      it 'uses the default application found in RabbitFeed.configuration.application if no application argument is given' do
+        expect(ProducerConnection.instance).to receive(:publish) do |_, options|
+          expect(options[:app_id]).to eq 'rabbit_feed'
+        end
+        RabbitFeed::Producer.publish_event event_name, 'field' => 'value'
+      end
+
+      it 'uses the application given passed in as an argument' do
+        expect(ProducerConnection.instance).to receive(:publish) do |_, options|
+          expect(options[:app_id]).to eq app_name
+        end
+        RabbitFeed::Producer.publish_event(event_name, { 'field' => 'value' }, app_name)
+      end
+    end
   end
 end
