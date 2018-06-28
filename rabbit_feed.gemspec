@@ -4,9 +4,15 @@ lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'rabbit_feed/version'
 
+gem_version = if ENV['GEM_PRE_RELEASE'].nil? || ENV['GEM_PRE_RELEASE'].empty?
+                RabbitFeed::VERSION
+              else
+                "#{RabbitFeed::VERSION}.#{ENV['GEM_PRE_RELEASE']}"
+              end
+
 Gem::Specification.new do |spec|
   spec.name          = 'rabbit_feed'
-  spec.version       = RabbitFeed::VERSION
+  spec.version       = gem_version
   spec.authors       = ['Simply Business']
   spec.email         = ['tech@simplybusiness.co.uk']
   spec.description   = 'A gem providing asynchronous event publish and subscribe capabilities with RabbitMQ.'
